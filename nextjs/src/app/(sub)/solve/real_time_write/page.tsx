@@ -1,118 +1,193 @@
 'use client'
 
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
-import Link from 'next/link'
 
 export default function RealTimeWritePage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    authorName: '',
+    password: '',
+    authorEmail: '',
+    phone: '',
+    title: '',
+    content: ''
+  })
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async () => {
+    if (!formData.authorName || !formData.password || !formData.title || !formData.content) {
+      alert('필수 항목을 모두 입력해주세요.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await fetch('/api/boards/real_time/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          content: formData.content,
+          authorName: formData.authorName,
+          authorEmail: formData.authorEmail,
+          password: formData.password,
+          isSecret: true, // 실시간 문의는 기본적으로 비밀글
+          metadata: {
+            phone: formData.phone
+          }
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        router.push('/solve/real_time_confirm')
+      } else {
+        alert(result.message || '작성 중 오류가 발생했습니다.')
+      }
+    } catch (error) {
+      console.error('작성 실패:', error)
+      alert('작성 중 오류가 발생했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancel = () => {
+    if (confirm('작성을 취소하시겠습니까?')) {
+      router.back()
+    }
+  }
+
   return (
     <>
       <Header />
       
       <main id="content">
-        <article className="board-write-wrap real-time-write">
+        {/* 원본 HTML 구조와 동일 */}
+        <article className="real-time-write writer-wrap">
           <div className="container">
             <div className="article-header">
-              <small className="typed">Live Inquiry</small>
-              <h3 className="typed">실시간 해결 문의 작성</h3>
+              <small className="typed">Live Inquiries</small>
+              <h3 className="typed">실시간 해결 문의</h3>
             </div>
             
             <div className="article-content">
-              <form className="write-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>이름 <span className="required">*</span></label>
-                    <input type="text" name="name" placeholder="이름을 입력해주세요" required />
-                  </div>
-                  <div className="form-group">
-                    <label>연락처 <span className="required">*</span></label>
-                    <input type="tel" name="phone" placeholder="연락처를 입력해주세요" required />
-                  </div>
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>이메일</label>
-                    <input type="email" name="email" placeholder="이메일을 입력해주세요" />
-                  </div>
-                  <div className="form-group">
-                    <label>문의 유형 <span className="required">*</span></label>
-                    <select name="type" required>
-                      <option value="">문의 유형을 선택해주세요</option>
-                      <option value="몸캠피싱">몸캠피싱 피해</option>
-                      <option value="딥페이크">AI 딥페이크 범죄</option>
-                      <option value="디지털성범죄">디지털 성범죄</option>
-                      <option value="사이버스토킹">사이버 스토킹</option>
-                      <option value="기타">기타</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <label>제목 <span className="required">*</span></label>
-                  <input type="text" name="title" placeholder="제목을 입력해주세요" required />
-                </div>
-                
-                <div className="form-group">
-                  <label>문의 내용 <span className="required">*</span></label>
-                  <textarea 
-                    name="content" 
-                    rows={10} 
-                    placeholder="문의하실 내용을 자세히 작성해주세요.&#10;&#10;※ 개인정보나 민감한 정보는 기재하지 마시고, 상담 시 구두로 말씀해주세요.&#10;※ 긴급한 경우 1555-2501로 전화주세요."
-                    required
-                  ></textarea>
-                  <div className="char-count">
-                    <span>0</span> / 2000
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <label>첨부파일</label>
-                  <div className="file-upload">
-                    <input type="file" name="files" multiple accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx" />
-                    <div className="file-upload-text">
-                      <span>파일을 선택하거나 드래그하여 업로드하세요</span>
-                      <small>최대 10MB, JPG/PNG/GIF/PDF/DOC 파일만 업로드 가능</small>
+              <div className="board-write">
+                <ul>
+                  <li>
+                    <div className="form-group">
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        name="authorName"
+                        value={formData.authorName}
+                        onChange={handleInputChange}
+                        placeholder="이름을 입력해주세요"
+                        disabled={loading}
+                      />
                     </div>
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <div className="checkbox-group">
-                    <label className="checkbox">
-                      <input type="checkbox" name="agree_privacy" required />
-                      <span className="checkmark"></span>
-                      개인정보 수집 및 이용에 동의합니다. <span className="required">*</span>
-                      <a href="#" className="link-privacy">내용보기</a>
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="form-group">
-                  <div className="checkbox-group">
-                    <label className="checkbox">
-                      <input type="checkbox" name="agree_marketing" />
-                      <span className="checkmark"></span>
-                      마케팅 정보 수신에 동의합니다. (선택)
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="notice-box">
-                  <h5>📋 문의 전 확인사항</h5>
-                  <ul>
-                    <li>긴급한 상황의 경우 전화상담(1555-2501)을 이용해주세요.</li>
-                    <li>개인정보나 민감한 정보는 온라인으로 전송하지 마세요.</li>
-                    <li>문의 접수 후 24시간 이내에 연락드립니다.</li>
-                    <li>상담은 무료이며, 비밀보장을 원칙으로 합니다.</li>
-                  </ul>
-                </div>
+                  </li>
+                  <li>
+                    <div className="form-group">
+                      <input 
+                        type="password" 
+                        className="form-control" 
+                        name="password"
+                        value={formData.password}
+                        onChange={handleInputChange}
+                        placeholder="비밀번호를 입력해주세요"
+                        disabled={loading}
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="form-group">
+                      <input 
+                        type="email" 
+                        className="form-control" 
+                        name="authorEmail"
+                        value={formData.authorEmail}
+                        onChange={handleInputChange}
+                        placeholder="이메일을 입력해주세요"
+                        disabled={loading}
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="form-group">
+                      <input 
+                        type="tel" 
+                        className="form-control" 
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="휴대폰 번호를 입력해주세요"
+                        disabled={loading}
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="form-group">
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        placeholder="제목을 입력해 주세요"
+                        disabled={loading}
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="form-group">
+                      <textarea 
+                        className="form-control" 
+                        name="content"
+                        value={formData.content}
+                        onChange={handleInputChange}
+                        placeholder="내용을 입력해주세요"
+                        disabled={loading}
+                      />
+                    </div>
+                  </li>
+                </ul>
                 
                 <div className="btn-area">
-                  <Link href="/solve/real_time_list" className="btn-cancel hoverable">취소</Link>
-                  <button type="submit" className="btn-submit hoverable">문의 등록</button>
+                  <a 
+                    href="#" 
+                    className="btn btn-cancel hoverable"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleCancel()
+                    }}
+                  >
+                    취소
+                  </a>
+                  <button 
+                    type="button" 
+                    className="btn btn-submit hoverable"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    {loading ? '작성 중...' : '작성완료'}
+                  </button>
                 </div>
-              </form>
+              </div>
             </div>
           </div>
         </article>

@@ -1,6 +1,9 @@
 ---
 alwaysApply: true
 ---
+
+작업을 진행해야하는 폴더 위치는 **/Users/kook/Documents/kook/oba/kode24/nextjs** 입니다. 명심하세요. 
+
 “public/**.html은 퍼블리싱된 파일들입니다. public/폴더안에 있는 HTML/CSS/JS로 퍼블리싱된 웹페이지를 Next.js(App Router) 프로젝트로 변환해주세요.
 
 기존 CSS 디자인과 class명을 그대로 유지해서 스타일이 깨지지 않도록 해주세요

@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // 관리자 모델
@@ -86,6 +87,8 @@ model Post {
   status      PostStatus  @default(DRAFT)
   isPublished Boolean     @default(false)
   isFeatured  Boolean     @default(false)
+  isSecret    Boolean     @default(false)  // 비밀글 여부
+  password    String?                      // 비밀글 비밀번호
   viewCount   Int         @default(0)
   likeCount   Int         @default(0)
   boardId     String
@@ -100,6 +103,7 @@ model Post {
   category    Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   media       PostMedia[]
   tags        Tag[]
+  comments    Comment[]
 
   @@map("posts")
 }
@@ -267,4 +271,32 @@ model Statistic {
   updatedAt DateTime @updatedAt
 
   @@map("statistics")
+}
+
+// 댓글 모델
+model Comment {
+  id          String        @id @default(cuid())
+  postId      String
+  content     String
+  authorName  String
+  authorEmail String?
+  password    String?       // 비밀댓글을 위한 비밀번호
+  isSecret    Boolean       @default(false)
+  isAdmin     Boolean       @default(false)
+  parentId    String?       // 대댓글을 위한 부모 댓글 ID
+  status      CommentStatus @default(PUBLISHED)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  post        Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent      Comment?      @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[]     @relation("CommentReplies")
+
+  @@map("comments")
+}
+
+enum CommentStatus {
+  PUBLISHED
+  PENDING
+  REJECTED
 }

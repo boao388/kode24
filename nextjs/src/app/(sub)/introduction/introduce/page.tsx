@@ -37,7 +37,7 @@ export default function IntroducePage() {
 
       // respond hover 효과
       const respondItems = document.querySelectorAll('.respond li')
-      respondItems.forEach((item, index) => {
+      respondItems.forEach((item) => {
         item.addEventListener('mouseenter', () => {
           respondItems.forEach(i => i.classList.remove('active'))
           item.classList.add('active')
@@ -63,6 +63,7 @@ export default function IntroducePage() {
       {/* nav - 원본과 완전히 동일한 구조 */}
       <nav id="nav">
         <div className="container">
+          <div className="menu">
           <ul>
             <li>
               <Link href="/introduction/introduce" className="hoverable">KODE24 소개</Link>
@@ -97,6 +98,7 @@ export default function IntroducePage() {
               </ul>
             </li>
           </ul>
+          </div>
           <div className="contact">
             <a href="tel:15552501" className="hoverable">
               <b>1555-2501</b>
@@ -216,19 +218,33 @@ export default function IntroducePage() {
             </div>
             <div className="summary">
               <b>디지털 성범죄 대응센터</b>
-              <h3>LOCATION.</h3>
+              <h3>KODE24</h3>
+              <hr />
+              <ul>
+                <li>
               <dl>
-                <dt>Address</dt>
-                <dd>경기도 하남시 미사강변한강로 135, 스카이폴리스 나동 905호</dd>
-              </dl>
-              <dl>
-                <dt>Phone</dt>
+                    <dt>TEL</dt>
                 <dd><a href="tel:1555-2501" className="hoverable">1555-2501</a></dd>
               </dl>
+                </li>
+                <li>
+                  <dl>
+                    <dt>ADDRESS</dt>
+                    <dd><address>경기도 하남시 미사강변한강로224번길 17-1, 101호</address></dd>
+                  </dl>
+                </li>
+                <li>
               <dl>
-                <dt>E-mail</dt>
+                    <dt>E-MAIL</dt>
                 <dd><a href="mailto:kode24@kode24.co.kr" className="hoverable">kode24@kode24.co.kr</a></dd>
               </dl>
+                </li>
+              </ul>
+              <div className="btn-area">
+                <a href="#consult-pop" className="btn-inquiry hoverable">
+                  <span>문의하기</span>
+                </a>
+              </div>
             </div>
           </div>
         </article>

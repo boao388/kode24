@@ -11,7 +11,7 @@ declare global {
 }
 
 export default function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null)
+  const _cursorRef = useRef<HTMLDivElement>(null)
   const isCursorActiveRef = useRef(false)
   const elementsRef = useRef<{
     $bigBall: HTMLElement | null;

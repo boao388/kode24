@@ -98,10 +98,10 @@ export default function PatentViewPage() {
                   <p>
                     안녕하세요.<br />
                     코드24 입니다.<br /><br />
-                    많이 문의하시는 부분들 중 하나인 "코드24는 어떻게 몸캠피싱을 방어하나요?" 에 대한<br />
+                    많이 문의하시는 부분들 중 하나인 &ldquo;코드24는 어떻게 몸캠피싱을 방어하나요?&rdquo; 에 대한<br />
                     답변으로 몇 자료를 공유하려 합니다.<br />
-                    일단 저희 코드24 "main front device" 장비들입니다.<br />
-                    주로 "Data jamming" 과 "A.I. deepfake face swap"그리고, "가해자 tracking"으로 활용되고 있으며<br />
+                    일단 저희 코드24 &ldquo;main front device&rdquo; 장비들입니다.<br />
+                    주로 &ldquo;Data jamming&rdquo; 과 &ldquo;A.I. deepfake face swap&rdquo;그리고, &ldquo;가해자 tracking&rdquo;으로 활용되고 있으며<br />
                     실시간 긴급 대응용으로 활용되어 고객님들이 보다 빠르게 몸캠피싱 피해에서 벗어날 수 있도록 구축되어진<br />
                     시스템을 갖추고 있습니다. 
                   </p>

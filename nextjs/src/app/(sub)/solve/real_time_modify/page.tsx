@@ -1,8 +1,133 @@
+'use client'
+
+import { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
-import Link from 'next/link'
+import PostForm from '@/components/common/PostForm'
+import PasswordConfirm, { PostData } from '@/components/common/PasswordConfirm'
 
-export default function RealTimeModifyPage() {
+interface LocalPostData {
+  id: string
+  title: string
+  content: string
+  authorName: string
+  authorEmail?: string
+  isSecret: boolean
+  requiresPassword?: boolean
+}
+
+function RealTimeModifyContent() {
+  const searchParams = useSearchParams()
+  const postId = searchParams.get('id')
+  
+  const [post, setPost] = useState<LocalPostData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+
+  const loadPost = async () => {
+    if (!postId) {
+      setError('게시글 ID가 없습니다.')
+      setLoading(false)
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/posts/${postId}`)
+      const data = await response.json()
+
+      if (response.ok) {
+        if (data.requiresPassword) {
+          setShowPasswordForm(true)
+          setPost({
+            id: data.id,
+            title: data.title,
+            content: '',
+            authorName: data.authorName,
+            isSecret: data.isSecret
+          })
+        } else {
+          setPost({
+            id: data.id,
+            title: data.title,
+            content: data.content || '',
+            authorName: data.authorName,
+            authorEmail: data.authorEmail,
+            isSecret: data.isSecret
+          })
+        }
+      } else {
+        setError(data.message || '게시글을 불러올 수 없습니다.')
+      }
+    } catch (error) {
+      console.error('게시글 로딩 실패:', error)
+      setError('게시글을 불러오는 중 오류가 발생했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handlePasswordSuccess = (postData: PostData) => {
+    setPost({
+      id: postData.id,
+      title: postData.title,
+      content: postData.content || '',
+      authorName: postData.authorName,
+      authorEmail: postData.authorEmail,
+      isSecret: postData.isSecret
+    })
+    setShowPasswordForm(false)
+  }
+
+  useEffect(() => {
+    loadPost()
+  }, [postId])
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main id="content">
+          <article className="board-write-wrap real-time-modify">
+            <div className="container">
+              <div className="article-header">
+                <small className="typed">Real Time Inquiry Modify</small>
+                <h3 className="typed">실시간 해결문의 수정</h3>
+              </div>
+              <div className="loading-message" style={{ textAlign: 'center', padding: '50px 0' }}>
+                게시글을 불러오는 중입니다...
+              </div>
+            </div>
+          </article>
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
+  if (error || !post) {
+    return (
+      <>
+        <Header />
+        <main id="content">
+          <article className="board-write-wrap real-time-modify">
+            <div className="container">
+              <div className="article-header">
+                <small className="typed">Real Time Inquiry Modify</small>
+                <h3 className="typed">실시간 해결문의 수정</h3>
+              </div>
+              <div className="error-message" style={{ textAlign: 'center', padding: '50px 0', color: '#ff4444' }}>
+                {error || '게시글을 찾을 수 없습니다.'}
+              </div>
+            </div>
+          </article>
+        </main>
+        <Footer />
+      </>
+    )
+  }
+
   return (
     <>
       <Header />
@@ -11,79 +136,39 @@ export default function RealTimeModifyPage() {
         <article className="board-write-wrap real-time-modify">
           <div className="container">
             <div className="article-header">
-              <small className="typed">Live Inquiry</small>
-              <h3 className="typed">실시간 해결 문의 수정</h3>
+              <small className="typed">Real Time Inquiry Modify</small>
+              <h3 className="typed">실시간 해결문의 수정</h3>
             </div>
             
             <div className="article-content">
-              <form className="write-form">
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>이름 <span className="required">*</span></label>
-                    <input type="text" name="name" defaultValue="김○○" placeholder="이름을 입력해 주세요" required />
-                  </div>
-                  <div className="form-group">
-                    <label>연락처 <span className="required">*</span></label>
-                    <input type="tel" name="phone" defaultValue="010-****-1234" placeholder="연락처를 입력해 주세요" required />
-                  </div>
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>이메일</label>
-                    <input type="email" name="email" defaultValue="kim****@email.com" placeholder="이메일을 입력해 주세요" />
-                  </div>
-                  <div className="form-group">
-                    <label>희망 상담 시간</label>
-                    <select name="consultation_time">
-                      <option value="">선택해 주세요</option>
-                      <option value="morning" selected>오전 (09:00-12:00)</option>
-                      <option value="afternoon">오후 (13:00-18:00)</option>
-                      <option value="evening">저녁 (18:00-21:00)</option>
-                    </select>
-                  </div>
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>제목 <span className="required">*</span></label>
-                    <input type="text" name="title" defaultValue="몸캠피싱 피해 긴급 상담 요청" placeholder="제목을 입력해 주세요" required />
-                  </div>
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>상담 내용 <span className="required">*</span></label>
-                    <textarea name="content" rows={10} placeholder="상담 받고 싶은 내용을 자세히 입력해 주세요" required>
-어제 저녁에 SNS를 통해 접근한 사람과 영상통화를 하던 중 몸캠피싱 피해를 당했습니다. 
-현재 가족들과 지인들에게 영상이 유포될까 봐 매우 불안한 상태입니다.
-
-범인은 제 연락처와 SNS 정보를 모두 알고 있는 상황이며, 
-금전을 요구하고 있습니다. 어떻게 대응해야 할지 급히 상담받고 싶습니다.
-                    </textarea>
-                  </div>
-                </div>
-                
-                <div className="form-row">
-                  <div className="form-group">
-                    <label>
-                      <input type="checkbox" name="privacy_agree" defaultChecked required />
-                      개인정보 수집 및 이용에 동의합니다. <span className="required">*</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="form-footer">
-                  <div className="btn-area">
-                    <Link href="/solve/real_time_view" className="btn-cancel hoverable">
-                      취소
-                    </Link>
-                    <button type="submit" className="btn-submit hoverable">
-                      수정 완료
-                    </button>
-                  </div>
-                </div>
-              </form>
+              {showPasswordForm ? (
+                <PasswordConfirm
+                  postId={post.id}
+                  authorName={post.authorName}
+                  title={post.title}
+                  listUrl="/solve/real_time_list"
+                  onSuccess={handlePasswordSuccess}
+                  boardType="real_time"
+                />
+              ) : (
+                <PostForm
+                  boardKey="real_time"
+                  boardTitle="실시간 해결문의"
+                  listUrl="/solve/real_time_list"
+                  mode="edit"
+                  initialData={{
+                    id: post.id,
+                    title: post.title,
+                    content: post.content,
+                    authorName: post.authorName,
+                    authorEmail: post.authorEmail,
+                    isSecret: post.isSecret
+                  }}
+                  requireAuth={false}
+                  showSecretOption={true}
+                  className="real-time-modify"
+                />
+              )}
             </div>
           </div>
         </article>
@@ -91,5 +176,13 @@ export default function RealTimeModifyPage() {
 
       <Footer />
     </>
+  )
+}
+
+export default function RealTimeModifyPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RealTimeModifyContent />
+    </Suspense>
   )
 }
