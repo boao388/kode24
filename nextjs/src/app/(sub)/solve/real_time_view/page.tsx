@@ -1,11 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
-import PostView from '@/components/common/PostView'
 import PasswordConfirm from '@/components/common/PasswordConfirm'
+import Link from 'next/link'
+
+interface Reply {
+  id: string
+  content: string
+  authorName: string
+  createdAt: string
+}
 
 interface Comment {
   id: string
@@ -30,9 +37,10 @@ interface Post {
     key: string
   }
   comments?: Comment[]
+  reply?: Reply
 }
 
-export default function RealTimeViewPage() {
+function RealTimeViewContent() {
   const searchParams = useSearchParams()
   const postId = searchParams.get('id')
   
@@ -41,9 +49,9 @@ export default function RealTimeViewPage() {
   const [error, setError] = useState('')
   const [showPasswordForm, setShowPasswordForm] = useState(false)
 
-  const loadPost = async () => {
+  const loadPost = useCallback(async () => {
     if (!postId) {
-      setError('문의 ID가 없습니다.')
+      setError('게시글 ID가 없습니다.')
       setLoading(false)
       return
     }
@@ -56,24 +64,24 @@ export default function RealTimeViewPage() {
         setPost(data)
         setShowPasswordForm(data.requiresPassword || false)
       } else {
-        setError(data.message || '문의를 불러올 수 없습니다.')
+        setError(data.message || '게시글을 불러올 수 없습니다.')
       }
     } catch (error) {
-      console.error('문의 로딩 실패:', error)
-      setError('문의를 불러오는 중 오류가 발생했습니다.')
+      console.error('게시글 로딩 실패:', error)
+      setError('게시글을 불러오는 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId])
 
-  const handlePasswordSuccess = (postData: Post) => {
+  const handlePasswordSuccess = (postData: any) => {
     setPost(postData)
     setShowPasswordForm(false)
   }
 
   useEffect(() => {
     loadPost()
-  }, [postId])
+  }, [loadPost])
 
   // 로딩 상태
   if (loading) {
@@ -81,14 +89,10 @@ export default function RealTimeViewPage() {
       <>
         <Header />
         <main id="content">
-          <article className="board-view-wrap real-time-view">
+          <article className="real-time-view view-wrap">
             <div className="container">
-              <div className="article-header">
-                <small className="typed">Real Time Inquiry</small>
-                <h3 className="typed">실시간 해결문의</h3>
-              </div>
               <div className="loading-message" style={{ textAlign: 'center', padding: '50px 0' }}>
-                문의를 불러오는 중입니다...
+                게시글을 불러오는 중입니다...
               </div>
             </div>
           </article>
@@ -104,12 +108,8 @@ export default function RealTimeViewPage() {
       <>
         <Header />
         <main id="content">
-          <article className="board-view-wrap real-time-view">
+          <article className="real-time-view view-wrap">
             <div className="container">
-              <div className="article-header">
-                <small className="typed">Real Time Inquiry</small>
-                <h3 className="typed">실시간 해결문의</h3>
-              </div>
               <div className="error-message" style={{ textAlign: 'center', padding: '50px 0', color: '#ff4444' }}>
                 {error}
               </div>
@@ -127,14 +127,10 @@ export default function RealTimeViewPage() {
       <>
         <Header />
         <main id="content">
-          <article className="board-view-wrap real-time-view">
+          <article className="real-time-view view-wrap">
             <div className="container">
-              <div className="article-header">
-                <small className="typed">Real Time Inquiry</small>
-                <h3 className="typed">실시간 해결문의</h3>
-              </div>
               <div className="error-message" style={{ textAlign: 'center', padding: '50px 0' }}>
-                문의를 찾을 수 없습니다.
+                게시글을 찾을 수 없습니다.
               </div>
             </div>
           </article>
@@ -159,26 +155,47 @@ export default function RealTimeViewPage() {
             boardType="real_time"
           />
         ) : (
-          <article className="board-view-wrap real-time-view">
+          <article className="real-time-view view-wrap">
             <div className="container">
               <div className="article-header">
-                <small className="typed">Real Time Inquiry</small>
-                <h3 className="typed">실시간 해결문의</h3>
+                <small className="typed">Live Inquiries</small>
+                <h3 className="typed">실시간 해결 문의</h3>
+                <div className="btn-area">
+                  <Link href="/solve/real_time_list" className="hoverable">목록</Link>
+                  <Link href={`/solve/real_time_modify?id=${post.id}`} className="hoverable">수정</Link>
+                  <Link href="/solve/real_time_write" className="hoverable">글쓰기</Link>
+                </div>
               </div>
               
               <div className="article-content">
-                <PostView
-                  postId={post.id}
-                  title={post.title}
-                  content={post.content || ''}
-                  authorName={post.authorName}
-                  createdAt={post.createdAt}
-                  viewCount={post.viewCount}
-                  boardType="real_time"
-                  listUrl="/solve/real_time_list"
-                  showComments={true}
-                  className="real-time-view"
-                />
+                <div className="board-view">
+                  <div className="view-header">
+                    <b className="title">{post.title}</b>
+                    <p className="writer">{post.authorName}</p>
+                    <ul className="info">
+                      <li>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</li>
+                      <li className="hit">{post.viewCount}</li>
+                      <li className="comment">{post.comments?.length || 0}</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="view-body">
+                    <div dangerouslySetInnerHTML={{ __html: post.content || '' }} />
+                  </div>
+                  
+                  {/* 관리자 답변 영역 - 원본 HTML 구조와 동일 */}
+                  {post.reply && (
+                    <div className="reply">
+                      <div className="reply-top">
+                        <b>답변</b>
+                        <span className="writer">KODE24</span>
+                      </div>
+                      <div className="reply-body">
+                        <div dangerouslySetInnerHTML={{ __html: post.reply.content }} />
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </article>
@@ -187,5 +204,13 @@ export default function RealTimeViewPage() {
 
       <Footer />
     </>
+  )
+}
+
+export default function RealTimeViewPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RealTimeViewContent />
+    </Suspense>
   )
 }

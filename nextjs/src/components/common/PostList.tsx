@@ -195,6 +195,9 @@ export default function PostList({
     if (post.isFeatured) baseClasses.push('notice')
 
     const titleClasses = baseClasses.join(' ')
+    
+    // solve/ 페이지들은 작성자 영역에 <b> 태그 사용 안함 (퍼블리싱 원본과 동일)
+    const isSolvePage = boardType === 'real_time' || boardKey === 'review'
 
     switch (boardType) {
       case 'real_time':
@@ -226,9 +229,13 @@ export default function PostList({
             </li>
             <li className="hit">{post.viewCount}</li>
             <li className="writer">
-              <b className={post.authorName === 'KODE24' ? 'admin' : ''}>
-                {post.authorName}
-              </b>
+              {isSolvePage ? (
+                // solve/ 페이지들: 일반 텍스트만 (퍼블리싱 원본과 동일)
+                post.authorName
+              ) : (
+                // report/, notice 페이지들: 항상 <b class="admin"> 적용 (퍼블리싱 원본과 동일)
+                <b className="admin">{post.authorName}</b>
+              )}
             </li>
             <li className="date">{formatDate(post.publishedAt || post.createdAt)}</li>
           </ul>
@@ -275,7 +282,7 @@ export default function PostList({
       </div>
       
       {/* 페이지네이션 (원본 HTML 구조와 동일) */}
-      {pagination && pagination.totalPages > 1 && renderPagination()}
+      {renderPagination()}
     </div>
   )
 } 

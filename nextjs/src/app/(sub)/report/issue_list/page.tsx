@@ -10,10 +10,10 @@ export default function IssueListPage() {
       <Header />
       
       <main id="content">
-        <article className="board-list-wrap issue-list">
+        <article className="board-list-wrap app-list">
           <div className="container">
             <div className="article-header">
-              <small className="typed">Security Issue Alert</small>
+              <small className="typed">Security Issue</small>
               <h3 className="typed">보안 이슈</h3>
             </div>
             

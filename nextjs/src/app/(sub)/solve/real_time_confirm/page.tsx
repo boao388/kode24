@@ -8,6 +8,7 @@ export default function RealTimeConfirmPage() {
       <Header />
       
       <main id="content">
+        {/* 원본 HTML 구조 기반 접수 완료 페이지 */}
         <article className="board-confirm-wrap real-time-confirm">
           <div className="container">
             <div className="article-header">
@@ -32,9 +33,9 @@ export default function RealTimeConfirmPage() {
                   <h5>접수 정보</h5>
                   <dl>
                     <dt>접수번호</dt>
-                    <dd>#KODE24-2025011501</dd>
+                    <dd>#KODE24-{new Date().getFullYear()}{String(new Date().getMonth() + 1).padStart(2, '0')}{String(new Date().getDate()).padStart(2, '0')}01</dd>
                     <dt>접수일시</dt>
-                    <dd>2025년 01월 15일 14:30</dd>
+                    <dd>{new Date().toLocaleDateString('ko-KR')} {new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</dd>
                     <dt>연락처</dt>
                     <dd>010-****-1234</dd>
                     <dt>상담 예상 시간</dt>
