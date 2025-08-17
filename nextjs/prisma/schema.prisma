@@ -1,0 +1,270 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 관리자 모델
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      AdminRole @default(ADMIN)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MANAGER
+}
+
+// 사이트 설정
+model SiteSetting {
+  id          String @id @default(cuid())
+  key         String @unique
+  value       String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("site_settings")
+}
+
+// 게시판 모델
+model Board {
+  id          String     @id @default(cuid())
+  title       String
+  key         String     @unique
+  description String?
+  isActive    Boolean    @default(true)
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  categories  Category[]
+  posts       Post[]
+
+  @@map("boards")
+}
+
+// 카테고리 모델
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  key       String
+  boardId   String
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  posts     Post[]
+
+  @@unique([boardId, key])
+  @@map("categories")
+}
+
+// 게시글 모델
+model Post {
+  id          String      @id @default(cuid())
+  title       String
+  content     String?
+  excerpt     String?
+  status      PostStatus  @default(DRAFT)
+  isPublished Boolean     @default(false)
+  isFeatured  Boolean     @default(false)
+  viewCount   Int         @default(0)
+  likeCount   Int         @default(0)
+  boardId     String
+  categoryId  String?
+  authorName  String?
+  authorEmail String?
+  publishedAt DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  board       Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  category    Category?   @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  media       PostMedia[]
+  tags        Tag[]
+
+  @@map("posts")
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+// 게시글 미디어
+model PostMedia {
+  id        String    @id @default(cuid())
+  postId    String
+  fileName  String
+  filePath  String
+  fileSize  Int?
+  mimeType  String?
+  altText   String?
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  
+  post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_media")
+}
+
+// 태그 모델
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  
+  posts     Post[]
+
+  @@map("tags")
+}
+
+// 문의사항 모델
+model Contact {
+  id          String        @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  subject     String?
+  message     String
+  type        ContactType   @default(INQUIRY)
+  status      ContactStatus @default(PENDING)
+  adminReply  String?
+  repliedAt   DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("contacts")
+}
+
+enum ContactType {
+  INQUIRY
+  COMPLAINT
+  SUGGESTION
+  CONSULTATION
+}
+
+enum ContactStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+// FAQ 모델
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  category  String?
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  viewCount Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("faqs")
+}
+
+// 배너 모델
+model Banner {
+  id          String      @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  linkUrl     String?
+  position    BannerPosition @default(MAIN)
+  isActive    Boolean     @default(true)
+  startDate   DateTime?
+  endDate     DateTime?
+  sortOrder   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@map("banners")
+}
+
+enum BannerPosition {
+  MAIN
+  SUB
+  SIDEBAR
+  FOOTER
+}
+
+// 실시간 문의 모델
+model RealTimeInquiry {
+  id          String                    @id @default(cuid())
+  name        String
+  phone       String?
+  email       String?
+  title       String
+  content     String
+  status      RealTimeInquiryStatus     @default(PENDING)
+  isUrgent    Boolean                   @default(false)
+  adminReply  String?
+  repliedAt   DateTime?
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+
+  @@map("real_time_inquiries")
+}
+
+enum RealTimeInquiryStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  CANCELLED
+}
+
+// 후기 모델
+model Review {
+  id          String       @id @default(cuid())
+  name        String
+  title       String
+  content     String
+  rating      Int          @default(5)
+  status      ReviewStatus @default(PENDING)
+  isPublished Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@map("reviews")
+}
+
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// 통계 모델
+model Statistic {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  label     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("statistics")
+}

@@ -1,0 +1,205 @@
+'use client'
+
+import Header from '@/components/common/Header'
+import Footer from '@/components/common/Footer'
+import Script from 'next/script'
+import Link from 'next/link'
+
+export default function QnaPage() {
+  return (
+    <>
+      {/* cursor-pointer */}
+      <div className="cursor">
+        <div className="cursor__ball cursor__ball--big">
+          <svg height="30" width="30">
+            <circle cx="15" cy="15" r="12" strokeWidth="0"></circle>
+          </svg>
+        </div>
+        <div className="cursor__ball cursor__ball--small">
+          <svg height="10" width="10">
+            <circle cx="5" cy="5" r="4" strokeWidth="0"></circle>
+          </svg>
+        </div>
+      </div>
+      
+      <Header />
+      
+      {/* nav */}
+      <nav id="nav" className="">
+        <div className="container">
+          <ul>
+            <li>
+              <Link href="/introduction/introduce" className="hoverable">KODE24 소개</Link>
+              <ul>
+                <li><Link href="/introduction/introduce" className="hoverable">KODE24 소개</Link></li>
+                <li><Link href="/introduction/press_list" className="hoverable">보도자료</Link></li>
+                <li><Link href="/introduction/patent_list" className="hoverable">인증특허</Link></li>
+              </ul>
+            </li>
+            <li><Link href="/solution/initial" className="hoverable">솔루션 안내</Link></li>
+            <li>
+              <Link href="/solve/real_time_list" className="hoverable">긴급해결문의</Link>
+              <ul>
+                <li><Link href="/solve/real_time_list" className="hoverable">실시간 해결 문의</Link></li>
+                <li><Link href="/solve/review_list" className="hoverable">솔루션 진행 후기</Link></li>
+              </ul>
+            </li>
+            <li>
+              <Link href="/customer/notice_list" className="hoverable">고객센터</Link>
+              <ul>
+                <li><Link href="/customer/notice_list" className="hoverable">공지사항</Link></li>
+                <li><Link href="/customer/qna" className="hoverable">자주묻는질문</Link></li>
+                <li><Link href="/customer/sns_list" className="hoverable">SNS 채널</Link></li>
+              </ul>
+            </li>
+            <li>
+              <Link href="/report/kode_list" className="hoverable">사이버 보안 리포트</Link>
+              <ul>
+                <li><Link href="/report/kode_list" className="hoverable">코드24 보안리포트</Link></li>
+                <li><Link href="/report/app_list" className="hoverable">악성 앱 분석</Link></li>
+                <li><Link href="/report/issue_list" className="hoverable">보안 이슈</Link></li>
+              </ul>
+            </li>
+          </ul>
+          <div className="contact">
+            <a href="tel:15552501" className="hoverable">
+              <b>1555-2501</b>
+              <p>kode24@kode24.co.kr</p>
+            </a>
+          </div>
+        </div>
+      </nav>
+      
+      {/* content */}
+      <main id="content">
+        
+        {/* qna */}
+        <article className="qna">
+          <div className="container">
+            <div className="article-header">
+              <small className="typed">Q&amp;A</small>
+              <h3 className="typed">자주 묻는 질문</h3>
+            </div>
+            <div className="article-content">
+              <ul className="qna-list">
+                <li>
+                  <button type="button" className="btn-qna hoverable"><span>Q10.</span> 가해자에게 돈을 보내준다며 시간을 끄는 중입니다.</button>
+                  <div className="answer">
+                    <div>
+                      <b>KODE24</b>
+                      <p>
+                        보통 첫 유포는 가해자와 대화를 하는 와중에 유포가 되는 경우가 대다수입니다.<br />
+                        가해자에게 돈을 보내주겠다고 시간을 끈다면, 오히려 가해자를 자극하게 되서 되려 유포 가능성이 매우 높아집니다.<br />
+                        더 나아가 돈을 구하겠다고 하고 돈을 못 주거나 가해자의 연락을 일방적으로 끊거나 하여 더욱 자극하게 된다면,<br />
+                        이는 n차 유포로까지 이어질 가능성도 있기 때문에 가해자에게 돈을 준다며 시간을 끄는 행동은 삼가하는 게 좋습니다.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" className="btn-qna hoverable"><span>Q.</span> QUESTION</button>
+                  <div className="answer">
+                    <div>
+                      <b>KODE24</b>
+                      <p>
+                        답변입니다.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" className="btn-qna hoverable"><span>Q.</span> QUESTION</button>
+                  <div className="answer">
+                    <div>
+                      <b>KODE24</b>
+                      <p>
+                        답변입니다.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" className="btn-qna hoverable"><span>Q.</span> QUESTION</button>
+                  <div className="answer">
+                    <div>
+                      <b>KODE24</b>
+                      <p>
+                        답변입니다.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" className="btn-qna hoverable"><span>Q.</span> QUESTION</button>
+                  <div className="answer">
+                    <div>
+                      <b>KODE24</b>
+                      <p>
+                        답변입니다.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <button type="button" className="btn-qna hoverable"><span>Q.</span> QUESTION</button>
+                  <div className="answer">
+                    <div>
+                      <b>KODE24</b>
+                      <p>
+                        답변입니다.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </article>
+        
+      </main>
+      
+      {/* quick-link */}
+      <nav className="quick-link">
+        <ul>
+          <li>
+            <a href="tel:1555-2501" className="hoverable">
+              <span>2<br />4<br />h</span>
+              <img src="/assets/images/ico_quick01.svg" alt="" />
+              <i className="icon"></i>
+              <p>전화하기</p>
+            </a>
+          </li>
+          <li>
+            <a href="https://pf.kakao.com/_xexaDxgG/chat" target="_blank" className="hoverable">
+              <img src="/assets/images/ico_quick02.svg" alt="" />
+              <i className="icon"></i>
+              <p>카카오톡</p>
+            </a>
+          </li>
+          <li>
+            <a href="#consult-pop" className="hoverable">
+              <img src="/assets/images/ico_quick03.svg" alt="" />
+              <i className="icon"></i>
+              <p>문의하기</p>
+            </a>
+          </li>
+          <li>
+            <Link href="/customer/sns_list" className="hoverable">
+              <img src="/assets/images/ico_quick04.svg" alt="" />
+              <i className="icon"></i>
+              <p>SNS채널</p>
+            </Link>
+          </li>
+        </ul>
+      </nav>
+      
+      <Footer />
+      
+      {/* Sub.js 스크립트 */}
+      <Script 
+        src="/assets/js/sub.js"
+        strategy="afterInteractive"
+      />
+    </>
+  )
+}

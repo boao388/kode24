@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+“public/**.html은 퍼블리싱된 파일들입니다. public/폴더안에 있는 HTML/CSS/JS로 퍼블리싱된 웹페이지를 Next.js(App Router) 프로젝트로 변환해주세요.
+
+기존 CSS 디자인과 class명을 그대로 유지해서 스타일이 깨지지 않도록 해주세요
+
+HTML 섹션을 Header/Footer/Main 컴포넌트로 나눠주세요
+
+마지막에 데이터 연동을 할 것입니다. Prisma DB와 연동해서 데이터를 가져올 수 있도록 schema.prisma 참고하여 퍼블리싱에서 사용되는 데이터 구조에 맞게 인터페이스를 만들어 주세요.
+
+결과물은 Next.js 15 App Router 구조에 맞게 만들어주세요”
