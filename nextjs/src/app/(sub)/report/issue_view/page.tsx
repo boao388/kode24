@@ -180,6 +180,7 @@ function IssueViewContent() {
                   boardType="issue"
                   listUrl="/report/issue_list"
                   showComments={true}
+                  showListButton={false}
                   className="issue-view"
                 />
               )}

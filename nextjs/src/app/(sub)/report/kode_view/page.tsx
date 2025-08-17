@@ -180,6 +180,7 @@ function KodeViewContent() {
                   boardType="kode"
                   listUrl="/report/kode_list"
                   showComments={true}
+                  showListButton={false}
                   className="kode-view"
                 />
               )}

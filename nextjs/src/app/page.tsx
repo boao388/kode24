@@ -4,10 +4,6 @@ import { useEffect } from 'react'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import Script from 'next/script'
-// Next.js 스타일의 CSS import - 메인 페이지 전용 (원본과 동일)
-import '@/styles/main.css'
-// Common CSS import - cursor__ball 설정 포함
-import '@/styles/common.css'
 
 export default function HomePage() {
   useEffect(() => {

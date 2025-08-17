@@ -23,6 +23,7 @@ interface PostViewProps {
   boardType: 'kode' | 'app' | 'issue' | 'notice' | 'real_time' | 'review'
   listUrl: string
   showComments?: boolean
+  showListButton?: boolean  // 목록 버튼 표시 여부
   className?: string
 }
 
@@ -37,6 +38,7 @@ export default function PostView({
   boardType: _boardType,
   listUrl,
   showComments = true,
+  showListButton = false,  // 기본값을 false로 설정
   className = ''
 }: PostViewProps) {
   const [comments, setComments] = useState<Comment[]>([])
@@ -48,7 +50,11 @@ export default function PostView({
   })
   const [loading, setLoading] = useState(false)
 
-  // 댓글 목록 불러오기
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('ko-KR').replace(/\./g, '.').slice(0, -1)
+  }
+
+  // 댓글 로드
   const loadComments = useCallback(async () => {
     try {
       const response = await fetch(`/api/posts/${postId}/comments`)
@@ -65,8 +71,8 @@ export default function PostView({
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!commentForm.content.trim() || !commentForm.authorName.trim()) {
-      alert('내용과 이름을 입력해주세요.')
+    if (!commentForm.content.trim()) {
+      alert('댓글 내용을 입력해주세요.')
       return
     }
 
@@ -74,15 +80,23 @@ export default function PostView({
     try {
       const response = await fetch(`/api/posts/${postId}/comments`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(commentForm)
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(commentForm),
       })
 
       if (response.ok) {
-        setCommentForm({ content: '', authorName: '', password: '', isSecret: false })
+        setCommentForm({
+          content: '',
+          authorName: '',
+          password: '',
+          isSecret: false
+        })
         loadComments() // 댓글 목록 새로고침
       } else {
-        alert('댓글 등록에 실패했습니다.')
+        const errorData = await response.json()
+        alert(errorData.message || '댓글 등록에 실패했습니다.')
       }
     } catch (error) {
       console.error('댓글 등록 실패:', error)
@@ -92,7 +106,14 @@ export default function PostView({
     }
   }
 
-  // 컴포넌트 마운트 시 댓글 목록 로드
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target
+    setCommentForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }))
+  }
+
   useEffect(() => {
     if (showComments) {
       loadComments()
@@ -100,14 +121,14 @@ export default function PostView({
   }, [showComments, loadComments])
 
   return (
-    <div className={`board-view ${className}`}>
+    <div className={`board-view ${className}`.trim()}>
       <div className="view-header">
         <b className="title">{title}</b>
         <p className="writer">{authorName}</p>
         <ul className="info">
-          <li>{new Date(createdAt).toLocaleDateString('ko-KR').replace(/\./g, '.').slice(0, -1)}</li>
-          {viewCount > 0 && <li className="hit">{viewCount}</li>}
-          {showComments && <li className="comment">{comments.length}</li>}
+          <li>{formatDate(createdAt)}</li>
+          <li className="hit">{viewCount}</li>
+          <li className="comment">{comments.length}</li>
         </ul>
       </div>
       
@@ -115,80 +136,75 @@ export default function PostView({
         <div dangerouslySetInnerHTML={{ __html: content }} />
       </div>
 
-      {/* 댓글 섹션 */}
+      {/* 댓글 영역 */}
       {showComments && (
         <div className="comment">
           <div className="comment-top">
             <b>댓글</b>
           </div>
+          
           <div className="comment-body">
             {/* 댓글 작성 폼 */}
-            <form onSubmit={handleCommentSubmit} className="secret-comment">
-              <ul>
-                <li>
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="댓글을 입력해 주세요."
-                      value={commentForm.content}
-                      onChange={(e) => setCommentForm({
-                        ...commentForm,
-                        content: e.target.value
-                      })}
-                    />
-                  </div>
-                </li>
-                <li>
-                  <div className="form-group">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="이름"
-                      value={commentForm.authorName}
-                      onChange={(e) => setCommentForm({
-                        ...commentForm,
-                        authorName: e.target.value
-                      })}
-                    />
-                  </div>
-                </li>
-                <li>
-                  <div className="form-group">
-                    <input
-                      type="password"
-                      className="form-control"
-                      placeholder="비밀번호"
-                      value={commentForm.password}
-                      onChange={(e) => setCommentForm({
-                        ...commentForm,
-                        password: e.target.value
-                      })}
-                    />
-                  </div>
-                </li>
-                <li>
-                  <label className="hoverable">
-                    <input
-                      type="checkbox"
-                      checked={commentForm.isSecret}
-                      onChange={(e) => setCommentForm({
-                        ...commentForm,
-                        isSecret: e.target.checked
-                      })}
-                    /> 비밀글
-                  </label>
-                </li>
-              </ul>
-              <button
-                type="submit"
-                className="btn-submit hoverable"
-                disabled={loading}
-              >
-                {loading ? '등록 중...' : '등록'}
-              </button>
-            </form>
-
+            <div className="secret-comment">
+              <form onSubmit={handleCommentSubmit}>
+                <ul>
+                  <li>
+                    <div className="form-group">
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        name="content"
+                        value={commentForm.content}
+                        onChange={handleInputChange}
+                        placeholder="댓글을 입력해 주세요."
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="form-group">
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        name="authorName"
+                        value={commentForm.authorName}
+                        onChange={handleInputChange}
+                        placeholder="이름"
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <div className="form-group">
+                      <input 
+                        type="password" 
+                        className="form-control" 
+                        name="password"
+                        value={commentForm.password}
+                        onChange={handleInputChange}
+                        placeholder="비밀번호"
+                      />
+                    </div>
+                  </li>
+                  <li>
+                    <label className="hoverable">
+                      <input 
+                        type="checkbox" 
+                        name="isSecret"
+                        checked={commentForm.isSecret}
+                        onChange={handleInputChange}
+                      /> 비밀글
+                    </label>
+                  </li>
+                </ul>
+                <button 
+                  type="submit" 
+                  className="btn-submit hoverable"
+                  disabled={loading}
+                >
+                  등록
+                </button>
+              </form>
+            </div>
+            
             {/* 댓글 목록 */}
             <div className="comment-list">
               {comments.length > 0 ? (
@@ -222,14 +238,16 @@ export default function PostView({
         </div>
       )}
 
-      {/* 하단 버튼 */}
-      <div className="view-footer">
-        <div className="btn-area">
-          <Link href={listUrl} className="btn-list hoverable">
-            목록으로
-          </Link>
+      {/* 하단 버튼 - 조건부 렌더링 */}
+      {showListButton && (
+        <div className="view-footer">
+          <div className="btn-area">
+            <Link href={listUrl} className="btn-list hoverable">
+              목록으로
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 } 

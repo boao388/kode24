@@ -1,76 +1,101 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
-import Link from 'next/link'
 
 export default function RealTimeConfirmPage() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
+  const [password, setPassword] = useState('')
+  const [authorName, setAuthorName] = useState('')
+  const [postId, setPostId] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    const id = searchParams.get('id')
+    const author = searchParams.get('author')
+    
+    if (id) setPostId(id)
+    if (author) setAuthorName(author)
+  }, [searchParams])
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!password.trim()) {
+      alert('비밀번호를 입력해주세요.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/posts/${postId}/verify-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        // 인증 성공 시 해당 게시글로 이동
+        router.push(`/solve/real_time_view?id=${postId}&verified=true`)
+      } else {
+        alert(result.message || '비밀번호가 일치하지 않습니다.')
+      }
+    } catch (error) {
+      console.error('비밀번호 확인 실패:', error)
+      alert('비밀번호 확인 중 오류가 발생했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <>
       <Header />
       
       <main id="content">
-        {/* 원본 HTML 구조 기반 접수 완료 페이지 */}
-        <article className="board-confirm-wrap real-time-confirm">
+        {/* 원본 HTML 구조와 완전히 동일 */}
+        <article className="pw-confirm-wrap">
           <div className="container">
-            <div className="article-header">
-              <small className="typed">Live Inquiry</small>
-              <h3 className="typed">실시간 해결 문의 접수 완료</h3>
-            </div>
-            
-            <div className="article-content">
-              <div className="confirm-message">
-                <div className="message-icon">
-                  <img src="/assets/images/ico_msg.png" alt="" />
-                </div>
-                <h4>문의가 성공적으로 접수되었습니다.</h4>
-                <p>
-                  고객님의 소중한 문의를 접수받았습니다.<br />
-                  전문 상담사가 검토 후 빠른 시일 내에 연락드리겠습니다.
-                </p>
-              </div>
+            <div className="pw-confirm">
+              <strong>
+                <span>{authorName || 'ㅇㅇ'}님의 </span>게시글 입니다.
+              </strong>
+              <span>비밀글 기능으로 보호된 글입니다.</span>
+              <p>
+                작성자와 관리자만 열람하실 수 있습니다.<br />
+                본인이라면 비밀번호를 입력하세요
+              </p>
               
-              <div className="confirm-info">
-                <div className="info-box">
-                  <h5>접수 정보</h5>
-                  <dl>
-                    <dt>접수번호</dt>
-                    <dd>#KODE24-{new Date().getFullYear()}{String(new Date().getMonth() + 1).padStart(2, '0')}{String(new Date().getDate()).padStart(2, '0')}01</dd>
-                    <dt>접수일시</dt>
-                    <dd>{new Date().toLocaleDateString('ko-KR')} {new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })}</dd>
-                    <dt>연락처</dt>
-                    <dd>010-****-1234</dd>
-                    <dt>상담 예상 시간</dt>
-                    <dd>오전 (09:00-12:00)</dd>
-                  </dl>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <input 
+                    type="password" 
+                    className="form-control" 
+                    placeholder="비밀번호를 입력해 주세요."
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                  />
                 </div>
                 
-                <div className="info-box">
-                  <h5>처리 절차</h5>
-                  <ol>
-                    <li>전문 상담사 배정 (접수 후 30분 이내)</li>
-                    <li>긴급도 판단 및 우선순위 결정</li>
-                    <li>고객 연락 및 상담 진행</li>
-                    <li>솔루션 제공 및 사후 관리</li>
-                  </ol>
+                <div className="btn-area">
+                  <button 
+                    type="submit" 
+                    className="btn-confirm hoverable"
+                    disabled={loading}
+                  >
+                    {loading ? '확인 중...' : '확인'}
+                  </button>
                 </div>
-                
-                <div className="info-box emergency">
-                  <h5>긴급 상황 시</h5>
-                  <p>
-                    <strong>24시간 긴급 상담 전화: 1555-2501</strong><br />
-                    생명이 위급하거나 즉시 대응이 필요한 경우<br />
-                    언제든지 위 번호로 연락주시기 바랍니다.
-                  </p>
-                </div>
-              </div>
-              
-              <div className="btn-area">
-                <Link href="/" className="btn-home hoverable">
-                  홈으로
-                </Link>
-                <Link href="/solve/real_time_list" className="btn-list hoverable">
-                  문의 목록
-                </Link>
-              </div>
+              </form>
             </div>
           </div>
         </article>

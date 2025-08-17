@@ -180,6 +180,7 @@ function AppViewContent() {
                   boardType="app"
                   listUrl="/report/app_list"
                   showComments={true}
+                  showListButton={false}
                   className="app-view"
                 />
               )}

@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Noto_Sans_KR } from "next/font/google";
 import Script from 'next/script';
 import CustomCursor from '@/components/ui/CustomCursor';
-// Next.js 스타일의 CSS import - 글로벌 스타일 (원본 default.css)
+// CSS import 순서 최적화
 import '@/styles/globals.css';
 // Common CSS import - cursor__ball 설정 포함
 import '@/styles/common.css';
+import '@/styles/main.css';
+// import '@/styles/sub.css';
 
 const notoSansKr = Noto_Sans_KR({
   subsets: ["latin"],
