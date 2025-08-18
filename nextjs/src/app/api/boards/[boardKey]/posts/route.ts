@@ -82,6 +82,7 @@ export async function GET(
       likeCount: post.likeCount,
       isSecret: post.isSecret,
       isFeatured: post.isFeatured,
+      status: post.status, // 게시글 상태 (DRAFT, PUBLISHED, ANSWERED 등)
       publishedAt: post.publishedAt?.toISOString(),
       createdAt: post.createdAt.toISOString(),
       category: post.category ? {

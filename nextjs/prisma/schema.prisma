@@ -95,6 +95,8 @@ model Post {
   categoryId  String?
   authorName  String?
   authorEmail String?
+  linkUrl     String?     // 외부 링크 (보도자료 등)
+  imageUrl    String?     // 대표 이미지 URL
   publishedAt DateTime?
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
@@ -299,4 +301,20 @@ enum CommentStatus {
   PUBLISHED
   PENDING
   REJECTED
+}
+
+// SNS 채널 모델
+model SnsChannel {
+  id          String   @id @default(cuid())
+  name        String   // 채널명 (ex. YouTube, Blog)
+  description String?  // 설명
+  imageUrl    String   // 이미지 URL
+  linkUrl     String   // 채널 링크
+  platform    String   // 플랫폼 (youtube, blog, instagram, etc.)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("sns_channels")
 }

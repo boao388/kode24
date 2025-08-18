@@ -174,6 +174,30 @@ export default function AdminDashboardPage() {
                 <div className="action-title">솔루션 진행 후기</div>
                 <div className="action-desc">후기 관리</div>
               </Link>
+              
+              <Link href="/admin/faqs" className="action-card">
+                <div className="action-icon">❓</div>
+                <div className="action-title">자주묻는질문</div>
+                <div className="action-desc">FAQ 관리</div>
+              </Link>
+              
+              <Link href="/admin/posts/press" className="action-card">
+                <div className="action-icon">📰</div>
+                <div className="action-title">보도자료</div>
+                <div className="action-desc">보도자료 관리</div>
+              </Link>
+              
+              <Link href="/admin/posts/patent" className="action-card">
+                <div className="action-icon">🏆</div>
+                <div className="action-title">인증특허</div>
+                <div className="action-desc">인증특허 관리</div>
+              </Link>
+              
+              <Link href="/admin/sns-channels" className="action-card">
+                <div className="action-icon">📱</div>
+                <div className="action-title">SNS 채널</div>
+                <div className="action-desc">SNS 채널 관리</div>
+              </Link>
             </div>
           </section>
 
