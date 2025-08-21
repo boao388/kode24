@@ -5,11 +5,12 @@ import { deleteImage } from '@/lib/supabase'
 // 개별 SNS 채널 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const snsChannel = await prisma.snsChannel.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!snsChannel) {
@@ -33,15 +34,17 @@ export async function GET(
 // SNS 채널 수정
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json()
     const { name, description, imageUrl, linkUrl, platform, isActive, sortOrder } = body
 
+    const { id } = await params
+    
     // 기존 SNS 채널 확인
     const existingSnsChannel = await prisma.snsChannel.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingSnsChannel) {
@@ -71,7 +74,7 @@ export async function PUT(
 
     // SNS 채널 수정
     const updatedSnsChannel = await prisma.snsChannel.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name,
         description: description || null,
@@ -100,12 +103,14 @@ export async function PUT(
 // SNS 채널 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
+    
     // 기존 SNS 채널 확인
     const existingSnsChannel = await prisma.snsChannel.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingSnsChannel) {
@@ -122,7 +127,7 @@ export async function DELETE(
 
     // SNS 채널 삭제
     await prisma.snsChannel.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({

@@ -22,7 +22,7 @@ function verifyAdminToken(request: NextRequest) {
     console.log('Token verified successfully:', decoded)
     return decoded as any
   } catch (error) {
-    console.error('JWT verification failed:', error.message)
+    console.error('JWT verification failed:', error instanceof Error ? error.message : 'Unknown error')
     return null
   }
 }

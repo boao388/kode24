@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 
-export default function RealTimeConfirmPage() {
+function RealTimeConfirmContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const [password, setPassword] = useState('')
@@ -103,5 +103,23 @@ export default function RealTimeConfirmPage() {
 
       <Footer />
     </>
+  )
+}
+
+export default function RealTimeConfirmPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '16px'
+      }}>
+        로딩 중...
+      </div>
+    }>
+      <RealTimeConfirmContent />
+    </Suspense>
   )
 }
