@@ -1,11 +1,91 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import Script from 'next/script'
+import { useSlickSlider } from '@/hooks/useSlickSlider'
+
+interface Post {
+  id: string
+  title: string
+  content: string
+  excerpt: string
+  authorName: string
+  isSecret: boolean
+  date: string
+  time: string
+}
+
+// jQuery 및 Slick 타입 선언
+declare global {
+  interface Window {
+    $: any
+    jQuery: any
+  }
+}
 
 export default function HomePage() {
+  const [realTimePosts, setRealTimePosts] = useState<Post[]>([])
+  const [reviewPosts, setReviewPosts] = useState<Post[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // 슬라이더 초기화
+  useSlickSlider('.live-slider', {
+    slidesToShow: 6,
+    slidesToScroll: 1,
+    vertical: true, 
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false,
+    infinite: true,
+    pauseOnHover: false,
+    pauseOnFocus: false,
+  }, [loading, realTimePosts])
+
+  useSlickSlider('.review-slider', {
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    vertical: true, 
+    autoplay: true,
+    autoplaySpeed: 4000,
+    arrows: false,
+    infinite: true,
+    pauseOnHover: false,
+    pauseOnFocus: false,
+  }, [loading, reviewPosts])
+
+  // API에서 게시글 데이터 가져오기
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true)
+        
+        // 실시간 문의 데이터 가져오기
+        const realTimeResponse = await fetch('/api/main/posts?boardKey=real_time&limit=12')
+        if (realTimeResponse.ok) {
+          const realTimeData = await realTimeResponse.json()
+          setRealTimePosts(realTimeData.posts)
+        }
+
+        // 솔루션 진행 후기 데이터 가져오기
+        const reviewResponse = await fetch('/api/main/posts?boardKey=review&limit=6')
+        if (reviewResponse.ok) {
+          const reviewData = await reviewResponse.json()
+          setReviewPosts(reviewData.posts)
+        }
+      } catch (error) {
+        console.error('게시글 데이터 로딩 실패:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPosts()
+  }, [])
+
+
+
   useEffect(() => {
     // main.js의 기능을 직접 구현
     const initMainPageEffects = () => {
@@ -145,17 +225,17 @@ export default function HomePage() {
               <li>
                 <a href="/customer/notice_list">고객센터</a>
                 <ul>
-                  <li><a href="/customer/notice_list.html">공지사항</a></li>
-                  <li><a href="/customer/qna.html">자주묻는질문</a></li>
-                  <li><a href="/customer/sns_list.html">SNS 채널</a></li>
+                  <li><a href="/customer/notice_list">공지사항</a></li>
+                  <li><a href="/customer/qna">자주묻는질문</a></li>
+                  <li><a href="/customer/sns_list">SNS 채널</a></li>
                 </ul>
               </li>
               <li>
-                <a href="/report/kode_list.html">사이버 보안 리포트</a>
+                <a href="/report/kode_list">사이버 보안 리포트</a>
                 <ul>
-                  <li><a href="/report/kode_list.html">코드24 보안리포트</a></li>
-                  <li><a href="/report/app_list.html">악성 앱 분석</a></li>
-                  <li><a href="/report/issue_list.html">보안 이슈</a></li>
+                  <li><a href="/report/kode_list">코드24 보안리포트</a></li>
+                  <li><a href="/report/app_list">악성 앱 분석</a></li>
+                  <li><a href="/report/issue_list">보안 이슈</a></li>
                 </ul>
               </li>
             </ul>
@@ -384,121 +464,42 @@ export default function HomePage() {
                   <h3>실시간 문의</h3>
                   <small>Live Inquiries</small>
                   <div className="btn-area">
-                    <a href="/solve/real_time_list.html" className="hoverable">
+                    <a href="/solve/real_time_list" className="hoverable">
                       <img src="/assets/images/main/ico_more.png" alt="" />
                     </a>
                   </div>
                 </div>
                 <div className="article-content">
                   <ul className="live-slider">
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/real_time_list.html" className="hoverable">
-                        <b>이윤호님의 빠른 상담 요청글입니다.</b>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                      </a>
-                    </li>
+                    {loading ? (
+                      // 로딩 중일 때 스켈레톤 UI
+                      Array.from({ length: 12 }).map((_, index) => (
+                        <li key={`loading-${index}`}>
+                          <a href="#" className="hoverable">
+                            <b>로딩 중...</b>
+                            <ul className="info">
+                              <li>--</li>
+                              <li>--</li>
+                            </ul>
+                          </a>
+                        </li>
+                      ))
+                    ) : (
+                      realTimePosts.map((post) => (
+                        <li key={post.id}>
+                          <a 
+                            href={post.isSecret ? `/solve/real_time_confirm?id=${post.id}&author=${post.authorName}` : `/solve/real_time_view?id=${post.id}`}
+                            className="hoverable"
+                          >
+                            <b>{post.isSecret ? '비밀글입니다.' : post.title}</b>
+                            <ul className="info">
+                              <li>{post.date}</li>
+                              <li>{post.time}</li>
+                            </ul>
+                          </a>
+                        </li>
+                      ))
+                    )}
                   </ul>
                 </div>
               </article>
@@ -507,97 +508,48 @@ export default function HomePage() {
                   <h3>솔루션 진행 후기</h3>
                   <small>Feedback</small>
                   <div className="btn-area">
-                    <a href="/solve/review_list.html" className="hoverable">
+                    <a href="/solve/review_list" className="hoverable">
                       <img src="/assets/images/main/ico_more.png" alt="" />
                     </a>
                   </div>
                 </div>
                 <div className="article-content">
                   <ul className="review-slider">
-                    <li>
-                      <a href="/solve/review_list.html" className="hoverable">
-                        <b>정말 힘들 뻔 했는데</b>
-                        <p>
-                          피싱범이 유포한다고 협박할 때 검색해서 들어왔는데 24시간이고 상담원분께서 친절하게 말씀해 주셔서 마음이 놓이고 안정됐습니다.<br />
-                          이제 거의 한 달째가 돼가는데 협박범한테서 연락도 없고 주변 지인들한테 연락도 안 오고 있습니다 감사합니다!
-                        </p>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                        <span className="writer">익명</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/review_list.html" className="hoverable">
-                        <b>정말 힘들 뻔 했는데</b>
-                        <p>
-                          피싱범이 유포한다고 협박할 때 검색해서 들어왔는데 24시간이고 상담원분께서 친절하게 말씀해 주셔서 마음이 놓이고 안정됐습니다.<br />
-                          이제 거의 한 달째가 돼가는데 협박범한테서 연락도 없고 주변 지인들한테 연락도 안 오고 있습니다 감사합니다!
-                        </p>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                        <span className="writer">익명</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/review_list.html" className="hoverable">
-                        <b>정말 힘들 뻔 했는데</b>
-                        <p>
-                          피싱범이 유포한다고 협박할 때 검색해서 들어왔는데 24시간이고 상담원분께서 친절하게 말씀해 주셔서 마음이 놓이고 안정됐습니다.<br />
-                          이제 거의 한 달째가 돼가는데 협박범한테서 연락도 없고 주변 지인들한테 연락도 안 오고 있습니다 감사합니다!
-                        </p>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                        <span className="writer">익명</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/review_list.html" className="hoverable">
-                        <b>정말 힘들 뻔 했는데</b>
-                        <p>
-                          피싱범이 유포한다고 협박할 때 검색해서 들어왔는데 24시간이고 상담원분께서 친절하게 말씀해 주셔서 마음이 놓이고 안정됐습니다.<br />
-                          이제 거의 한 달째가 돼가는데 협박범한테서 연락도 없고 주변 지인들한테 연락도 안 오고 있습니다 감사합니다!
-                        </p>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                        <span className="writer">익명</span>
-                      </a>
-                    </li>
-                    <li>
-                      <a href="/solve/review_list.html" className="hoverable">
-                        <b>정말 힘들 뻔 했는데</b>
-                        <p>
-                          피싱범이 유포한다고 협박할 때 검색해서 들어왔는데 24시간이고 상담원분께서 친절하게 말씀해 주셔서 마음이 놓이고 안정됐습니다.<br />
-                          이제 거의 한 달째가 돼가는데 협박범한테서 연락도 없고 주변 지인들한테 연락도 안 오고 있습니다 감사합니다!
-                        </p>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                        <span className="writer">익명</span>
-                      </a>
-          </li>
-                    <li>
-                      <a href="/solve/review_list.html" className="hoverable">
-                        <b>정말 힘들 뻔 했는데</b>
-                        <p>
-                          피싱범이 유포한다고 협박할 때 검색해서 들어왔는데 24시간이고 상담원분께서 친절하게 말씀해 주셔서 마음이 놓이고 안정됐습니다.<br />
-                          이제 거의 한 달째가 돼가는데 협박범한테서 연락도 없고 주변 지인들한테 연락도 안 오고 있습니다 감사합니다!
-                        </p>
-                        <ul className="info">
-                          <li>2025-07-09</li>
-                          <li>16:30</li>
-                        </ul>
-                        <span className="writer">익명</span>
-                      </a>
-          </li>
+                    {loading ? (
+                      // 로딩 중일 때 스켈레톤 UI
+                      Array.from({ length: 6 }).map((_, index) => (
+                        <li key={`loading-review-${index}`}>
+                          <a href="#" className="hoverable">
+                            <b>로딩 중...</b>
+                            <p>내용을 불러오는 중입니다...</p>
+                            <ul className="info">
+                              <li>--</li>
+                              <li>--</li>
+                            </ul>
+                            <span className="writer">--</span>
+                          </a>
+                        </li>
+                      ))
+                    ) : (
+                      reviewPosts.map((post) => (
+                        <li key={post.id}>
+                          <a href={`/solve/review_view?id=${post.id}`} className="hoverable">
+                            <b>{post.title}</b>
+                            <p>
+                              {post.content.length > 200 
+                                ? post.content.substring(0, 200) + '...' 
+                                : post.content
+                              }
+                            </p>
+                            <ul className="info">
+                              <li>{post.date}</li>
+                              <li>{post.time}</li>
+                            </ul>
+                            <span className="writer">{post.authorName}</span>
+                          </a>
+                        </li>
+                      ))
+                    )}
                   </ul>
                 </div>
               </article>
@@ -1141,31 +1093,14 @@ export default function HomePage() {
               });
             }
             
-            // Slick 슬라이더 초기화
-            if (typeof $ !== 'undefined' && $.fn.slick) {
-              // live
-              $('.live-slider').slick({
-                  slidesToShow: 6,
-                  slidesToScroll: 1,
-                  vertical: true, 
-                  autoplay: true,
-                  autoplaySpeed: 4000,
-                  arrows: false,
-              });
-              
-              //review
-              $('.review-slider').slick({
-                  slidesToShow: 3,
-                  slidesToScroll: 1,
-                  vertical: true, 
-                  autoplay: true,
-                  autoplaySpeed: 4000,
-                  arrows: false,
-              });
-            }
+            // Slick 슬라이더는 React useEffect에서 처리됨
+            // 중복 초기화 방지를 위해 여기서는 제거
           });
         `}
       </Script>
+      
+      {/* Line Event 스크립트 - 메인페이지에서만 로드 */}
+      <Script src="/assets/js/line_event.js" type="module" strategy="afterInteractive" />
     </>
   )
 }

@@ -207,7 +207,7 @@ async function main() {
       authorName: 'KODE24',
       isFeatured: false
     },
-    // 실시간 해결문의 - 일반 게시글
+    // 실시간 해결문의 - 일반 게시글들
     {
       boardKey: 'real_time',
       title: '몸캠피싱 피해 긴급상담 요청',
@@ -219,6 +219,47 @@ async function main() {
         <p>24시간 상담이 가능하다고 하니 답변 부탁드립니다.</p>
       `,
       authorName: '김철수',
+      isSecret: false
+    },
+    {
+      boardKey: 'real_time',
+      title: '이윤호님의 빠른 상담 요청글입니다.',
+      content: `
+        <p>긴급히 상담이 필요합니다.</p>
+        <p>몸캠피싱 관련하여 문의드립니다.</p>
+        <p>빠른 답변 부탁드립니다.</p>
+      `,
+      authorName: '이윤호',
+      isSecret: false
+    },
+    {
+      boardKey: 'real_time',
+      title: '박민수님의 상담 요청',
+      content: `
+        <p>몸캠피싱 관련 상담 요청드립니다.</p>
+        <p>긴급한 사안이라 빠른 처리 부탁드립니다.</p>
+      `,
+      authorName: '박민수',
+      isSecret: false
+    },
+    {
+      boardKey: 'real_time',
+      title: '정수현님의 긴급 문의',
+      content: `
+        <p>디지털 성범죄 관련 문의사항이 있습니다.</p>
+        <p>전문가 상담이 필요한 상황입니다.</p>
+      `,
+      authorName: '정수현',
+      isSecret: false
+    },
+    {
+      boardKey: 'real_time',
+      title: '최영진님의 상담 요청글입니다.',
+      content: `
+        <p>몸캠피싱 피해 관련 상담 요청드립니다.</p>
+        <p>신속한 대응이 필요한 상황입니다.</p>
+      `,
+      authorName: '최영진',
       isSecret: false
     },
     // 실시간 해결문의 - 비밀글 (비밀번호: 1234)
@@ -404,6 +445,72 @@ async function main() {
       linkUrl: 'https://patents.go.kr/patent/view?application_number=1020240234567',
       imageUrl: '/assets/images/sub/img_patent02.png',
       publishedAt: '2024-12-05'
+    },
+    // 솔루션 진행 후기 게시글들
+    {
+      boardKey: 'review',
+      title: '정말 힘들 뻔 했는데',
+      content: `
+        <p>피싱범이 유포한다고 협박할 때 검색해서 들어왔는데 24시간이고 상담원분께서 친절하게 말씀해 주셔서 마음이 놓이고 안정됐습니다.</p>
+        <p>이제 거의 한 달째가 돼가는데 협박범한테서 연락도 없고 주변 지인들한테 연락도 안 오고 있습니다 감사합니다!</p>
+      `,
+      authorName: '익명',
+      isSecret: false
+    },
+    {
+      boardKey: 'review',
+      title: '빠른 대응에 감사드립니다',
+      content: `
+        <p>몸캠피싱 당해서 정말 절망적이었는데, KODE24에서 24시간 내에 바로 대응해주셔서 정말 감사했습니다.</p>
+        <p>전문적인 솔루션으로 문제를 해결해주시고, 사후관리까지 꼼꼼하게 해주셔서 안심이 됩니다.</p>
+        <p>혹시 비슷한 피해를 당하신 분들이 있다면 망설이지 마시고 연락해보세요.</p>
+      `,
+      authorName: '김민준',
+      isSecret: false
+    },
+    {
+      boardKey: 'review',
+      title: '전문적인 해결 솔루션',
+      content: `
+        <p>처음에는 반신반의했지만, 정말 전문적인 기술로 문제를 해결해주셨습니다.</p>
+        <p>AI 기반 솔루션이라고 하시는데, 정말 효과적이었어요.</p>
+        <p>이제는 안심하고 일상생활을 할 수 있게 되었습니다. 정말 감사합니다.</p>
+      `,
+      authorName: '이서연',
+      isSecret: false
+    },
+    {
+      boardKey: 'review',
+      title: '1년 사후관리 서비스 최고',
+      content: `
+        <p>해결 후에도 1년간 사후관리를 해주신다고 하니 정말 안심이 됩니다.</p>
+        <p>중간중간 안부도 물어봐주시고, 혹시 문제가 생기면 언제든 연락하라고 하셔서 마음이 놓여요.</p>
+        <p>이런 세심한 서비스는 처음 받아봅니다.</p>
+      `,
+      authorName: '박지훈',
+      isSecret: false
+    },
+    {
+      boardKey: 'review',
+      title: '24시간 상담 정말 도움됐어요',
+      content: `
+        <p>새벽에 갑자기 협박 메시지가 와서 정말 당황했는데, 24시간 상담 서비스 덕분에 바로 도움을 받을 수 있었습니다.</p>
+        <p>상담원분이 차근차근 설명해주시고, 즉시 대응 방안을 알려주셔서 정말 감사했습니다.</p>
+        <p>지금은 모든 게 해결되어서 평온한 일상을 보내고 있습니다.</p>
+      `,
+      authorName: '최수빈',
+      isSecret: false
+    },
+    {
+      boardKey: 'review',
+      title: '딥페이크 대응 솔루션 완벽해요',
+      content: `
+        <p>딥페이크로 만들어진 가짜 영상 때문에 정말 고민이 많았는데, KODE24의 AI 솔루션으로 완벽하게 해결됐습니다.</p>
+        <p>기술적으로 정말 놀라웠고, 결과도 만족스러웠습니다.</p>
+        <p>전문가들이 정말 많은 연구를 하신 것 같아요. 추천합니다!</p>
+      `,
+      authorName: '정민호',
+      isSecret: false
     }
   ]
 

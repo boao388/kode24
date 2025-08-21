@@ -11,6 +11,44 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 // 서버용 Supabase 클라이언트 (서비스 키 사용)
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
+// 버켓 존재 확인 및 생성 함수
+async function ensureBucketExists(bucket: string): Promise<boolean> {
+  try {
+    // 버켓 목록 조회
+    const { data: buckets, error: listError } = await supabaseAdmin.storage.listBuckets()
+    
+    if (listError) {
+      console.error('버켓 목록 조회 에러:', listError)
+      return false
+    }
+
+    // 버켓이 이미 존재하는지 확인
+    const bucketExists = buckets?.some(b => b.name === bucket)
+    
+    if (bucketExists) {
+      return true
+    }
+
+    // 버켓이 없으면 생성
+    const { data, error: createError } = await supabaseAdmin.storage.createBucket(bucket, {
+      public: true,
+      allowedMimeTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
+      fileSizeLimit: 5242880 // 5MB
+    })
+
+    if (createError) {
+      console.error('버켓 생성 에러:', createError)
+      return false
+    }
+
+    console.log(`버켓 '${bucket}' 생성 완료`)
+    return true
+  } catch (error) {
+    console.error('버켓 확인/생성 에러:', error)
+    return false
+  }
+}
+
 // 이미지 업로드 함수
 export async function uploadImage(file: File, bucket: string = 'sns-images'): Promise<{ url: string | null; error: string | null }> {
   try {
@@ -24,6 +62,12 @@ export async function uploadImage(file: File, bucket: string = 'sns-images'): Pr
     const maxSize = 5 * 1024 * 1024 // 5MB
     if (file.size > maxSize) {
       return { url: null, error: '파일 크기가 5MB를 초과합니다.' }
+    }
+
+    // 버켓 존재 확인 및 생성
+    const bucketReady = await ensureBucketExists(bucket)
+    if (!bucketReady) {
+      return { url: null, error: 'Storage 버켓 설정에 실패했습니다.' }
     }
 
     // 파일명 생성 (타임스탬프 + 랜덤 문자열)
@@ -42,6 +86,12 @@ export async function uploadImage(file: File, bucket: string = 'sns-images'): Pr
 
     if (error) {
       console.error('Supabase 업로드 에러:', error)
+      
+      // 버켓 not found 에러인 경우 더 자세한 안내
+      if (error.message.includes('Bucket not found')) {
+        return { url: null, error: 'Storage 버켓이 존재하지 않습니다. Supabase 대시보드에서 버켓을 생성해주세요.' }
+      }
+      
       return { url: null, error: '파일 업로드에 실패했습니다.' }
     }
 

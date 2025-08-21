@@ -53,7 +53,7 @@ export default function HtmlEditor({
   return (
     <div className="html-editor-wrapper">
       <Editor
-        apiKey="no-api-key" // 무료 버전 사용
+        apiKey="mn07nxpjfjkre7a774hy03aslh41n1aigsw8tlir8c5kjrym" // 무료 버전 사용
         onInit={(evt, editor) => editorRef.current = editor}
         value={value}
         onEditorChange={handleEditorChange}

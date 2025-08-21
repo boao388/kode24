@@ -58,7 +58,6 @@ export default function RootLayout({
 
         <Script src="/assets/js/common.js" strategy="afterInteractive" />
         <Script src="/assets/js/main.js" strategy="afterInteractive" />
-        <Script src="/assets/js/line_event.js" type="module" strategy="afterInteractive" />
       </body>
     </html>
   );

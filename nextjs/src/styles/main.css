@@ -100,7 +100,12 @@ a, button {
   --color: hsl(240 18% 80%);
   --border-width: 2px;
   --border-radius: 12px;
-  --gradient: conic-gradient(from 180deg at 50% 70%,hsla(0,0%,98%,1) 0deg,#eec32d 72.0000010728836deg,#ec4b4b 144.0000021457672deg,#709ab9 216.00000858306885deg,#4dffbf 288.0000042915344deg,hsla(0,0%,98%,1) 1turn); }
+  --gradient: conic-gradient(from 180deg at 50% 70%,hsla(0,0%,98%,1) 0deg,#eec32d 72.0000010728836deg,#ec4b4b 144.0000021457672deg,#709ab9 216.00000858306885deg,#4dffbf 288.0000042915344deg,hsla(0,0%,98%,1) 1turn);
+  /* Solution area variables */
+  --active: 0;
+  --spread: 80;
+  --gap: 32;
+  --blur: 20; }
 
 @property --start {
   syntax: '<number>';
