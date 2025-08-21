@@ -21,7 +21,7 @@ function verifyAdminToken(request: NextRequest) {
 // 관리자 개별 게시글 조회
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // JWT 토큰 검증
@@ -33,8 +33,9 @@ export async function GET(
       )
     }
 
+    const { id } = await params
     const post = await prisma.post.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         board: true,
         comments: {
@@ -94,7 +95,7 @@ export async function GET(
 // 관리자 게시글 수정
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // JWT 토큰 검증
@@ -118,9 +119,11 @@ export async function PUT(
       authorEmail
     } = body
 
+    const { id } = await params
+    
     // 기존 게시글 확인
     const existingPost = await prisma.post.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingPost) {
@@ -152,7 +155,7 @@ export async function PUT(
 
     // 게시글 수정
     const updatedPost = await prisma.post.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title,
         content,
@@ -185,7 +188,7 @@ export async function PUT(
 // 관리자 게시글 삭제
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // JWT 토큰 검증
@@ -197,9 +200,11 @@ export async function DELETE(
       )
     }
 
+    const { id } = await params
+    
     // 기존 게시글 확인
     const existingPost = await prisma.post.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existingPost) {
@@ -211,7 +216,7 @@ export async function DELETE(
 
     // 게시글 삭제 (관련 댓글도 자동 삭제됨 - Cascade)
     await prisma.post.delete({
-      where: { id: params.id }
+      where: { id }
     })
 
     return NextResponse.json({
