@@ -5,6 +5,8 @@ import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import Script from 'next/script'
 import { useSlickSlider } from '@/hooks/useSlickSlider'
+// 메인 페이지 전용 CSS
+import '@/styles/main.css'
 
 interface Post {
   id: string
@@ -17,11 +19,12 @@ interface Post {
   time: string
 }
 
-// jQuery 및 Slick 타입 선언
+// jQuery, Slick 및 Swiper 타입 선언
 declare global {
   interface Window {
     $: any
     jQuery: any
+    Swiper: any
   }
 }
 
@@ -88,6 +91,7 @@ export default function HomePage() {
 
   useEffect(() => {
     let scrollTimeout: NodeJS.Timeout
+    let swiperInstances: any[] = [] // Swiper 인스턴스 추적
     
     // main.js의 기능을 통합 구현 - 슬라이더 안전성 강화
     const initMainPageEffects = () => {
@@ -131,38 +135,152 @@ export default function HomePage() {
         }, 50) // 디바운스 시간 단축
       }
 
-      // 탭 기능
-      const handleTabClick = (e: Event) => {
-        const target = e.target as HTMLElement
-        if (target.matches('.tab-menu > ul > li > a')) {
-          e.preventDefault()
-          const tabMenu = target.closest('.tab-menu')
-          const tabContent = tabMenu?.parentElement?.querySelector('.tab-content')
+      // 탭 기능 - jQuery 이벤트 위임으로 안전한 처리
+      const initTabEvents = () => {
+        if (typeof window !== 'undefined' && (window as any).jQuery) {
+          const $ = (window as any).jQuery
           
-          // 모든 탭 비활성화
-          tabMenu?.querySelectorAll('li').forEach((li: Element) => li.classList.remove('active'))
-          tabContent?.querySelectorAll('.tab-pane').forEach((pane: Element) => pane.classList.remove('active'))
+          // 기존 이벤트 해제 후 재등록
+          $(document).off('click', '.tab-menu > ul > li > a').on('click', '.tab-menu > ul > li > a', function(e) {
+            $('.tab-menu > ul > li a').parent().removeClass('active')
+            $('.tab-content > .tab-pane').removeClass('active')
+            $(this).parent().addClass('active')
+            $($(this).attr('href')).addClass('active')
+            e.preventDefault()
+          })
+        }
+      }
+      
+      // jQuery 로드 대기 후 탭 이벤트 초기화
+      const checkJQueryForTabs = () => {
+        if (typeof window !== 'undefined' && (window as any).jQuery) {
+          initTabEvents()
+        } else {
+          setTimeout(checkJQueryForTabs, 100)
+        }
+      }
+      checkJQueryForTabs()
+
+      // Swiper 초기화 - 안전한 타이밍
+      const initSwipers = () => {
+        if (typeof window === 'undefined' || !window.Swiper) return
+        
+        try {
+          // Awards/Certificates Swiper 초기화
+          const listSwiper1Element = document.querySelector('.list-swiper1')
+          const frameSwiper1Element = document.querySelector('.frame-swiper1')
           
-          // 클릭된 탭 활성화
-          target.parentElement?.classList.add('active')
-          const targetPane = document.querySelector(target.getAttribute('href') || '')
-          if (targetPane) {
-            targetPane.classList.add('active')
+          if (listSwiper1Element && frameSwiper1Element) {
+            const listSwiper1 = new window.Swiper('.list-swiper1', {
+              direction: 'vertical',
+              slidesPerView: 5,
+              watchSlidesProgress: true,
+            })
+            swiperInstances.push(listSwiper1)
+            
+            const frameSwiper1 = new window.Swiper('.frame-swiper1', {
+              loop: false,
+              spaceBetween: 10,
+              autoplay: {
+                delay: 4000,
+              },
+              thumbs: {
+                swiper: listSwiper1,
+              },
+            })
+            swiperInstances.push(frameSwiper1)
           }
+
+          const listSwiper2Element = document.querySelector('.list-swiper2')
+          const frameSwiper2Element = document.querySelector('.frame-swiper2')
+          
+          if (listSwiper2Element && frameSwiper2Element) {
+            const listSwiper2 = new window.Swiper('.list-swiper2', {
+              direction: 'vertical',
+              slidesPerView: 5,
+              watchSlidesProgress: true,
+            })
+            swiperInstances.push(listSwiper2)
+            
+            const frameSwiper2 = new window.Swiper('.frame-swiper2', {
+              loop: false,
+              spaceBetween: 10,
+              autoplay: {
+                delay: 4000,
+              },
+              thumbs: {
+                swiper: listSwiper2,
+              },
+            })
+            swiperInstances.push(frameSwiper2)
+          }
+
+          // Partners Swiper 초기화 - 각각 개별 처리
+          const partnersElements = document.querySelectorAll('.partners-swiper')
+          partnersElements.forEach((element, index) => {
+            if (element && !element.classList.contains('swiper-initialized')) {
+              const partnersSwiper = new window.Swiper(element, {
+                slidesPerView: 'auto',
+                loop: true,
+                speed: 5000,
+                touchRatio: 0,
+                autoplay: {
+                  delay: 0,
+                  disableOnInteraction: false,
+                  reverseDirection: element.getAttribute('dir') === 'rtl'
+                },
+                on: {
+                  beforeDestroy: function () {
+                    try {
+                      if (this.autoplay && this.autoplay.stop) {
+                        this.autoplay.stop()
+                      }
+                    } catch (e) {
+                      console.debug('Partners swiper cleanup:', e)
+                    }
+                  }
+                }
+              })
+              swiperInstances.push(partnersSwiper)
+            }
+          })
+          
+        } catch (error) {
+          console.debug('Swiper initialization error:', error)
         }
       }
 
+      // Swiper 초기화를 지연 실행
+      setTimeout(initSwipers, 1000)
+
       // 이벤트 등록 - passive 옵션으로 성능 향상
       window.addEventListener('scroll', handleScroll, { passive: true })
-      document.addEventListener('click', handleTabClick)
       
       // 초기 실행
       handleScroll()
 
       return () => {
         clearTimeout(scrollTimeout)
+        
+        // Swiper 인스턴스 정리
+        swiperInstances.forEach(swiper => {
+          try {
+            if (swiper && swiper.destroy) {
+              swiper.destroy(true, true)
+            }
+          } catch (e) {
+            console.debug('Swiper cleanup error:', e)
+          }
+        })
+        swiperInstances = []
+        
+        // jQuery 이벤트 정리
+        if (typeof window !== 'undefined' && (window as any).jQuery) {
+          const $ = (window as any).jQuery
+          $(document).off('click', '.tab-menu > ul > li > a')
+        }
+        
         window.removeEventListener('scroll', handleScroll)
-        document.removeEventListener('click', handleTabClick)
       }
     }
 
@@ -458,20 +576,7 @@ export default function HomePage() {
                 </div>
                 <div className="article-content">
                   <ul className="live-slider">
-                    {loading ? (
-                      // 로딩 중일 때 스켈레톤 UI
-                      Array.from({ length: 12 }).map((_, index) => (
-                        <li key={`loading-${index}`}>
-                          <a href="#" className="hoverable">
-                            <b>로딩 중...</b>
-                            <ul className="info">
-                              <li>--</li>
-                              <li>--</li>
-                            </ul>
-                          </a>
-                        </li>
-                      ))
-                    ) : (
+                    {(
                       realTimePosts.map((post) => (
                         <li key={post.id}>
                           <a 
@@ -502,22 +607,7 @@ export default function HomePage() {
                 </div>
                 <div className="article-content">
                   <ul className="review-slider">
-                    {loading ? (
-                      // 로딩 중일 때 스켈레톤 UI
-                      Array.from({ length: 6 }).map((_, index) => (
-                        <li key={`loading-review-${index}`}>
-                          <a href="#" className="hoverable">
-                            <b>로딩 중...</b>
-                            <p>내용을 불러오는 중입니다...</p>
-                            <ul className="info">
-                              <li>--</li>
-                              <li>--</li>
-                            </ul>
-                            <span className="writer">--</span>
-                          </a>
-                        </li>
-                      ))
-                    ) : (
+                    { (
                       reviewPosts.map((post) => (
                         <li key={post.id}>
                           <a href={`/solve/review_view?id=${post.id}`} className="hoverable">
@@ -1027,91 +1117,7 @@ export default function HomePage() {
       
       <Footer />
       
-      {/* Swiper 및 Slick 초기화 스크립트 */}
-      <Script id="main-page-scripts" strategy="afterInteractive">
-        {`
-          $(document).ready(function() {
-            // solution slider 관련 - 안전한 초기화
-            if (typeof Swiper !== 'undefined' && $('.list-swiper1').length > 0) {
-              var listSwiper1 = new Swiper(".list-swiper1", {
-                  direction: 'vertical',
-                  slidesPerView: 5,
-                  watchSlidesProgress: true,
-              });
-              var frameSwiper1 = new Swiper(".frame-swiper1", {
-                  loop: false, // ✅ 슬라이드 부족 시 loop 비활성화
-                  spaceBetween: 10,
-                  autoplay: {
-                      delay: 4000,
-                  },
-                  thumbs: {
-                      swiper: listSwiper1,
-                  },
-              });
-              
-              var listSwiper2 = new Swiper(".list-swiper2", {
-                  direction: 'vertical',
-                  slidesPerView: 5,
-                  watchSlidesProgress: true,
-              });
-              var frameSwiper2 = new Swiper(".frame-swiper2", {
-                  loop: false, // ✅ 슬라이드 부족 시 loop 비활성화
-                  spaceBetween: 10,
-                  autoplay: {
-                      delay: 4000,
-                  },
-                  thumbs: {
-                      swiper: listSwiper2,
-                  },
-              });
-
-              // Partners Swiper - 안전한 초기화
-              if ($('.partners-swiper').length > 0) {
-                var partnersSwiper1 = new Swiper(".partners-swiper", {
-                    slidesPerView: "auto",
-                    loop: true,
-                    observeParents: true,
-                    observe: true,
-                    speed: 5000,
-                    touchRatio: 0,
-                    autoplay: {
-                        delay: 0,
-                        disableOnInteraction: false
-                    },
-                    on: {
-                      beforeDestroy: function () {
-                        // Swiper 인스턴스 정리 시 안전 처리
-                        try {
-                          this.autoplay.stop();
-                        } catch (e) {
-                          console.debug('Swiper cleanup:', e);
-                        }
-                      }
-                    }
-                });
-              }
-            }
-            
-            // Slick 슬라이더는 React useEffect에서 처리됨
-            // 중복 초기화 방지를 위해 여기서는 제거
-          });
-          
-          // 페이지 언로드 시 Swiper 정리
-          $(window).on('beforeunload', function() {
-            if (typeof Swiper !== 'undefined') {
-              $('.swiper').each(function() {
-                if (this.swiper) {
-                  try {
-                    this.swiper.destroy(true, true);
-                  } catch (e) {
-                    console.debug('Swiper destroy:', e);
-                  }
-                }
-              });
-            }
-          });
-        `}
-      </Script>
+      {/* jQuery 기반 Swiper 스크립트 제거 - React useEffect에서 처리 */}
       
       {/* Line Event 스크립트 - 메인페이지에서만 로드 (preload 경고 해결) */}
       <Script 

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Script from 'next/script';
-// Common CSS import - cursor__ball 설정 포함
-import '@/styles/common.css';
-// Next.js 스타일의 CSS import - 서브 페이지 전용 (원본과 동일)
+// common.css는 루트 레이아웃에서 이미 로드됨 - 중복 제거
+// 서브 페이지 전용 CSS만 로드
 import '@/styles/sub.css';
 
 export const metadata: Metadata = {
@@ -19,8 +18,7 @@ export default function SubLayout({
     <>
       {children}
 
-      {/* 서브페이지 전용 스크립트 */}
-      <Script src="/assets/js/sub.js" strategy="afterInteractive" />
+      {/* sub.js는 각 페이지 컴포넌트에서 개별 처리 - DOM 조작 충돌 방지 */}
     </>
   );
 } 

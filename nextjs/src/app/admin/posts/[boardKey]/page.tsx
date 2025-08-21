@@ -623,6 +623,12 @@ export default function AdminPostsPage() {
                       <td>
                         <div className="action-buttons">
                           <button 
+                            onClick={() => router.push(`/admin/posts/${boardKey}/${post.id}`)}
+                            className="btn-view-small"
+                          >
+                            상세
+                          </button>
+                          <button 
                             onClick={() => handleEdit(post)}
                             className="btn-edit-small"
                           >
@@ -925,7 +931,7 @@ export default function AdminPostsPage() {
 
         /* Button Styles */
         .btn-primary, .btn-secondary, .btn-search, .btn-reset,
-        .btn-edit-small, .btn-delete-small {
+        .btn-view-small, .btn-edit-small, .btn-delete-small {
           padding: 8px 16px;
           border: none;
           border-radius: 4px;
@@ -990,6 +996,17 @@ export default function AdminPostsPage() {
 
         .btn-delete-small:hover {
           background: #c82333;
+        }
+
+        .btn-view-small {
+          background: #17a2b8;
+          color: white;
+          padding: 4px 8px;
+          font-size: 12px;
+        }
+
+        .btn-view-small:hover {
+          background: #138496;
         }
       `}</style>
     </div>

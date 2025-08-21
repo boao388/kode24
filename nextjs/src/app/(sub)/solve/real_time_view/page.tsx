@@ -7,11 +7,11 @@ import Footer from '@/components/common/Footer'
 import { isAdminAuthenticated } from '@/lib/auth'
 import Link from 'next/link'
 
-interface Reply {
+interface AdminAnswer {
   id: string
   content: string
-  authorName: string
   createdAt: string
+  updatedAt: string
 }
 
 interface Post {
@@ -26,7 +26,6 @@ interface Post {
     title: string
     key: string
   }
-  reply?: Reply
 }
 
 function RealTimeViewContent() {
@@ -36,6 +35,7 @@ function RealTimeViewContent() {
   const verified = searchParams.get('verified')
   
   const [post, setPost] = useState<Post | null>(null)
+  const [adminAnswer, setAdminAnswer] = useState<AdminAnswer | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
@@ -73,6 +73,18 @@ function RealTimeViewContent() {
           return
         }
         setPost(data)
+        
+        // 관리자 답변 로드
+        try {
+          const answerResponse = await fetch(`/api/posts/${postId}/answer`)
+          const answerData = await answerResponse.json()
+          if (answerResponse.ok && answerData.hasAnswer) {
+            setAdminAnswer(answerData.answer)
+          }
+        } catch (answerError) {
+          console.error('답변 로딩 실패:', answerError)
+          // 답변 로딩 실패는 전체 페이지 로딩을 막지 않음
+        }
       } else {
         setError(data.message || '게시글을 불러올 수 없습니다.')
       }
@@ -188,12 +200,18 @@ function RealTimeViewContent() {
                   <div className="reply-top">
                     <b>답변</b>
                     <span className="writer">KODE24</span>
+                    {adminAnswer && (
+                      <span className="reply-date">
+                        {formatDate(adminAnswer.createdAt)}
+                        {adminAnswer.updatedAt !== adminAnswer.createdAt && ' (수정됨)'}
+                      </span>
+                    )}
                   </div>
                   <div className="reply-body">
-                    {post.reply ? (
-                      <div dangerouslySetInnerHTML={{ __html: post.reply.content }} />
+                    {adminAnswer ? (
+                      <div dangerouslySetInnerHTML={{ __html: adminAnswer.content }} />
                     ) : (
-                      <p>답변입니다.</p>
+                      <p>답변 준비 중입니다.</p>
                     )}
                   </div>
                 </div>
