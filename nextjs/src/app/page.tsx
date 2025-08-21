@@ -141,10 +141,13 @@ export default function HomePage() {
           const $ = (window as any).jQuery
           
           // 기존 이벤트 해제 후 재등록
+          // @ts-ignore
           $(document).off('click', '.tab-menu > ul > li > a').on('click', '.tab-menu > ul > li > a', function(e) {
             $('.tab-menu > ul > li a').parent().removeClass('active')
             $('.tab-content > .tab-pane').removeClass('active')
+            // @ts-ignore
             $(this).parent().addClass('active')
+            // @ts-ignore
             $($(this).attr('href')).addClass('active')
             e.preventDefault()
           })
@@ -232,7 +235,9 @@ export default function HomePage() {
                 on: {
                   beforeDestroy: function () {
                     try {
+                      // @ts-ignore
                       if (this.autoplay && this.autoplay.stop) {
+                        // @ts-ignore
                         this.autoplay.stop()
                       }
                     } catch (e) {

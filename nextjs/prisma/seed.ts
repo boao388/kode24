@@ -71,6 +71,7 @@ async function main() {
       update: {},
       create: boardData
     })
+    // @ts-ignore
     createdBoards.push(board)
   }
 
@@ -515,7 +516,9 @@ async function main() {
   ]
 
   for (const postData of samplePosts) {
+    // @ts-ignore
     const board = createdBoards.find(b => b.key === postData.boardKey)
+    // @ts-ignore
     if (board) {
       const postCreateData: any = {
         title: postData.title,

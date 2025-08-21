@@ -15,6 +15,7 @@ export default function Header() {
         // header 관련 - GNB 호버 효과
         $(document).off('mouseenter', '#gnb > ul > li > a').on('mouseenter', '#gnb > ul > li > a', function(){
           $('#gnb > ul > li').removeClass('active')
+          // @ts-ignore
           $(this).parent().addClass('active')
         })
         $(document).off('mouseleave', '#gnb > ul').on('mouseleave', '#gnb > ul', function(){
@@ -29,6 +30,7 @@ export default function Header() {
         // popup 관련 - 문의하기 모달
         $(document).off('click', '.btn-inquiry').on('click', '.btn-inquiry', function(e){
           $('.modal-backdrop').addClass('active')
+          // @ts-ignore
           $($(this).attr('href')).addClass('active')
           e.preventDefault()
         })
