@@ -44,7 +44,13 @@ export default function AdminLoginPage() {
       const data = await response.json()
 
       if (response.ok) {
-        // 로그인 성공 시 관리자 대시보드로 이동
+        // 로그인 성공 시 토큰을 localStorage에 저장
+        if (data.token) {
+          localStorage.setItem('adminToken', data.token)
+          console.log('Admin token saved to localStorage')
+        }
+        
+        // 관리자 대시보드로 이동
         router.push('/admin/dashboard')
       } else {
         setError(data.message || '로그인에 실패했습니다.')

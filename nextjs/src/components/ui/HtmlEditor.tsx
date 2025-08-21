@@ -1,0 +1,103 @@
+'use client'
+
+import React, { useRef, useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
+
+// TinyMCE Editor를 동적으로 로드 (클라이언트 사이드에서만)
+const Editor = dynamic(
+  () => import('@tinymce/tinymce-react').then((mod) => mod.Editor),
+  { 
+    ssr: false,
+    loading: () => <div className="editor-loading">에디터 로딩 중...</div>
+  }
+)
+
+interface HtmlEditorProps {
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  height?: number
+}
+
+export default function HtmlEditor({ 
+  value, 
+  onChange, 
+  placeholder = '내용을 입력하세요...',
+  height = 400 
+}: HtmlEditorProps) {
+  const editorRef = useRef<any>(null)
+  const [isDarkMode, setIsDarkMode] = useState(false)
+
+  useEffect(() => {
+    // 클라이언트 사이드에서만 다크모드 감지
+    const checkDarkMode = () => {
+      if (typeof window !== 'undefined') {
+        const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+        setIsDarkMode(darkModeMediaQuery.matches)
+        
+        // 다크모드 변경 감지
+        const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches)
+        darkModeMediaQuery.addEventListener('change', handler)
+        
+        return () => darkModeMediaQuery.removeEventListener('change', handler)
+      }
+    }
+
+    checkDarkMode()
+  }, [])
+
+  const handleEditorChange = (content: string) => {
+    onChange(content)
+  }
+
+  return (
+    <div className="html-editor-wrapper">
+      <Editor
+        apiKey="no-api-key" // 무료 버전 사용
+        onInit={(evt, editor) => editorRef.current = editor}
+        value={value}
+        onEditorChange={handleEditorChange}
+        init={{
+          height: height,
+          menubar: false,
+          plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount', 'emoticons'
+          ],
+          toolbar: 'undo redo | formatselect | ' +
+            'bold italic underline strikethrough | forecolor backcolor | ' +
+            'alignleft aligncenter alignright alignjustify | ' +
+            'bullist numlist outdent indent | blockquote | ' +
+            'link image media | table | emoticons | ' +
+            'removeformat | code fullscreen | help',
+          toolbar_mode: 'sliding',
+          content_style: `
+            body { 
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+              font-size: 14px;
+              line-height: 1.6;
+              color: ${isDarkMode ? '#e0e0e0' : '#333'};
+              background-color: ${isDarkMode ? '#2d2d2d' : '#fff'};
+              padding: 10px;
+            }
+            p { margin: 0 0 10px 0; }
+            h1, h2, h3, h4, h5, h6 { margin: 20px 0 10px 0; }
+          `,
+          placeholder: placeholder,
+          branding: false,
+          promotion: false,
+          statusbar: true,
+          resize: true,
+          skin: isDarkMode ? 'oxide-dark' : 'oxide',
+          entity_encoding: 'raw',
+          extended_valid_elements: 'script[src|type],iframe[src|width|height|frameborder|allowfullscreen],div[class|id|style]',
+          verify_html: false,
+          paste_data_images: true,
+          object_resizing: true,
+          link_default_target: '_blank'
+        }}
+      />
+    </div>
+  )
+} 

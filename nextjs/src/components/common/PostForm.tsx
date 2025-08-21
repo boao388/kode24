@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import HtmlEditor from '@/components/ui/HtmlEditor'
 
 interface PostFormData {
   id?: string
@@ -191,15 +192,13 @@ export default function PostForm({
 
         <div className="form-group">
           <label htmlFor="content">내용 <span className="required">*</span></label>
-          <textarea
-            id="content"
-            name="content"
+          <HtmlEditor
             value={formData.content}
-            onChange={handleInputChange}
-            placeholder="내용을 입력하세요"
-            rows={15}
-            required
-            disabled={loading}
+            onChange={(value) => {
+              setFormData(prev => ({ ...prev, content: value }))
+            }}
+            placeholder="내용을 입력하세요..."
+            height={400}
           />
         </div>
 

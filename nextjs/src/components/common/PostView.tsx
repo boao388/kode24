@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
+import { createAuthHeaders } from '@/lib/auth'
 
 interface Comment {
   id: string
@@ -57,7 +58,9 @@ export default function PostView({
   // 댓글 로드
   const loadComments = useCallback(async () => {
     try {
-      const response = await fetch(`/api/posts/${postId}/comments`)
+      const response = await fetch(`/api/posts/${postId}/comments`, {
+        headers: createAuthHeaders()
+      })
       if (response.ok) {
         const data = await response.json()
         setComments(data)

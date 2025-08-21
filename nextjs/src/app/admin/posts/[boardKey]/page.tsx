@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import HtmlEditor from '@/components/ui/HtmlEditor'
 
 interface Post {
   id: string
@@ -144,6 +145,27 @@ export default function AdminPostsPage() {
   useEffect(() => {
     const adminToken = localStorage.getItem('adminToken')
     if (!adminToken) {
+      console.log('Admin token not found, redirecting to login')
+      router.push('/admin/login')
+      return
+    }
+    
+    // 토큰 유효성 검사
+    try {
+      const tokenData = JSON.parse(atob(adminToken.split('.')[1]))
+      const currentTime = Math.floor(Date.now() / 1000)
+      
+      if (tokenData.exp && tokenData.exp < currentTime) {
+        console.log('Admin token expired, redirecting to login')
+        localStorage.removeItem('adminToken')
+        router.push('/admin/login')
+        return
+      }
+      
+      console.log('Admin token valid, loading posts')
+    } catch (error) {
+      console.error('Invalid token format:', error)
+      localStorage.removeItem('adminToken')
       router.push('/admin/login')
       return
     }
@@ -444,14 +466,13 @@ export default function AdminPostsPage() {
 
             <div className="form-group">
               <label htmlFor="content">내용 *</label>
-              <textarea
-                id="content"
-                name="content"
+              <HtmlEditor
                 value={formData.content}
-                onChange={handleInputChange}
-                required
-                rows={15}
-                placeholder="게시글 내용을 입력하세요 (HTML 태그 사용 가능)"
+                onChange={(value) => {
+                  setFormData(prev => ({ ...prev, content: value }))
+                }}
+                placeholder="게시글 내용을 입력하세요..."
+                height={500}
               />
             </div>
 

@@ -1,0 +1,576 @@
+/* Admin Pages Dark Mode Styles */
+
+@media (prefers-color-scheme: dark) {
+  
+  /* 기본 배경 및 텍스트 */
+  .admin-container {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0 !important;
+    min-height: 100vh;
+  }
+
+  .admin-login-page {
+    background-color: #1a1a1a !important;
+    color: #e0e0e0 !important;
+  }
+
+  /* 헤더 */
+  .admin-header {
+    background: #2d2d2d !important;
+    border-bottom: 1px solid #444 !important;
+    color: #e0e0e0 !important;
+  }
+
+  .admin-header h1,
+  .admin-header h2 {
+    color: #e0e0e0 !important;
+  }
+
+  /* 폼 섹션 */
+  .admin-form-section {
+    background: #2d2d2d !important;
+    border: 1px solid #444 !important;
+  }
+
+  .admin-form label {
+    color: #e0e0e0 !important;
+  }
+
+  /* 입력 필드 */
+  .admin-form input,
+  .admin-form textarea,
+  .admin-form select,
+  .search-input,
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    background-color: #333 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #555 !important;
+  }
+
+  .admin-form input:focus,
+  .admin-form textarea:focus,
+  .admin-form select:focus,
+  .search-input:focus,
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    background-color: #3a3a3a !important;
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+  }
+
+  .admin-form input::placeholder,
+  .admin-form textarea::placeholder,
+  .search-input::placeholder {
+    color: #aaa !important;
+  }
+
+  /* 버튼 */
+  .btn-primary {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: #fff !important;
+  }
+
+  .btn-primary:hover {
+    background-color: #0b5ed7 !important;
+    border-color: #0a58ca !important;
+  }
+
+  .btn-secondary {
+    background-color: #6c757d !important;
+    border-color: #6c757d !important;
+    color: #fff !important;
+  }
+
+  .btn-secondary:hover {
+    background-color: #5c636a !important;
+    border-color: #565e64 !important;
+  }
+
+  .btn-search,
+  .btn-reset {
+    background-color: #495057 !important;
+    color: #fff !important;
+    border: 1px solid #495057 !important;
+  }
+
+  .btn-search:hover,
+  .btn-reset:hover {
+    background-color: #3d4449 !important;
+  }
+
+  /* 테이블 */
+  .posts-table,
+  .posts-table table {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+  }
+
+  .posts-table th {
+    background-color: #3a3a3a !important;
+    color: #e0e0e0 !important;
+    border-bottom: 2px solid #555 !important;
+    border-right: 1px solid #555 !important;
+  }
+
+  .posts-table td {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-bottom: 1px solid #444 !important;
+    border-right: 1px solid #444 !important;
+  }
+
+  .posts-table tr:hover td {
+    background-color: #3a3a3a !important;
+  }
+
+  .posts-table tbody tr:nth-child(even) td {
+    background-color: #333 !important;
+  }
+
+  /* 제목 셀 */
+  .title-cell {
+    color: #e0e0e0 !important;
+  }
+
+  .title-text {
+    color: #e0e0e0 !important;
+  }
+
+  .featured-badge {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+  }
+
+  .secret-badge {
+    background-color: #fd7e14 !important;
+    color: #000 !important;
+  }
+
+  /* 액션 버튼 */
+  .action-buttons button {
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+  }
+
+  .action-buttons button:hover {
+    background-color: #3a3a3a !important;
+    color: #fff !important;
+  }
+
+  /* 페이지네이션 */
+  .pagination {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+  }
+
+  .pagination button {
+    background-color: #3a3a3a !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #555 !important;
+  }
+
+  .pagination button:hover {
+    background-color: #495057 !important;
+    color: #fff !important;
+  }
+
+  .pagination button.active {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+    border-color: #0d6efd !important;
+  }
+
+  .pagination button:disabled {
+    background-color: #2d2d2d !important;
+    color: #6c757d !important;
+    border-color: #444 !important;
+  }
+
+  /* 콘텐츠 헤더 */
+  .content-header h2 {
+    color: #e0e0e0 !important;
+  }
+
+  .search-result {
+    color: #adb5bd !important;
+  }
+
+  /* 빈 상태 */
+  .no-posts {
+    color: #6c757d !important;
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+  }
+
+  /* 로그인 페이지 */
+  .admin-login-container {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .login-header h2 {
+    color: #e0e0e0 !important;
+  }
+
+  .error-message {
+    background-color: #721c24 !important;
+    color: #f8d7da !important;
+    border: 1px solid #842029 !important;
+  }
+
+  .success-message {
+    background-color: #0f5132 !important;
+    color: #d1e7dd !important;
+    border: 1px solid #146c43 !important;
+  }
+
+  /* 대시보드 */
+  .dashboard-stats {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+  }
+
+  .stat-card {
+    background-color: #3a3a3a !important;
+    border: 1px solid #555 !important;
+    color: #e0e0e0 !important;
+  }
+
+  .stat-card h3 {
+    color: #e0e0e0 !important;
+  }
+
+  .stat-card .stat-number {
+    color: #17a2b8 !important;
+  }
+
+  /* FAQ 관리 페이지 */
+  .faq-list-item {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+    color: #e0e0e0 !important;
+  }
+
+  .faq-list-item:hover {
+    background-color: #3a3a3a !important;
+  }
+
+  /* 이미지 미리보기 */
+  .image-preview {
+    background-color: #333 !important;
+    border: 1px solid #555 !important;
+  }
+
+  .image-preview p {
+    color: #adb5bd !important;
+  }
+
+  /* 체크박스 */
+  .checkbox-label {
+    color: #e0e0e0 !important;
+  }
+
+  input[type="checkbox"] {
+    accent-color: #0d6efd !important;
+  }
+
+  /* 날짜 입력 */
+  input[type="date"] {
+    color-scheme: dark !important;
+  }
+
+  /* 파일 업로드 */
+  input[type="file"] {
+    color: #e0e0e0 !important;
+  }
+
+  input[type="file"]::-webkit-file-upload-button {
+    background-color: #495057 !important;
+    color: #fff !important;
+    border: 1px solid #495057 !important;
+  }
+
+  /* 스크롤바 다크모드 */
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a !important;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #555 !important;
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #666 !important;
+  }
+
+  /* 툴팁 및 모달 */
+  .tooltip,
+  .modal {
+    background-color: #333 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #555 !important;
+  }
+
+  /* 링크 */
+  a {
+    color: #66b3ff !important;
+  }
+
+  a:hover {
+    color: #4da6ff !important;
+  }
+
+  /* 코드 블록 */
+  code,
+  pre {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #555 !important;
+  }
+
+  /* 선택 영역 */
+  ::selection {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+  }
+
+  ::-moz-selection {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+  }
+}
+
+/* 강제 다크모드 클래스 (사용자가 수동으로 다크모드 토글할 때 사용) */
+.dark-mode .admin-container,
+.dark-mode .admin-login-page {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+/* 테이블 특별 처리 - 가장 중요한 문제 해결 */
+@media (prefers-color-scheme: dark) {
+  /* 모든 테이블 요소에 강제 적용 */
+  .admin-container table,
+  .admin-container table *,
+  .posts-table table,
+  .posts-table table *,
+  table,
+  table th,
+  table td {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+  }
+  
+  .admin-container table thead th,
+  .posts-table table thead th,
+  table thead th {
+    background-color: #3a3a3a !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid #555 !important;
+  }
+  
+  .admin-container table tbody tr:hover td,
+  .posts-table table tbody tr:hover td,
+  table tbody tr:hover td {
+    background-color: #3a3a3a !important;
+  }
+  
+  .admin-container table tbody tr:nth-child(even) td,
+  .posts-table table tbody tr:nth-child(even) td,
+  table tbody tr:nth-child(even) td {
+    background-color: #333333 !important;
+  }
+
+  /* 인라인 스타일도 무시하고 강제 적용 */
+  [style*="background"] {
+    background-color: #2d2d2d !important;
+  }
+  
+  [style*="color"] {
+    color: #e0e0e0 !important;
+  }
+} 
+/* 강력한 테이블 다크모드 처리 - 모든 우선순위 무시 */
+@media (prefers-color-scheme: dark) {
+  
+  /* 모든 admin 영역의 텍스트를 강제로 밝게 */
+  .admin-container * {
+    color: #e0e0e0 !important;
+  }
+  
+  /* 테이블 관련 모든 요소 강제 스타일링 */
+  .admin-container table,
+  .admin-container table *,
+  .posts-table,
+  .posts-table *,
+  div[class*="admin"] table,
+  div[class*="admin"] table * {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+  }
+  
+  /* 테이블 헤더 특별 처리 */
+  .admin-container th,
+  .posts-table th,
+  thead th,
+  div[class*="admin"] th {
+    background-color: #3a3a3a !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border: 1px solid #555 !important;
+  }
+  
+  /* 테이블 셀 */
+  .admin-container td,
+  .posts-table td,
+  tbody td,
+  div[class*="admin"] td {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #444 !important;
+  }
+  
+  /* 인라인 스타일 무효화 */
+  *[style*="background-color: white"],
+  *[style*="background-color: #fff"],
+  *[style*="background-color: #ffffff"] {
+    background-color: #2d2d2d !important;
+  }
+  
+  *[style*="color: white"],
+  *[style*="color: #fff"],
+  *[style*="color: #ffffff"] {
+    color: #e0e0e0 !important;
+  }
+}
+
+/* 사용자 강제 다크모드 클래스 */
+.force-dark-mode {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+.force-dark-mode * {
+  color: #e0e0e0 !important;
+}
+
+.force-dark-mode table,
+.force-dark-mode table * {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-color: #444 !important;
+}
+
+/* 대시보드 전용 다크모드 개선 */
+@media (prefers-color-scheme: dark) {
+  
+  /* 대시보드 통계 카드 */
+  .dashboard-overview {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+  }
+  
+  .overview-grid {
+    gap: 20px;
+  }
+  
+  .overview-card {
+    background: linear-gradient(135deg, #3a3a3a 0%, #2d2d2d 100%) !important;
+    border: 1px solid #555 !important;
+    color: #e0e0e0 !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .overview-card h3 {
+    color: #e0e0e0 !important;
+    border-bottom: 1px solid #555 !important;
+  }
+  
+  .overview-card .number {
+    color: #17a2b8 !important;
+    text-shadow: 0 0 10px rgba(23, 162, 184, 0.3);
+  }
+  
+  /* 게시판 통계 */
+  .board-stats {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+  }
+  
+  .board-item {
+    background-color: #3a3a3a !important;
+    border: 1px solid #555 !important;
+    color: #e0e0e0 !important;
+  }
+  
+  .board-item:hover {
+    background-color: #404040 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  /* 관리 링크 */
+  .management-links a {
+    background-color: #495057 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #6c757d !important;
+  }
+  
+  .management-links a:hover {
+    background-color: #5a6268 !important;
+    color: #fff !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  /* 활동 통계 */
+  .activity-stats {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+  }
+  
+  .activity-item {
+    background-color: #3a3a3a !important;
+    border-left: 4px solid #0d6efd !important;
+    color: #e0e0e0 !important;
+  }
+  
+  /* FAQ 관리 페이지 개선 */
+  .admin-form h2 {
+    color: #e0e0e0 !important;
+  }
+  
+  .faq-item {
+    background-color: #2d2d2d !important;
+    border: 1px solid #444 !important;
+    color: #e0e0e0 !important;
+  }
+  
+  .faq-item:hover {
+    background-color: #3a3a3a !important;
+  }
+  
+  .faq-actions button {
+    background-color: #495057 !important;
+    color: #e0e0e0 !important;
+    border: 1px solid #6c757d !important;
+  }
+  
+  .faq-actions button:hover {
+    background-color: #5a6268 !important;
+  }
+}

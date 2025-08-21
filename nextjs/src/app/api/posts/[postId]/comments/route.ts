@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { extractTokenFromHeader, verifyAdminToken } from '@/lib/auth'
 
 // 댓글 목록 조회
 export async function GET(
@@ -9,6 +10,11 @@ export async function GET(
 ) {
   try {
     const { postId } = await params
+    
+    // 관리자 권한 확인
+    const authHeader = request.headers.get('authorization')
+    const token = extractTokenFromHeader(authHeader)
+    const isAdmin = token && verifyAdminToken(token)
     
     const comments = await prisma.comment.findMany({
       where: {
@@ -40,7 +46,20 @@ export async function GET(
       }
     })
 
-    return NextResponse.json(comments)
+    // 관리자가 아니라면 비밀 댓글의 내용을 숨김
+    const filteredComments = comments.map(comment => {
+      const processedComment = {
+        ...comment,
+        content: comment.isSecret && !isAdmin ? '[비밀 댓글입니다]' : comment.content,
+        replies: comment.replies?.map(reply => ({
+          ...reply,
+          content: reply.isSecret && !isAdmin ? '[비밀 댓글입니다]' : reply.content
+        }))
+      }
+      return processedComment
+    })
+
+    return NextResponse.json(filteredComments)
   } catch (error) {
     console.error('댓글 조회 실패:', error)
     return NextResponse.json(

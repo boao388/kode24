@@ -1,0 +1,88 @@
+/* TinyMCE HTML Editor 스타일 */
+
+.html-editor-wrapper {
+  margin: 15px 0;
+}
+
+.html-editor-wrapper .tox-tinymce {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.html-editor-wrapper .tox-toolbar__primary {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.html-editor-wrapper .tox-toolbar__group {
+  border-right: 1px solid #e9ecef;
+}
+
+.html-editor-wrapper .tox-editor-container {
+  background: #fff;
+}
+
+.html-editor-wrapper .tox-statusbar {
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+}
+
+.html-editor-wrapper .tox-edit-area__iframe {
+  min-height: 300px;
+}
+
+/* 다크모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .html-editor-wrapper .tox-tinymce {
+    border-color: #555;
+    background: #2d3748;
+  }
+  
+  .html-editor-wrapper .tox-toolbar__primary {
+    background: #4a5568;
+    border-bottom-color: #555;
+  }
+  
+  .html-editor-wrapper .tox-editor-container {
+    background: #2d3748;
+  }
+}
+
+/* 로딩 상태 */
+.editor-loading {
+  padding: 40px 20px;
+  text-align: center;
+  background: #f8f9fa;
+  border: 1px dashed #ddd;
+  border-radius: 6px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* 에러 상태 */
+.editor-error {
+  padding: 20px;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  color: #721c24;
+  font-size: 14px;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .html-editor-wrapper .tox-toolbar__primary {
+    flex-wrap: wrap;
+  }
+  
+  .html-editor-wrapper .tox-editor-container {
+    min-height: 250px;
+  }
+}
+
+/* 포커스 상태 */
+.html-editor-wrapper .tox-tinymce.tox-tinymce--focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+} 

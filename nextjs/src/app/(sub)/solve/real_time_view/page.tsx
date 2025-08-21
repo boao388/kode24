@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
+import { isAdminAuthenticated } from '@/lib/auth'
 import Link from 'next/link'
 
 interface Reply {
@@ -37,6 +38,7 @@ function RealTimeViewContent() {
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   // 날짜 형식을 원본과 동일하게 변환하는 함수
   const formatDate = (dateString: string) => {
@@ -56,13 +58,17 @@ function RealTimeViewContent() {
       return
     }
 
+    // 관리자 권한 확인
+    const adminAuth = isAdminAuthenticated()
+    setIsAdmin(adminAuth)
+
     try {
       const response = await fetch(`/api/posts/${postId}`)
       const data = await response.json()
 
       if (response.ok) {
-        // 비밀글이면서 verified가 없으면 비밀번호 확인 페이지로 이동
-        if (data.isSecret && !verified) {
+        // 비밀글이면서 verified가 없고 관리자가 아니면 비밀번호 확인 페이지로 이동
+        if (data.isSecret && !verified && !adminAuth) {
           router.push(`/solve/real_time_confirm?id=${postId}&author=${encodeURIComponent(data.authorName)}`)
           return
         }

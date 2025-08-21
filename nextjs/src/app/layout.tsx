@@ -8,6 +8,8 @@ import '@/styles/globals.css';
 import '@/styles/common.css';
 import '@/styles/main.css';
 // import '@/styles/sub.css';
+// HTML Editor styles
+import '@/styles/editor.css';
 
 const notoSansKr = Noto_Sans_KR({
   subsets: ["latin"],

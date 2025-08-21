@@ -7,6 +7,7 @@ async function main() {
   console.log('시드 데이터 생성을 시작합니다...')
 
   // 관리자 계정 생성
+  console.log('관리자 계정 생성 중...')
   const admin = await prisma.admin.upsert({
     where: { email: 'admin@kode24.co.kr' },
     update: {},
@@ -17,6 +18,7 @@ async function main() {
       role: 'SUPER_ADMIN'
     }
   })
+  console.log('관리자 계정 생성 완료:', admin.email)
 
   // 게시판 생성
   const boards = [

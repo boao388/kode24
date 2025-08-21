@@ -3,18 +3,28 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { createAuthHeaders } from '@/lib/auth'
 
 interface DashboardStats {
-  totalPosts: number
-  totalComments: number
-  pendingComments: number
-  recentPosts: Array<{
-    id: string
-    title: string
-    boardTitle: string
-    authorName: string
-    createdAt: string
+  overview: {
+    totalPosts: number
+    totalComments: number
+    totalFaqs: number
+    totalSnsChannels: number
+    recentPosts: number
+    secretPosts: number
+    featuredPosts: number
+  }
+  boards: Array<{
+    name: string
+    posts: number
+    comments: number
   }>
+  activity: {
+    recentPostsWeek: number
+    totalEngagement: number
+    avgCommentsPerPost: number
+  }
 }
 
 export default function AdminDashboardPage() {
@@ -33,35 +43,27 @@ export default function AdminDashboardPage() {
 
   const loadDashboardData = async () => {
     try {
-      // 실제로는 API를 호출해야 하지만 현재는 목업 데이터 사용
-      setStats({
-        totalPosts: 156,
-        totalComments: 342,
-        pendingComments: 8,
-        recentPosts: [
-          {
-            id: '1',
-            title: '몸캠피싱 피해 긴급 상담 요청',
-            boardTitle: '실시간 해결문의',
-            authorName: '김○○',
-            createdAt: '2024-01-20'
-          },
-          {
-            id: '2', 
-            title: 'KODE24 덕분에 완전히 해결되었습니다',
-            boardTitle: '솔루션 진행 후기',
-            authorName: '이○○',
-            createdAt: '2024-01-19'
-          },
-          {
-            id: '3',
-            title: '신종 AI 딥페이크 피싱 급증 경보',
-            boardTitle: '보안 이슈',
-            authorName: 'KODE24',
-            createdAt: '2024-01-18'
-          }
-        ]
+      // 관리자 토큰 확인
+      const adminToken = localStorage.getItem('adminToken')
+      if (!adminToken) {
+        router.push('/admin/login')
+        return
+      }
+
+      // 대시보드 통계 API 호출
+      const response = await fetch('/api/admin/dashboard', {
+        headers: createAuthHeaders()
       })
+
+      if (response.ok) {
+        const dashboardData = await response.json()
+        setStats(dashboardData)
+      } else if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.push('/admin/login')
+      } else {
+        console.error('대시보드 데이터 로드 실패')
+      }
 
       setAdminInfo({
         name: 'KODE24 관리자',
@@ -109,31 +111,61 @@ export default function AdminDashboardPage() {
       </header>
 
       <div className="dashboard-content">
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">📝</div>
-            <div className="stat-info">
-              <div className="stat-number">{stats?.totalPosts}</div>
-              <div className="stat-label">총 게시글</div>
+        {stats && (
+          <>
+            <div className="dashboard-overview">
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <div className="stat-number">{stats.overview.totalPosts}</div>
+                  <div className="stat-label">총 게시글</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">{stats.overview.totalComments}</div>
+                  <div className="stat-label">총 댓글</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">{stats.overview.totalFaqs}</div>
+                  <div className="stat-label">FAQ</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">{stats.overview.totalSnsChannels}</div>
+                  <div className="stat-label">SNS 채널</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">{stats.overview.recentPosts}</div>
+                  <div className="stat-label">최근 7일 게시글</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">{stats.overview.secretPosts}</div>
+                  <div className="stat-label">비밀글</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">{stats.overview.featuredPosts}</div>
+                  <div className="stat-label">중요 공지</div>
+                </div>
+                <div className="stat-card">
+                  <div className="stat-number">{stats.activity.avgCommentsPerPost}</div>
+                  <div className="stat-label">평균 댓글 수</div>
+                </div>
+              </div>
             </div>
-          </div>
-          
-          <div className="stat-card">
-            <div className="stat-icon">💬</div>
-            <div className="stat-info">
-              <div className="stat-number">{stats?.totalComments}</div>
-              <div className="stat-label">총 댓글</div>
+
+            <div className="dashboard-boards">
+              <h3>게시판별 통계</h3>
+              <div className="boards-grid">
+                {stats.boards.map((board, index) => (
+                  <div key={index} className="board-card">
+                    <div className="board-name">{board.name}</div>
+                    <div className="board-stats">
+                      <span>게시글: {board.posts}</span>
+                      <span>댓글: {board.comments}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-          
-          <div className="stat-card pending">
-            <div className="stat-icon">⏳</div>
-            <div className="stat-info">
-              <div className="stat-number">{stats?.pendingComments}</div>
-              <div className="stat-label">승인 대기 댓글</div>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
 
         <div className="dashboard-sections">
           <section className="section">
@@ -202,25 +234,20 @@ export default function AdminDashboardPage() {
           </section>
 
           <section className="section">
-            <h2>최근 게시글</h2>
-            <div className="recent-posts">
-              {stats?.recentPosts.map(post => (
-                <div key={post.id} className="recent-post-item">
-                  <div className="post-info">
-                    <div className="post-title">{post.title}</div>
-                    <div className="post-meta">
-                      <span className="board-name">{post.boardTitle}</span>
-                      <span className="author">{post.authorName}</span>
-                      <span className="date">{post.createdAt}</span>
-                    </div>
-                  </div>
-                  <div className="post-actions">
-                    <Link href={`/admin/posts/edit/${post.id}`} className="edit-btn">
-                      수정
-                    </Link>
-                  </div>
-                </div>
-              ))}
+            <h2>활동 통계</h2>
+            <div className="activity-stats">
+              <div className="activity-item">
+                <span className="label">최근 7일 게시글:</span>
+                <span className="value">{stats?.activity.recentPostsWeek || 0}개</span>
+              </div>
+              <div className="activity-item">
+                <span className="label">총 참여도:</span>
+                <span className="value">{stats?.activity.totalEngagement || 0}</span>
+              </div>
+              <div className="activity-item">
+                <span className="label">게시글당 평균 댓글:</span>
+                <span className="value">{stats?.activity.avgCommentsPerPost || 0}개</span>
+              </div>
             </div>
           </section>
         </div>
@@ -290,48 +317,111 @@ export default function AdminDashboardPage() {
           margin: 0 auto;
         }
 
+        .dashboard-overview {
+          background: white;
+          border-radius: 12px;
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
         .stats-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
           gap: 1.5rem;
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
         }
 
         .stat-card {
-          background: white;
-          padding: 1.5rem;
-          border-radius: 12px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-        }
-
-        .stat-card.pending {
-          border-left: 4px solid #ffc107;
-        }
-
-        .stat-icon {
-          font-size: 2rem;
-          width: 60px;
-          height: 60px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           background: #f8f9fa;
-          border-radius: 50%;
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
         }
 
         .stat-number {
-          font-size: 2rem;
+          font-size: 1.8rem;
           font-weight: 700;
           color: #333;
+          margin-bottom: 0.5rem;
         }
 
         .stat-label {
           color: #666;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
         }
+
+        .dashboard-boards {
+          background: white;
+          border-radius: 12px;
+          padding: 1.5rem;
+          margin-bottom: 2rem;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-boards h3 {
+          margin: 0 0 1.5rem 0;
+          color: #333;
+          font-size: 1.25rem;
+          font-weight: 600;
+        }
+
+        .boards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 1rem;
+        }
+
+        .board-card {
+          background: #f8f9fa;
+          padding: 1rem;
+          border-radius: 8px;
+          box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .board-name {
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 0.5rem;
+        }
+
+                 .board-stats {
+           font-size: 0.9rem;
+           color: #666;
+         }
+
+         .activity-stats {
+           display: flex;
+           flex-direction: column;
+           gap: 1rem;
+         }
+
+         .activity-item {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           padding: 0.75rem;
+           background: #f8f9fa;
+           border-radius: 8px;
+         }
+
+         .activity-item .label {
+           color: #666;
+           font-weight: 500;
+         }
+
+         .activity-item .value {
+           color: #333;
+           font-weight: 600;
+         }
 
         .section {
           background: white;

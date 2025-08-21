@@ -6,6 +6,7 @@ import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import PasswordConfirm from '@/components/common/PasswordConfirm'
 import Link from 'next/link'
+import { isAdminAuthenticated } from '@/lib/auth'
 
 interface Comment {
   id: string
@@ -40,6 +41,7 @@ function ReviewViewContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [commentData, setCommentData] = useState({
     content: '',
     authorName: '',
@@ -54,13 +56,18 @@ function ReviewViewContent() {
       return
     }
 
+    // 관리자 권한 확인
+    const adminAuth = isAdminAuthenticated()
+    setIsAdmin(adminAuth)
+
     try {
       const response = await fetch(`/api/posts/${postId}`)
       const data = await response.json()
 
       if (response.ok) {
         setPost(data)
-        setShowPasswordForm(data.requiresPassword || false)
+        // 관리자라면 비밀번호 폼을 보여주지 않음
+        setShowPasswordForm(adminAuth ? false : (data.requiresPassword || false))
       } else {
         setError(data.message || '게시글을 불러올 수 없습니다.')
       }

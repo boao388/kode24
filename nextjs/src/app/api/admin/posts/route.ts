@@ -5,15 +5,24 @@ import jwt from 'jsonwebtoken'
 // JWT 토큰 검증 함수
 function verifyAdminToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
+  console.log('Auth header:', authHeader ? 'present' : 'missing')
+  
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('Invalid auth header format')
     return null
   }
 
   try {
     const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret')
+    const jwtSecret = process.env.JWT_SECRET || 'default-secret'
+    console.log('Using JWT_SECRET:', jwtSecret.substring(0, 10) + '...')
+    console.log('Token format check:', token.split('.').length === 3 ? 'valid' : 'invalid')
+    
+    const decoded = jwt.verify(token, jwtSecret)
+    console.log('Token verified successfully:', decoded)
     return decoded as any
   } catch (error) {
+    console.error('JWT verification failed:', error.message)
     return null
   }
 }
