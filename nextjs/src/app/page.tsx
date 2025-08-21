@@ -969,7 +969,7 @@ export default function HomePage() {
             </a>
           </li>
           <li>
-            <a href="/solve/real_time_list" target="_blank" className="hoverable">
+            <a href="https://pf.kakao.com/_xexaDxgG/chat" target="_blank" className="hoverable">
               <img src="/assets/images/ico_quick03.svg" alt="" />
               <i className="icon"></i>
               <p>상담문의</p>

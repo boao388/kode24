@@ -164,7 +164,7 @@ export default function PatentViewPage() {
             </a>
           </li>
           <li>
-            <Link href="/solve/real_time_list" className="hoverable">
+            <Link href="https://pf.kakao.com/_xexaDxgG/chat" className="hoverable">
               <img src="/assets/images/ico_quick03.svg" alt="" />
               <i className="icon"></i>
               <p>상담문의</p>
