@@ -364,7 +364,7 @@ export default function SolutionInitialPage() {
                   <div className="solution-summary effect">
                     <h4>3. 영상 유포 차단</h4>
                     <p>
-                      영상 유포 차단 솔루션은 가해자의 C&amp;C 서버에 더미 데이터를 업로드하여 가해자가 피해자를 특정하지 못하도록 방해합니다.<br />
+                      영상 유포 차단 솔루션은 가해자의 C&C 서버에 더미 데이터를 업로드하여 가해자가 피해자를 특정하지 못하도록 방해합니다.<br />
                       이를 통해 가해자의 공격을 무력화하고 피해 확산을 방지하여 개인의 안전을 지킵니다.
                     </p>
                   </div>
@@ -488,119 +488,168 @@ export default function SolutionInitialPage() {
                   </div>
                   <div className="solutions">
                     <ul>
-                      <li>
-                        <div className="box">
-                          <figure>
-                            <img src="/assets/images/solution/img_solution19.png" alt="" />
-                          </figure>
-                          <div className="details">
-                            <b>지속적 모니터링</b>
-                            <p>(재유포 방지를 위한 24시간 모니터링 시스템 운영)</p>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="box">
-                          <figure>
-                            <img src="/assets/images/solution/img_solution20.png" alt="" />
-                          </figure>
-                          <div className="details">
-                            <b>심리적 지원</b>
-                            <p>(전문 상담사를 통한 트라우마 회복 프로그램 제공)</p>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="box">
-                          <figure>
-                            <img src="/assets/images/solution/img_solution21.png" alt="" />
-                          </figure>
-                          <div className="details">
-                            <b>법적 지원</b>
-                            <p>(전문 변호사 연계를 통한 법적 대응 지원)</p>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="box">
-                          <figure>
-                            <img src="/assets/images/solution/img_solution22.png" alt="" />
-                          </figure>
-                          <div className="details">
-                            <b>예방 교육</b>
-                            <p>(재피해 방지를 위한 개인 보안 교육 및 가이드 제공)</p>
-                          </div>
-                        </div>
-                      </li>
+                        <li>
+                            <div className="box">
+                                <figure>
+                                    <img src="/assets/images/solution/img_solution19.png" alt="" />
+                                </figure>
+                                <div className="details">
+                                    <b>1년간 지속 지원</b>
+                                    <p>
+                                        문제 발생 시점부터 동일 사안에 대해 12개월간<br className="visible-lg"/> 무제한 사후 서비스를 제공합니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </li> 
+                        <li>
+                            <div className="box">
+                                <figure>
+                                    <img src="/assets/images/solution/img_solution20.png" alt="" />
+                                </figure>
+                                <div className="details">
+                                    <b>전문 지원팀</b>
+                                    <p>
+                                        숙련된 기술·법률 전문가가 심층 분석부터<br className="visible-lg"/> 실질 조치까지 전담합니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div className="box">
+                                <figure>
+                                    <img src="/assets/images/solution/img_solution21.png" alt="" />
+                                </figure>
+                                <div className="details">
+                                    <b>신속 대응 체계</b>
+                                    <p>
+                                        고객 문의 즉시 대응 프로토콜이 가동되어<br className="visible-lg"/> 문제를 빠르게 진단·해결합니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div className="box">
+                                <figure>
+                                    <img src="/assets/images/solution/img_solution22.png" alt="" />
+                                </figure>
+                                <div className="details">
+                                    <b>재발 방지·예방 조치</b>
+                                    <p>
+                                        해결 후에도 취약점 보완 가이드와 예방 전략을 제시해<br className="visible-lg"/> 동일 문제 재발을 차단합니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div className="box">
+                                <figure>
+                                    <img src="/assets/images/solution/img_solution23.png" alt="" />
+                                </figure>
+                                <div className="details">
+                                    <b>복잡·민감 사안 지원</b>
+                                    <p>
+                                        법적 · 기술적 난이도가 높은 케이스도 외부 전문가<br className="visible-lg"/> 네트워크와 협력해 최적 해법을 제공합니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div className="box">
+                                <figure>
+                                    <img src="/assets/images/solution/img_solution24.png" alt="" />
+                                </figure>
+                                <div className="details">
+                                    <b>장기적 신뢰 구축</b>
+                                    <p>
+                                        단발성 A/S를 넘어, 서비스 안정성과 고객 신뢰를<br className="visible-lg"/> 확보하는 지속적인 파트너십을 지향합니다.
+                                    </p>
+                                </div>
+                            </div>
+                        </li>
                     </ul>
                     <figure>
-                      <img src="/assets/images/solution/img_solution23.png" alt="" />
+                      <img src="/assets/images/solution/img_solution25.png" alt="" />
                     </figure>
                   </div>
                 </div>
                 <div className="tab-pane" id="ch-6">
-                  <div className="solution-summary effect">
-                    <h4>6. 작업 완료 보고서</h4>
-                    <p>
-                      모든 대응 작업 완료 후 상세한 보고서를 제공하여 처리 과정과 결과를 투명하게 공개합니다.<br />
-                      피해자가 안심할 수 있도록 전 과정에 대한 명확한 기록과 향후 대응 방안을 제시합니다.
-                    </p>
-                  </div>
-                  <div className="solutions">
-                    <ul>
-                      <li>
-                        <div className="box">
-                          <figure>
-                            <img src="/assets/images/solution/img_solution24.png" alt="" />
-                          </figure>
-                          <div className="details">
-                            <b>처리 과정 상세 기록</b>
-                            <p>(모든 대응 단계별 상세 처리 내역 문서화)</p>
-                          </div>
+                            <div className="solution-summary effect">
+                                <h4>6. 작업 완료 보고서</h4>
+                                <p>
+                                    모든 작업이 완료된 후, 당사는 해당 고객을 위한 맞춤형 작업 완료 보고서를 제공하여, 수행된 모든 조치의 세부 내용과 그 결과를 정확하고 투명하게 문서화합니다.<br />
+                                    이 보고서는 단순한 결과 요약이 아닌, 고객이 처한 구체적인 상황에 기반한 분석, 해결, 그리고 예방까지 아우르는 종합적 기록으로 구성됩니다.
+                                </p>
+                            </div>
+                            <div className="solutions">
+                                <ul>
+                                    <li>
+                                        <div className="box">
+                                            <figure>
+                                                <img src="/assets/images/solution/img_solution26.png" alt="" />
+                                            </figure>
+                                            <div className="details">
+                                                <b>고객 환경에 특화된</b><br/><b>문제 원인 분석</b>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div className="box">
+                                            <figure>
+                                                <img src="/assets/images/solution/img_solution27.png" alt="" />
+                                            </figure>
+                                            <div className="details">
+                                                <b>실제 적용된</b><br/><b>기술적 조치 및 그 근거</b>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div className="box">
+                                            <figure>
+                                                <img src="/assets/images/solution/img_solution28.png" alt="" />
+                                            </figure>
+                                            <div className="details">
+                                                <b>조치 결과에 대한</b><br/><b>성능 및 효과 검증</b>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div className="box">
+                                            <figure>
+                                                <img src="/assets/images/solution/img_solution29.png" alt="" />
+                                            </figure>
+                                            <div className="details">
+                                                <b>서비스 개선 또는</b><br/><b>보호를 위한 후속 권고</b>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div className="box">
+                                            <figure>
+                                                <img src="/assets/images/solution/img_solution30.png" alt="" />
+                                            </figure>
+                                            <div className="details">
+                                                <b>향후 동일한 문제 발생 시의</b><br/><b>대응 전략</b>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div className="solution-summary effect">
+                                <p>
+                                    이 보고서는 해당 고객만을 위해 개별적으로 작성되며, 외부에 공유되지 않는 전용 문서로서, 고객의 보안 요구 및 내부 검토 절차를 고려해 설계됩니다.<br />
+                                    고객은 이를 통해 문제 해결의 전 과정을 명확히 이해하고, 조직 내에서 신속한 의사결정이나 향후 유사 상황 대비를 위한 전략 수립에 활용할 수 있습니다.<br />
+                                    또한, 본 보고서는 사후 관리 및 기술 지원 이력의 핵심 기반 자료로 기능하며, 책임성과 신뢰성을 확보하는 중요한 수단으로 작용합니다.
+                                </p>
+                            </div>
+                            <div className="solutions">
+                                <figure>
+                                    <img src="/assets/images/solution/img_solution31.png" alt="" />
+                                </figure>
+                            </div>
                         </div>
-                      </li>
-                      <li>
-                        <div className="box">
-                          <figure>
-                            <img src="/assets/images/solution/img_solution25.png" alt="" />
-                          </figure>
-                          <div className="details">
-                            <b>결과 분석 리포트</b>
-                            <p>(차단/삭제 성공률 및 효과 분석 데이터 제공)</p>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="box">
-                          <figure>
-                            <img src="/assets/images/solution/img_solution26.png" alt="" />
-                          </figure>
-                          <div className="details">
-                            <b>향후 대응 가이드</b>
-                            <p>(유사 사례 재발 방지를 위한 예방 조치 방안 제시)</p>
-                          </div>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="box">
-                          <figure>
-                            <img src="/assets/images/solution/img_solution27.png" alt="" />
-                          </figure>
-                          <div className="details">
-                            <b>보안 강화 권고사항</b>
-                            <p>(개인정보 보호 및 보안 강화를 위한 맞춤형 권고안)</p>
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                    <figure>
-                      <img src="/assets/images/solution/img_solution28.png" alt="" />
-                    </figure>
-                  </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
         </section>
 
       </main>

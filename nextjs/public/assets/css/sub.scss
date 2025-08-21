@@ -458,30 +458,40 @@
         > ul {
             max-width: 100%;
             > li {
-                display: block;
+                width: 50%;
+                padding: 0;
                 margin-bottom: 0;
-                padding: 0 25px;
                 .box {
                     width: 100%;
-                    height: auto;
-                    padding: 30px 15px;
+                    padding: 30px 15px !important;
                     border-radius: 15px;
+                    > figure {
+                        img {
+                            max-width: 60px;
+                        }
+                    }
                     .details {
-                        padding-top: 20px;
+                        padding-top: 10px;
                         b {
-                            font-size: 17px;
-                            line-height: 28px;
+                            font-size: 12px;
+                            line-height: 16px;
                         }
                         p {
-                            font-size: 14px;
-                            line-height: 28px;
+                            font-size: 10px;
+                            line-height: 14px;
                         }
                         br {
                             display: none;
                         }
                     }
                 }
-                & ~ li {
+                &:nth-of-type(2n + 1) {
+                    padding-right: 10px;
+                }
+                &:nth-of-type(2n + 2) {
+                    padding-left: 10px;
+                }
+                &:nth-of-type(2) ~ li {
                     margin-top: 20px;
                 }
             }
@@ -1898,6 +1908,17 @@
             margin: 0 -10px;
         }
     }
+    @media(max-width: $md) {
+        .solutions {
+            > ul {
+                > li {
+                    .box {
+                        height: 174px;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* data */
@@ -1907,6 +1928,17 @@
             > li {
                 .box {
                     padding-top: 45px;
+                }
+            }
+        }
+    }
+    @media(max-width: $md) {
+        .solutions {
+            > ul {
+                > li {
+                    .box {
+                        height: 204px;
+                    }
                 }
             }
         }
@@ -1931,6 +1963,17 @@
             }
         }
     }
+    @media(max-width: $md) {
+        .solutions {
+            > ul {
+                > li {
+                    .box {
+                        height: 218px;
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* after */
@@ -1940,6 +1983,17 @@
             > li {
                 .box {
                     padding-top: 15px;
+                }
+            }
+        }
+    }
+    @media(max-width: $md) {
+        .solutions {
+            > ul {
+                > li {
+                    .box {
+                        height: 188px;
+                    }
                 }
             }
         }
@@ -1969,6 +2023,13 @@
     }
     @media(max-width: $md) {
         .solutions {
+            > ul {
+                > li {
+                    .box {
+                        height: 162px;
+                    }
+                }
+            }
             & ~ .solutions {
                 margin-top: 20px;
             }
@@ -2361,7 +2422,6 @@
                         display: block;
                         .item-img {
                             overflow: hidden;
-                            border-radius: 20px;
                             img {
                                 display: block;
                                 width: 100%;
@@ -2369,13 +2429,7 @@
                             }
                         }
                         .details {
-                            width: calc(100% - 30px);
-                            margin: -40px auto 0;
-                            padding: 20px 30px;
-                            border-radius: 15px;
-                            background: linear-gradient(0deg, rgba(255, 255, 255, 0.10) 0%, rgba(255, 255, 255, 0.10) 100%), rgba(0, 0, 0, 0.30);
-                            box-shadow: 0 1px 6.1px 0 rgba(0, 0, 0, 0.25);
-                            backdrop-filter: blur(4.900000095367432px);
+                           padding-top: 30px;
                             p {
                                 display: block;
                                 font-size: 18px;
@@ -2391,7 +2445,7 @@
                                 font-size: 13px;
                                 color: #999;
                                 font-weight: 400;
-                                margin-top: 20px;
+                                margin-top: 10px;
                             }
                         }
                         &:hover {
@@ -2422,27 +2476,25 @@
             .article-content {
                 padding-top: 60px;
                 > ul {
-                    width: 100%;
-                    margin: 0;
+                    width: calc(100% + 16px);
+                    margin: 0 -8px;
                     > li {
-                        float: none;
-                        width: 100%;
-                        padding: 0;
+                        width: 50%;
+                        padding: 0 8px;
                         > a {
                             .details {
                                 width: calc(100% - 20px);
-                                padding: 15px 20px;
+                                padding-top: 10px;
                                 p {
                                     font-size: 15px;
                                     line-height: 20px;
                                 }
                                 .date {
                                     font-size: 11px;
-                                    margin-top: 15px;
                                 }
                             }
                         }
-                        & ~ li {
+                        &:nth-of-type(2) ~ li {
                             margin-top: 30px;
                         }
                     }

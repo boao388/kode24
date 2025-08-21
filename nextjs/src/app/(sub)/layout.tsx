@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Script from 'next/script';
-// Next.js 스타일의 CSS import - 서브 페이지 전용 (원본과 동일)
-import '@/styles/sub.css';
 // Common CSS import - cursor__ball 설정 포함
 import '@/styles/common.css';
+// Next.js 스타일의 CSS import - 서브 페이지 전용 (원본과 동일)
+import '@/styles/sub.css';
 
 export const metadata: Metadata = {
   title: "KODE24 | 몸캠피싱 피해 예방 및 대처 서비스",

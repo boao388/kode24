@@ -485,25 +485,30 @@ a, button {
       .solutions > ul {
         max-width: 100%; }
         .solutions > ul > li {
-          display: block;
-          margin-bottom: 0;
-          padding: 0 25px; }
+          width: 50%;
+          padding: 0;
+          margin-bottom: 0; }
           .solutions > ul > li .box {
             width: 100%;
-            height: auto;
-            padding: 30px 15px;
+            padding: 30px 15px !important;
             border-radius: 15px; }
+            .solutions > ul > li .box > figure img {
+              max-width: 60px; }
             .solutions > ul > li .box .details {
-              padding-top: 20px; }
+              padding-top: 10px; }
               .solutions > ul > li .box .details b {
-                font-size: 17px;
-                line-height: 28px; }
+                font-size: 12px;
+                line-height: 16px; }
               .solutions > ul > li .box .details p {
-                font-size: 14px;
-                line-height: 28px; }
+                font-size: 10px;
+                line-height: 14px; }
               .solutions > ul > li .box .details br {
                 display: none; }
-          .solutions > ul > li ~ li {
+          .solutions > ul > li:nth-of-type(2n + 1) {
+            padding-right: 10px; }
+          .solutions > ul > li:nth-of-type(2n + 2) {
+            padding-left: 10px; }
+          .solutions > ul > li:nth-of-type(2) ~ li {
             margin-top: 20px; }
       .solutions > figure {
         width: calc(100% + 20px);
@@ -1569,10 +1574,16 @@ a, button {
     #ch-1 > figure {
       width: calc(100% + 20px);
       margin: 0 -10px; } }
+@media (max-width: 1024px) {
+  #ch-1 .solutions > ul > li .box {
+    height: 174px; } }
 
 /* data */
 #ch-2 .solutions > ul > li .box {
   padding-top: 45px; }
+@media (max-width: 1024px) {
+  #ch-2 .solutions > ul > li .box {
+    height: 204px; } }
 
 /* picture */
 #ch-3 .solutions {
@@ -1581,10 +1592,16 @@ a, button {
 /* ai */
 #ch-4 .solutions > ul > li .box {
   padding-top: 35px; }
+@media (max-width: 1024px) {
+  #ch-4 .solutions > ul > li .box {
+    height: 218px; } }
 
 /* after */
 #ch-5 .solutions > ul > li .box {
   padding-top: 15px; }
+@media (max-width: 1024px) {
+  #ch-5 .solutions > ul > li .box {
+    height: 188px; } }
 
 /* success */
 #ch-6 .solutions > ul > li .box {
@@ -1594,6 +1611,8 @@ a, button {
 #ch-6 .solution-summary ~ .solution-summary p {
   margin-top: 0; }
 @media (max-width: 1024px) {
+  #ch-6 .solutions > ul > li .box {
+    height: 162px; }
   #ch-6 .solutions ~ .solutions {
     margin-top: 20px; } }
 
@@ -1939,8 +1958,7 @@ a, button {
           .gallery-list .container .article-content > ul > li > a {
             display: block; }
             .gallery-list .container .article-content > ul > li > a .item-img {
-              overflow: hidden;
-              border-radius: 20px; }
+              overflow: hidden; }
               .gallery-list .container .article-content > ul > li > a .item-img img {
                 display: block;
                 width: 100%;
@@ -1953,13 +1971,7 @@ a, button {
                 -webkit-transition-delay: 0s;
                 transition-delay: 0s; }
             .gallery-list .container .article-content > ul > li > a .details {
-              width: calc(100% - 30px);
-              margin: -40px auto 0;
-              padding: 20px 30px;
-              border-radius: 15px;
-              background: linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%), rgba(0, 0, 0, 0.3);
-              box-shadow: 0 1px 6.1px 0 rgba(0, 0, 0, 0.25);
-              backdrop-filter: blur(4.9000000954px); }
+              padding-top: 30px; }
               .gallery-list .container .article-content > ul > li > a .details p {
                 display: block;
                 font-size: 18px;
@@ -1974,7 +1986,7 @@ a, button {
                 font-size: 13px;
                 color: #999;
                 font-weight: 400;
-                margin-top: 20px; }
+                margin-top: 10px; }
             .gallery-list .container .article-content > ul > li > a:hover .item-img img {
               position: relative;
               transform: scale(1.05); }
@@ -1990,22 +2002,20 @@ a, button {
       .gallery-list .container .article-content {
         padding-top: 60px; }
         .gallery-list .container .article-content > ul {
-          width: 100%;
-          margin: 0; }
+          width: calc(100% + 16px);
+          margin: 0 -8px; }
           .gallery-list .container .article-content > ul > li {
-            float: none;
-            width: 100%;
-            padding: 0; }
+            width: 50%;
+            padding: 0 8px; }
             .gallery-list .container .article-content > ul > li > a .details {
               width: calc(100% - 20px);
-              padding: 15px 20px; }
+              padding-top: 10px; }
               .gallery-list .container .article-content > ul > li > a .details p {
                 font-size: 15px;
                 line-height: 20px; }
               .gallery-list .container .article-content > ul > li > a .details .date {
-                font-size: 11px;
-                margin-top: 15px; }
-            .gallery-list .container .article-content > ul > li ~ li {
+                font-size: 11px; }
+            .gallery-list .container .article-content > ul > li:nth-of-type(2) ~ li {
               margin-top: 30px; } }
 
 /* press-list */
