@@ -9,7 +9,7 @@ export default function PatentViewPage() {
   return (
     <>
       {/* cursor-pointer */}
-      <div className="cursor">
+      {/* <div className="cursor">
         <div className="cursor__ball cursor__ball--big">
           <svg height="30" width="30">
             <circle cx="15" cy="15" r="12" strokeWidth="0"></circle>
@@ -20,7 +20,7 @@ export default function PatentViewPage() {
             <circle cx="5" cy="5" r="4" strokeWidth="0"></circle>
           </svg>
         </div>
-      </div>
+      </div> */}
       
       <Header />
       

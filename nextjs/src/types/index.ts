@@ -327,4 +327,28 @@ export interface PaginationProps {
   pageSizeOptions?: number[]
   pageSize?: number
   onPageSizeChange?: (size: number) => void
+}
+
+// 인증특허 타입
+export interface Patent {
+  id: string
+  title: string
+  description?: string
+  imageUrl: string
+  date: string
+  category?: string
+  isActive: boolean
+  sortOrder: number
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 인증특허 목록 응답 타입
+export interface PatentListResponse extends PaginatedResponse<Patent> {}
+
+// 인증특허 검색 파라미터
+export interface PatentSearchParams extends SearchParams {
+  category?: string
+  startDate?: string
+  endDate?: string
 } 
