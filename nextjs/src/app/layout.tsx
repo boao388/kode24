@@ -56,8 +56,8 @@ export default function RootLayout({
         <Script src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js" strategy="beforeInteractive" />
         <Script src="https://unpkg.com/typehangul@1.0.2/dist/typehangul.min.js" strategy="beforeInteractive" />
 
-        <Script src="/assets/js/common.js" strategy="beforeInteractive" />
-        <Script src="/assets/js/main.js" strategy="beforeInteractive" />
+        <Script src="/assets/js/common.js" strategy="afterInteractive" />
+        <Script src="/assets/js/main.js" strategy="afterInteractive" />
         {/* cursor.js는 React CustomCursor 컴포넌트로 대체됨 - 중복 방지 */}
       </body>
     </html>

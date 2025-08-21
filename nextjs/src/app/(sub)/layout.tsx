@@ -20,7 +20,7 @@ export default function SubLayout({
       {children}
 
       {/* 서브페이지 전용 스크립트 */}
-      <Script src="/assets/js/sub.js" strategy="beforeInteractive" />
+      <Script src="/assets/js/sub.js" strategy="afterInteractive" />
     </>
   );
 } 
