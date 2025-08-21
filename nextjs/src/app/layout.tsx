@@ -51,13 +51,14 @@ export default function RootLayout({
 
         {/* 기존 퍼블리싱 스크립트 */}
         <Script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" strategy="beforeInteractive" />
-        <Script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js" strategy="beforeInteractive" />
+        <Script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/1.11.4/TweenMax.min.js" strategy="beforeInteractive" />
         <Script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" strategy="beforeInteractive" />
         <Script src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js" strategy="beforeInteractive" />
         <Script src="https://unpkg.com/typehangul@1.0.2/dist/typehangul.min.js" strategy="beforeInteractive" />
 
-        <Script src="/assets/js/common.js" strategy="afterInteractive" />
-        <Script src="/assets/js/main.js" strategy="afterInteractive" />
+        <Script src="/assets/js/common.js" strategy="beforeInteractive" />
+        <Script src="/assets/js/main.js" strategy="beforeInteractive" />
+        {/* cursor.js는 React CustomCursor 컴포넌트로 대체됨 - 중복 방지 */}
       </body>
     </html>
   );

@@ -30,20 +30,36 @@ export default function HtmlEditor({
 
   useEffect(() => {
     // 클라이언트 사이드에서만 다크모드 감지
-    const checkDarkMode = () => {
-      if (typeof window !== 'undefined') {
-        const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-        setIsDarkMode(darkModeMediaQuery.matches)
-        
-        // 다크모드 변경 감지
-        const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches)
-        darkModeMediaQuery.addEventListener('change', handler)
-        
-        return () => darkModeMediaQuery.removeEventListener('change', handler)
+    if (typeof window !== 'undefined') {
+      const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      setIsDarkMode(darkModeMediaQuery.matches)
+      
+      // 다크모드 변경 감지
+      const handler = (e: MediaQueryListEvent) => setIsDarkMode(e.matches)
+      darkModeMediaQuery.addEventListener('change', handler)
+      
+      // ✅ 올바른 cleanup 함수 반환
+      return () => darkModeMediaQuery.removeEventListener('change', handler)
+    }
+  }, [])
+
+  // TinyMCE 인스턴스 강화된 안전 정리
+  useEffect(() => {
+    return () => {
+      if (editorRef.current) {
+        try {
+          // TinyMCE 에디터가 활성 상태인지 확인
+          if (editorRef.current.getBody && editorRef.current.getBody()) {
+            editorRef.current.remove?.()
+          }
+        } catch (error) {
+          // TinyMCE 인스턴스 정리 중 오류 무시 (이미 정리된 경우)
+          console.debug('TinyMCE cleanup:', error)
+        } finally {
+          editorRef.current = null
+        }
       }
     }
-
-    checkDarkMode()
   }, [])
 
   const handleEditorChange = (content: string) => {

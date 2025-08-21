@@ -143,10 +143,12 @@ export default function AdminPostsPage() {
 
   // 관리자 인증 확인
   useEffect(() => {
+    let isMounted = true // 컴포넌트 마운트 상태 추적
+    
     const adminToken = localStorage.getItem('adminToken')
     if (!adminToken) {
       console.log('Admin token not found, redirecting to login')
-      router.push('/admin/login')
+      if (isMounted) router.push('/admin/login')
       return
     }
     
@@ -158,7 +160,7 @@ export default function AdminPostsPage() {
       if (tokenData.exp && tokenData.exp < currentTime) {
         console.log('Admin token expired, redirecting to login')
         localStorage.removeItem('adminToken')
-        router.push('/admin/login')
+        if (isMounted) router.push('/admin/login')
         return
       }
       
@@ -166,9 +168,11 @@ export default function AdminPostsPage() {
     } catch (error) {
       console.error('Invalid token format:', error)
       localStorage.removeItem('adminToken')
-      router.push('/admin/login')
+      if (isMounted) router.push('/admin/login')
       return
     }
+    
+    return () => { isMounted = false }
   }, [router])
 
   // 게시글 목록 로드

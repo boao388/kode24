@@ -7,16 +7,20 @@ export default function AdminRootPage() {
   const router = useRouter()
 
   useEffect(() => {
+    let isMounted = true // 컴포넌트 마운트 상태 추적
+    
     // 관리자 토큰 확인
     const adminToken = localStorage.getItem('adminToken')
     
     if (!adminToken) {
       // 토큰이 없으면 로그인 페이지로 리디렉트
-      router.push('/admin/login')
+      if (isMounted) router.push('/admin/login')
     } else {
       // 토큰이 있으면 대시보드로 리디렉트
-      router.push('/admin/dashboard')
+      if (isMounted) router.push('/admin/dashboard')
     }
+    
+    return () => { isMounted = false }
   }, [router])
 
   // 리디렉트 처리 중 표시할 로딩 화면

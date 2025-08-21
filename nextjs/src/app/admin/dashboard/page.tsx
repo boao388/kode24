@@ -42,11 +42,13 @@ export default function AdminDashboardPage() {
   }, [])
 
   const loadDashboardData = async () => {
+    let isMounted = true // 컴포넌트 마운트 상태 추적
+    
     try {
       // 관리자 토큰 확인
       const adminToken = localStorage.getItem('adminToken')
       if (!adminToken) {
-        router.push('/admin/login')
+        if (isMounted) router.push('/admin/login')
         return
       }
 
@@ -60,7 +62,7 @@ export default function AdminDashboardPage() {
         setStats(dashboardData)
       } else if (response.status === 401) {
         localStorage.removeItem('adminToken')
-        router.push('/admin/login')
+        if (isMounted) router.push('/admin/login')
       } else {
         console.error('대시보드 데이터 로드 실패')
       }

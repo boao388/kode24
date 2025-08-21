@@ -98,3 +98,4 @@ async function testSupabaseStorage() {
 
 // 스크립트 실행
 testSupabaseStorage()
+

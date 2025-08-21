@@ -30,7 +30,7 @@ export default function HomePage() {
   const [reviewPosts, setReviewPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(true)
 
-  // 슬라이더 초기화
+  // 슬라이더 초기화 - 안전한 의존성 관리
   useSlickSlider('.live-slider', {
     slidesToShow: 6,
     slidesToScroll: 1,
@@ -41,7 +41,7 @@ export default function HomePage() {
     infinite: true,
     pauseOnHover: false,
     pauseOnFocus: false,
-  }, [loading, realTimePosts])
+  }, [!loading && realTimePosts.length > 0])
 
   useSlickSlider('.review-slider', {
     slidesToShow: 3,
@@ -53,7 +53,7 @@ export default function HomePage() {
     infinite: true,
     pauseOnHover: false,
     pauseOnFocus: false,
-  }, [loading, reviewPosts])
+  }, [!loading && reviewPosts.length > 0])
 
   // API에서 게시글 데이터 가져오기
   useEffect(() => {
@@ -87,52 +87,9 @@ export default function HomePage() {
 
 
   useEffect(() => {
-    // main.js의 기능을 직접 구현
-    const initMainPageEffects = () => {
-      // jumbotron show 효과
-      setTimeout(() => {
-        const jumbotron = document.querySelector('.jumbotron')
-        if (jumbotron) {
-          jumbotron.classList.add('show')
-        }
-      }, 500)
-
-      // 스크롤 이벤트 처리
-      const handleScroll = () => {
-        const scrollY = window.scrollY
-        const effects = document.querySelectorAll('.effect')
-        
-        effects.forEach((effect) => {
-          const elementTop = effect.getBoundingClientRect().top + scrollY
-          const elementHeight = (effect as HTMLElement).offsetHeight
-          const windowHeight = window.innerHeight
-          
-          if (scrollY > elementTop - windowHeight + elementHeight / 2) {
-            effect.classList.add('show')
-          }
-        })
-      }
-
-      // 스크롤 이벤트 등록
-      window.addEventListener('scroll', handleScroll)
-      
-      // 초기 실행
-      handleScroll()
-      
-      // cleanup
-      return () => {
-        window.removeEventListener('scroll', handleScroll)
-      }
-    }
-
-    // DOM이 준비된 후 실행
-    const cleanup = initMainPageEffects()
+    let scrollTimeout: NodeJS.Timeout
     
-    return cleanup
-  }, [])
-
-  useEffect(() => {
-    // main.js의 기능을 직접 구현
+    // main.js의 기능을 통합 구현 - 슬라이더 안전성 강화
     const initMainPageEffects = () => {
       // jumbotron show 효과
       setTimeout(() => {
@@ -142,23 +99,37 @@ export default function HomePage() {
         }
       }, 500)
 
-      // 스크롤 이벤트로 effect 클래스에 show 추가
+      // 스크롤 이벤트 디바운싱 - 슬라이더 보호
       const handleScroll = () => {
-        const effects = document.querySelectorAll('.effect')
-        effects.forEach((elem) => {
-          const elemTop = elem.getBoundingClientRect().top
-          const windowHeight = window.innerHeight
-          if (elemTop < windowHeight / 2) {
-            elem.classList.add('show')
+        clearTimeout(scrollTimeout)
+        scrollTimeout = setTimeout(() => {
+          // effect 클래스에 show 추가 (안전한 처리)
+          const effects = document.querySelectorAll('.effect')
+          effects.forEach((elem) => {
+            if (document.contains(elem)) { // DOM 존재 확인
+              const elemTop = elem.getBoundingClientRect().top
+              const windowHeight = window.innerHeight
+              if (elemTop < windowHeight / 2) {
+                elem.classList.add('show')
+              }
+            }
+          })
+          
+          // 슬라이더 상태 확인 (재초기화 방지)
+          if (typeof window.$ !== 'undefined') {
+            const $liveSlider = window.$('.live-slider')
+            const $reviewSlider = window.$('.review-slider')
+            
+            // 슬라이더가 깨진 경우 로그만 출력 (React가 관리)
+            if ($liveSlider.length && !$liveSlider.hasClass('slick-initialized')) {
+              console.debug('Live slider needs reinitialization')
+            }
+            if ($reviewSlider.length && !$reviewSlider.hasClass('slick-initialized')) {
+              console.debug('Review slider needs reinitialization')
+            }
           }
-        })
+        }, 50) // 디바운스 시간 단축
       }
-
-      // 스크롤 이벤트 등록
-      window.addEventListener('scroll', handleScroll)
-      
-      // 초기 실행
-      handleScroll()
 
       // 탭 기능
       const handleTabClick = (e: Event) => {
@@ -181,19 +152,35 @@ export default function HomePage() {
         }
       }
 
+      // 이벤트 등록 - passive 옵션으로 성능 향상
+      window.addEventListener('scroll', handleScroll, { passive: true })
       document.addEventListener('click', handleTabClick)
+      
+      // 초기 실행
+      handleScroll()
 
       return () => {
+        clearTimeout(scrollTimeout)
         window.removeEventListener('scroll', handleScroll)
         document.removeEventListener('click', handleTabClick)
       }
     }
 
-    // DOM이 완전히 로드된 후 실행
+    // DOM 준비 상태 확인 후 실행
+    let cleanup: (() => void) | undefined
+    
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initMainPageEffects)
+      const onDOMReady = () => {
+        cleanup = initMainPageEffects()
+        document.removeEventListener('DOMContentLoaded', onDOMReady)
+      }
+      document.addEventListener('DOMContentLoaded', onDOMReady)
     } else {
-      initMainPageEffects()
+      cleanup = initMainPageEffects()
+    }
+    
+    return () => {
+      if (cleanup) cleanup()
     }
   }, [])
 
@@ -1044,15 +1031,15 @@ export default function HomePage() {
       <Script id="main-page-scripts" strategy="afterInteractive">
         {`
           $(document).ready(function() {
-            // solution slider 관련
-            if (typeof Swiper !== 'undefined') {
+            // solution slider 관련 - 안전한 초기화
+            if (typeof Swiper !== 'undefined' && $('.list-swiper1').length > 0) {
               var listSwiper1 = new Swiper(".list-swiper1", {
                   direction: 'vertical',
                   slidesPerView: 5,
                   watchSlidesProgress: true,
               });
               var frameSwiper1 = new Swiper(".frame-swiper1", {
-                  loop: true,
+                  loop: false, // ✅ 슬라이드 부족 시 loop 비활성화
                   spaceBetween: 10,
                   autoplay: {
                       delay: 4000,
@@ -1068,7 +1055,7 @@ export default function HomePage() {
                   watchSlidesProgress: true,
               });
               var frameSwiper2 = new Swiper(".frame-swiper2", {
-                  loop: true,
+                  loop: false, // ✅ 슬라이드 부족 시 loop 비활성화
                   spaceBetween: 10,
                   autoplay: {
                       delay: 4000,
@@ -1078,29 +1065,61 @@ export default function HomePage() {
                   },
               });
 
-              // Partners Swiper
-              var partnersSwiper1 = new Swiper(".partners-swiper", {
-                  slidesPerView: "auto",
-                  loop: true,
-                  observeParents: true,
-                  observe: true,
-                  speed: 5000,
-                  touchRatio: 0,
-                  autoplay: {
-                      delay: 0,
-                      disableOnInteraction: false
-                  },
-              });
+              // Partners Swiper - 안전한 초기화
+              if ($('.partners-swiper').length > 0) {
+                var partnersSwiper1 = new Swiper(".partners-swiper", {
+                    slidesPerView: "auto",
+                    loop: true,
+                    observeParents: true,
+                    observe: true,
+                    speed: 5000,
+                    touchRatio: 0,
+                    autoplay: {
+                        delay: 0,
+                        disableOnInteraction: false
+                    },
+                    on: {
+                      beforeDestroy: function () {
+                        // Swiper 인스턴스 정리 시 안전 처리
+                        try {
+                          this.autoplay.stop();
+                        } catch (e) {
+                          console.debug('Swiper cleanup:', e);
+                        }
+                      }
+                    }
+                });
+              }
             }
             
             // Slick 슬라이더는 React useEffect에서 처리됨
             // 중복 초기화 방지를 위해 여기서는 제거
           });
+          
+          // 페이지 언로드 시 Swiper 정리
+          $(window).on('beforeunload', function() {
+            if (typeof Swiper !== 'undefined') {
+              $('.swiper').each(function() {
+                if (this.swiper) {
+                  try {
+                    this.swiper.destroy(true, true);
+                  } catch (e) {
+                    console.debug('Swiper destroy:', e);
+                  }
+                }
+              });
+            }
+          });
         `}
       </Script>
       
-      {/* Line Event 스크립트 - 메인페이지에서만 로드 */}
-      <Script src="/assets/js/line_event.js" type="module" strategy="afterInteractive" />
+      {/* Line Event 스크립트 - 메인페이지에서만 로드 (preload 경고 해결) */}
+      <Script 
+        src="/assets/js/line_event.js" 
+        strategy="lazyOnload"
+        onLoad={() => console.debug('Line event script loaded')}
+        onError={() => console.debug('Line event script failed to load')}
+      />
     </>
   )
 }

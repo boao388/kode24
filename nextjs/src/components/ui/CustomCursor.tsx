@@ -11,7 +11,6 @@ declare global {
 }
 
 export default function CustomCursor() {
-  const _cursorRef = useRef<HTMLDivElement>(null)
   const isCursorActiveRef = useRef(false)
   const elementsRef = useRef<{
     $bigBall: HTMLElement | null;
@@ -24,39 +23,56 @@ export default function CustomCursor() {
   })
 
   useEffect(() => {
-    // 마우스 이동 처리 - 원본과 동일하게 pageX/pageY 사용
+    // 마우스 이동 처리 - 안전한 TweenMax 사용
     function onMouseMove(e: MouseEvent) {
       const { $bigBall, $smallBall } = elementsRef.current;
       if (!$bigBall || !$smallBall || typeof window.TweenMax === 'undefined') return;
 
-      // 원본과 동일한 좌표계 사용
-      window.TweenMax.to($bigBall, 0.4, {
-        x: e.pageX - 15,
-        y: e.pageY - 15
-      });
-      window.TweenMax.to($smallBall, 0.1, {
-        x: e.pageX - 5,
-        y: e.pageY - 7
-      });
+      // DOM 요소가 여전히 존재하는지 확인
+      if (!document.contains($bigBall) || !document.contains($smallBall)) return;
+
+      try {
+        // 원본과 동일한 좌표계 사용
+        window.TweenMax.to($bigBall, 0.4, {
+          x: e.pageX - 15,
+          y: e.pageY - 15
+        });
+        window.TweenMax.to($smallBall, 0.1, {
+          x: e.pageX - 5,
+          y: e.pageY - 7
+        });
+      } catch (error) {
+        console.debug('TweenMax animation error:', error);
+      }
     }
 
-    // hover 시 확대 - 원본과 동일
+    // hover 시 확대 - 안전한 TweenMax 사용
     function onMouseHover() {
       const { $bigBall } = elementsRef.current;
       if (!$bigBall || typeof window.TweenMax === 'undefined') return;
+      if (!document.contains($bigBall)) return;
       
-      window.TweenMax.to($bigBall, 0.3, { scale: 4 });
+      try {
+        window.TweenMax.to($bigBall, 0.3, { scale: 4 });
+      } catch (error) {
+        console.debug('TweenMax hover error:', error);
+      }
     }
 
-    // hover 해제 시 원래 크기 - 원본과 동일
+    // hover 해제 시 원래 크기 - 안전한 TweenMax 사용
     function onMouseHoverOut() {
       const { $bigBall } = elementsRef.current;
       if (!$bigBall || typeof window.TweenMax === 'undefined') return;
+      if (!document.contains($bigBall)) return;
       
-      window.TweenMax.to($bigBall, 0.3, { scale: 1 });
+      try {
+        window.TweenMax.to($bigBall, 0.3, { scale: 1 });
+      } catch (error) {
+        console.debug('TweenMax hover out error:', error);
+      }
     }
 
-    // 커서 초기화 - 원본과 동일 (JavaScript 강제 적용 제거)
+    // 커서 초기화 - 안전성 개선
     function initCursor() {
       const $bigBall = document.querySelector('.cursor__ball--big') as HTMLElement;
       const $smallBall = document.querySelector('.cursor__ball--small') as HTMLElement;
@@ -64,33 +80,49 @@ export default function CustomCursor() {
 
       if (!$bigBall || !$smallBall) return;
 
-      // 참조 저장 (JavaScript 강제 스타일 적용 제거)
+      // 참조 저장
       elementsRef.current = { $bigBall, $smallBall, $hoverables };
 
-      document.body.addEventListener('mousemove', onMouseMove);
+      // 안전한 이벤트 리스너 등록
+      if (document.body) {
+        document.body.addEventListener('mousemove', onMouseMove);
+      }
+      
       $hoverables.forEach(el => {
-        el.addEventListener('mouseenter', onMouseHover);
-        el.addEventListener('mouseleave', onMouseHoverOut);
+        if (el && el.addEventListener) {
+          el.addEventListener('mouseenter', onMouseHover);
+          el.addEventListener('mouseleave', onMouseHoverOut);
+        }
       });
       isCursorActiveRef.current = true;
     }
 
-    // 커서 제거 - 원본과 동일
+    // 커서 제거 - 안전성 개선
     function destroyCursor() {
       const { $hoverables } = elementsRef.current;
       
-      document.body.removeEventListener('mousemove', onMouseMove);
+      // DOM 요소 존재 확인 후 이벤트 리스너 제거
+      if (document.body) {
+        document.body.removeEventListener('mousemove', onMouseMove);
+      }
+      
       if ($hoverables) {
         $hoverables.forEach(el => {
-          el.removeEventListener('mouseenter', onMouseHover);
-          el.removeEventListener('mouseleave', onMouseHoverOut);
+          // 각 요소가 여전히 DOM에 존재하는지 확인
+          if (el && el.removeEventListener) {
+            el.removeEventListener('mouseenter', onMouseHover);
+            el.removeEventListener('mouseleave', onMouseHoverOut);
+          }
         });
       }
       isCursorActiveRef.current = false;
     }
 
-    // 처음 실행 시 화면 크기 체크 - 원본과 동일
+    // 처음 실행 시 화면 크기 체크 - 안전성 강화
     function checkCursorActivation() {
+      // 페이지가 완전히 로드되기 전에는 실행하지 않음
+      if (document.readyState === 'loading') return;
+      
       if (window.innerWidth >= 1024) {
         if (!isCursorActiveRef.current) initCursor();
       } else {
@@ -98,10 +130,17 @@ export default function CustomCursor() {
       }
     }
 
-    // TweenMax 로딩 대기 후 실행 (동적 CSS 스타일 주입 제거)
-    const initTimer = setTimeout(() => {
-      checkCursorActivation();
-    }, 100);
+    // TweenMax 로딩 대기 후 실행 - 안전한 타이밍
+    const checkTweenMaxAndInit = () => {
+      if (typeof window.TweenMax !== 'undefined') {
+        checkCursorActivation();
+      } else {
+        // TweenMax가 로드되지 않았으면 다시 시도
+        setTimeout(checkTweenMaxAndInit, 50);
+      }
+    };
+    
+    const initTimer = setTimeout(checkTweenMaxAndInit, 100);
 
     // 리사이즈 이벤트 등록 - 원본과 동일
     window.addEventListener('resize', checkCursorActivation);
