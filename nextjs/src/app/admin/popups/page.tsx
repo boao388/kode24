@@ -214,7 +214,28 @@ export default function PopupsManagePage() {
     <div className="admin-container" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', color: '#333' }}>
       <div style={{ padding: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0 }}>팝업 관리</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <button
+              onClick={() => router.push('/admin/dashboard')}
+              className="back-btn"
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#6c757d',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}
+            >
+              ← 대시보드
+            </button>
+            <h1 style={{ fontSize: '28px', fontWeight: 'bold', margin: 0 }}>팝업 관리</h1>
+          </div>
+          <div className="admin-actions">
           <button
             onClick={() => {
               setShowForm(true)
@@ -233,6 +254,22 @@ export default function PopupsManagePage() {
           >
             팝업 추가
           </button>
+          <button 
+            onClick={() => router.push('/admin/dashboard')}
+            className="btn-secondary"
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              marginLeft: '10px'
+            }}
+          >
+            대시보드로 돌아가기
+          </button>
+          </div>
         </div>
 
         {/* 팝업 목록 */}

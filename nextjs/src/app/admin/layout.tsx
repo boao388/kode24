@@ -11,15 +11,15 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    // Next.js 15 App Router와 호환되는 안전한 스크립트 및 DOM 관리
-    const safelyDisableScripts = () => {
+    // Next.js 15 + React 19 호환 안전한 스크립트 비활성화
+    const disableAnimationLibraries = () => {
       if (typeof window === 'undefined') return;
 
       try {
-        // TweenMax/GSAP 비활성화
-        if ('TweenMax' in window) {
+        // TweenMax 비활성화 (한 번만 실행)
+        if ('TweenMax' in window && (window as any).TweenMax) {
           const tweenMax = (window as any).TweenMax;
-          if (tweenMax && typeof tweenMax === 'object') {
+          if (typeof tweenMax === 'object') {
             tweenMax.killAll = () => {};
             tweenMax.to = () => {};
             tweenMax.from = () => {};
@@ -28,93 +28,29 @@ export default function AdminLayout({
           }
         }
 
-        // 기타 애니메이션 라이브러리 비활성화
+        // GSAP 비활성화
         if ('gsap' in window) {
           (window as any).gsap = { to: () => {}, from: () => {}, set: () => {} };
         }
 
-        // jQuery 애니메이션 비활성화 (필요시)
-        if ('$' in window && (window as any).$ && (window as any).$.fn) {
-          const $ = (window as any).$;
-          if ($.fn.animate) {
-            $.fn.animate = function() { return this; };
-          }
+        // jQuery 애니메이션 비활성화
+        if ('$' in window && (window as any).$?.fn?.animate) {
+          (window as any).$.fn.animate = function() { return this; };
         }
 
-        // 커스텀 스크립트 비활성화
-        ['initCursor', 'initMainScripts', 'initCommonScripts'].forEach(funcName => {
-          if (funcName in window) {
-            (window as any)[funcName] = () => {};
-          }
-        });
-
       } catch (error) {
-        console.warn('스크립트 비활성화 중 오류:', error);
+        // 오류 무시 (라이브러리가 로드되지 않은 경우)
       }
     };
 
-    // 안전한 DOM 요소 제거
-    const safelyCleanupDOMElements = () => {
-      if (typeof window === 'undefined' || !document.body) return;
-
-      try {
-        // 커서 관련 요소 제거
-        const cursorSelectors = ['.cursor', '.cursor__ball', '.cursor__ball--big', '.cursor__ball--small'];
-        cursorSelectors.forEach(selector => {
-          const elements = document.querySelectorAll(selector);
-          elements.forEach(el => {
-            try {
-              if (el && el.parentNode && el.parentNode.contains(el)) {
-                el.remove();
-              }
-            } catch (removeError) {
-              // DOM 조작 오류 무시 (Next.js 15 호환성)
-            }
-          });
-        });
-
-        // 기타 애니메이션 관련 요소 정리
-        const animationElements = document.querySelectorAll('[data-aos], .aos-animate, .swiper-container');
-        animationElements.forEach(el => {
-          try {
-            if (el) {
-              el.removeAttribute('data-aos');
-              el.classList.remove('aos-animate');
-            }
-          } catch (error) {
-            // 속성 제거 오류 무시
-          }
-        });
-
-      } catch (error) {
-        console.warn('DOM 정리 중 오류:', error);
-      }
-    };
-
-    // 안전한 초기화 실행
-    const initializeAdminEnvironment = () => {
-      safelyDisableScripts();
-      safelyCleanupDOMElements();
-    };
-
-    // DOM 완전 로드 후 초기화
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeAdminEnvironment);
-    } else {
-      // 이미 로드된 경우 지연 실행
-      setTimeout(initializeAdminEnvironment, 50);
-    }
-
-    // 주기적 정리 (더 안전한 간격)
-    const intervalId = setInterval(() => {
-      safelyDisableScripts();
-      safelyCleanupDOMElements();
-    }, 2000);
+    // 단일 실행으로 초기화
+    const timer = setTimeout(() => {
+      disableAnimationLibraries();
+    }, 100);
 
     // cleanup
     return () => {
-      clearInterval(intervalId);
-      document.removeEventListener('DOMContentLoaded', initializeAdminEnvironment);
+      clearTimeout(timer);
     };
   }, []);
 
