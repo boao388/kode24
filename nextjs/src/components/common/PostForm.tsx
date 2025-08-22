@@ -187,23 +187,19 @@ export default function PostForm({
               />
             </div>
           </li>
-          
-          {!requireAuth && (
-            <li>
-              <div className="form-group">
-                <input
-                  type="email"
-                  className="form-control"
-                  name="authorEmail"
-                  value={formData.authorEmail || ''}
-                  onChange={handleInputChange}
-                  placeholder="이메일을 입력하세요 (선택사항)"
-                  disabled={loading}
-                />
-              </div>
-            </li>
-          )}
-
+          <li>
+            <div className="form-group">
+              <input
+                type="email"
+                className="form-control"
+                name="authorEmail"
+                value={formData.authorEmail || ''}
+                onChange={handleInputChange}
+                placeholder="이메일을 입력하세요 (선택사항)"
+                disabled={loading}
+              />
+            </div>
+          </li>
           <li>
             <div className="form-group">
               <input
@@ -218,41 +214,43 @@ export default function PostForm({
               />
             </div>
           </li>
-
-          {showSecretOption && (
-            <li>
-              <div className="form-group checkbox-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                  <input
-                    type="checkbox"
-                    name="isSecret"
-                    checked={formData.isSecret}
-                    onChange={handleInputChange}
-                    disabled={loading}
-                  />
-                  <span>비밀글로 작성</span>
-                </label>
-              </div>
-            </li>
-          )}
-
-          {showSecretOption && formData.isSecret && (
-            <li>
-              <div className="form-group">
+          <li>
+            <div className="form-group checkbox-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                <input
+                  type="checkbox"
+                  name="isSecret"
+                  checked={formData.isSecret}
+                  onChange={handleInputChange}
+                  disabled={loading}
+                />
+                <span>비밀글로 작성</span>
+              </label>
+              {formData.isSecret && (
                 <input
                   type="password"
                   className="form-control"
                   name="password"
                   value={formData.password || ''}
                   onChange={handleInputChange}
-                  placeholder="비밀번호를 입력하세요"
+                  placeholder="비밀번호"
                   required={formData.isSecret}
                   disabled={loading}
+                  style={{ marginLeft: '20px', width: '200px' }}
                 />
-              </div>
-            </li>
-          )}
-
+              )}
+            </div>
+          </li>
+          <li>
+            <div className="form-group">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="추가 정보 (선택사항)"
+                disabled={loading}
+              />
+            </div>
+          </li>
           <li>
             <div className="form-group">
               <HtmlEditor
@@ -283,9 +281,7 @@ export default function PostForm({
           >
             {loading 
               ? '처리중...' 
-              : mode === 'create' 
-                ? '작성완료' 
-                : '수정완료'
+              : '작성완료'
             }
           </button>
         </div>
