@@ -2,6 +2,7 @@
 
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
+import MainPopup from '@/components/common/MainPopup'
 import Link from 'next/link'
 // 메인 페이지 전용 CSS (common.css는 루트 레이아웃에서 이미 로드됨)
 import '@/styles/main.css'
@@ -208,6 +209,9 @@ export default function Index2Page() {
       </main>
 
       <Footer />
+      
+      {/* 팝업 컴포넌트 */}
+      <MainPopup />
     </>
   )
 } 

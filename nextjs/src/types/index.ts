@@ -351,4 +351,43 @@ export interface PatentSearchParams extends SearchParams {
   category?: string
   startDate?: string
   endDate?: string
+}
+
+// 팝업 타입
+export interface Popup {
+  id: string
+  title: string
+  imageUrl: string
+  linkUrl?: string
+  isActive: boolean
+  sortOrder: number
+  startDate?: Date
+  endDate?: Date
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 팝업 폼 데이터 타입
+export interface PopupFormData {
+  title: string
+  imageUrl: string
+  linkUrl?: string
+  isActive: boolean
+  sortOrder: number
+  startDate?: string
+  endDate?: string
+}
+
+// 팝업 목록 응답 타입
+export interface PopupListResponse {
+  success: boolean
+  popups: Popup[]
+  message?: string
+}
+
+// 활성 팝업 응답 타입
+export interface ActivePopupResponse {
+  success: boolean
+  popups: Pick<Popup, 'id' | 'title' | 'imageUrl' | 'linkUrl' | 'sortOrder'>[]
+  message?: string
 } 

@@ -12,7 +12,7 @@ export default function PatentListPage() {
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const limit = 10
+  const limit = 6
 
   // API 호출 함수
   const fetchPatents = useCallback(async (page: number = 1) => {
@@ -27,7 +27,7 @@ export default function PatentListPage() {
 
       const queryString = new URLSearchParams({
         page: params.page?.toString() || '1',
-        limit:  '10',//,params.limit?.toString() || '2',
+        limit: params.limit?.toString() || '6',
         sort: params.sort || 'createdAt',
         order: params.order || 'desc'
       }).toString()

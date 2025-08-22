@@ -239,6 +239,12 @@ export default function AdminDashboardPage() {
                 <div className="action-title">SNS 채널</div>
                 <div className="action-desc">SNS 채널 관리</div>
               </Link>
+              
+              <Link href="/admin/popups" className="action-card">
+                <div className="action-icon">🪟</div>
+                <div className="action-title">팝업 관리</div>
+                <div className="action-desc">메인페이지 팝업 설정</div>
+              </Link>
             </div>
           </section>
 

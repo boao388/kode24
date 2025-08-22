@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
+import MainPopup from '@/components/common/MainPopup'
 import Script from 'next/script'
 import { useSlickSlider } from '@/hooks/useSlickSlider'
 // 메인 페이지 전용 CSS
@@ -1121,6 +1122,9 @@ export default function HomePage() {
     </div>
       
       <Footer />
+      
+      {/* 팝업 컴포넌트 */}
+      <MainPopup />
       
       {/* jQuery 기반 Swiper 스크립트 제거 - React useEffect에서 처리 */}
       

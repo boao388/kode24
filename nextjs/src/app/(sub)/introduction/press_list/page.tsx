@@ -42,7 +42,7 @@ function PressListContent() {
     const loadPressData = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`/api/boards/press/posts?page=${currentPage}&limit=8`)
+        const response = await fetch(`/api/boards/press/posts?page=${currentPage}&limit=6`)
         if (response.ok) {
           const result = await response.json()
           setData(result)

@@ -638,11 +638,51 @@ async function main() {
     })
   }
 
+  // 팝업 데이터 생성
+  console.log('팝업 데이터를 생성 중입니다...')
+  
+  const popups = [
+    {
+      title: '몸캠피싱 해결 무료상담 이벤트',
+      imageUrl: '/assets/images/img_main_pop01.png',
+      linkUrl: 'https://kode24.co.kr/solve/real_time_write',
+      isActive: true,
+      sortOrder: 1,
+      startDate: null,
+      endDate: null
+    },
+    {
+      title: '24시간 긴급 대응 서비스',
+      imageUrl: '/assets/images/img_main_pop01.png',
+      linkUrl: 'https://kode24.co.kr/customer/qna',
+      isActive: true,
+      sortOrder: 2,
+      startDate: new Date('2025-01-01'),
+      endDate: new Date('2025-12-31')
+    },
+    {
+      title: 'AI 기반 딥페이크 탐지 솔루션',
+      imageUrl: '/assets/images/img_main_pop01.png',
+      linkUrl: 'https://kode24.co.kr/solution/initial',
+      isActive: false,
+      sortOrder: 3,
+      startDate: null,
+      endDate: null
+    }
+  ]
+
+  for (const popupData of popups) {
+    await prisma.popup.create({
+      data: popupData
+    })
+  }
+
   console.log('시드 데이터 생성이 완료되었습니다!')
   console.log(`생성된 게시판: ${createdBoards.length}개`)
   console.log(`생성된 게시글: ${samplePosts.length}개`)
   console.log(`생성된 FAQ: ${faqs.length}개`)
   console.log(`생성된 SNS 채널: ${snsChannels.length}개`)
+  console.log(`생성된 팝업: ${popups.length}개`)
 }
 
 main()

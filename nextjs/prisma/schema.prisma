@@ -318,3 +318,19 @@ model SnsChannel {
 
   @@map("sns_channels")
 }
+
+// 팝업 모델
+model Popup {
+  id          String    @id @default(cuid())
+  title       String    // 팝업 제목
+  imageUrl    String    // 팝업 이미지 URL
+  linkUrl     String?   // 클릭 시 이동할 URL (선택사항)
+  isActive    Boolean   @default(true)
+  sortOrder   Int       @default(0)  // 표출 순서 (1, 2, 3)
+  startDate   DateTime? // 시작 날짜 (선택사항)
+  endDate     DateTime? // 종료 날짜 (선택사항)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("popups")
+}
