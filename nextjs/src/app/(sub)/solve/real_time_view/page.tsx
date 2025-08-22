@@ -130,6 +130,34 @@ function RealTimeViewContent() {
     loadPost()
   }, [loadPost])
 
+  // 수정 버튼 클릭 핸들러
+  const handleModifyClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    
+    // 관리자인 경우 바로 수정 페이지로 이동
+    if (isAdmin) {
+      window.location.href = `/solve/real_time_modify?id=${postId}`
+      return
+    }
+    
+    // 일반 사용자인 경우 비밀글이면 권한 확인 필요
+    if (post?.isSecret) {
+      // 이미 인증된 토큰이 있는지 확인
+      const verifyToken = sessionStorage.getItem(`post_verify_${postId}`)
+      if (verifyToken) {
+        // 토큰이 있으면 바로 수정 페이지로 이동
+        window.location.href = `/solve/real_time_modify?id=${postId}`
+      } else {
+        // 토큰이 없으면 비밀번호 확인 필요
+        alert('수정하려면 비밀번호 확인이 필요합니다.')
+        router.push(`/solve/real_time_confirm?id=${postId}&author=${encodeURIComponent(post.authorName)}`)
+      }
+    } else {
+      // 일반글이면 바로 수정 페이지로 이동
+      window.location.href = `/solve/real_time_modify?id=${postId}`
+    }
+  }
+
   // 로딩 상태
   if (loading) {
     return (
@@ -200,7 +228,7 @@ function RealTimeViewContent() {
               <h3 className="typed">실시간 해결 문의</h3>
               <div className="btn-area">
                 <Link href="/solve/real_time_list" className="hoverable">목록</Link>
-                <Link href={`/solve/real_time_modify?id=${post.id}`} className="hoverable">수정</Link>
+                <a href="#" onClick={handleModifyClick} className="hoverable">수정</a>
                 <Link href="/solve/real_time_write" className="hoverable">글쓰기</Link>
               </div>
             </div>
