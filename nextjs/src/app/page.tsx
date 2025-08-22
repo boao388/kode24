@@ -6,8 +6,7 @@ import Footer from '@/components/common/Footer'
 import MainPopup from '@/components/common/MainPopup'
 import Script from 'next/script'
 import { useSlickSlider } from '@/hooks/useSlickSlider'
-// 메인 페이지 전용 CSS
-import '@/styles/main.css'
+
 
 interface Post {
   id: string
