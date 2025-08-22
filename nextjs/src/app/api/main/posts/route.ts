@@ -1,18 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { createSuccessResponse, createErrorResponse, dataTransformers, queryOptimizers } from '@/lib/apiOptimization'
+
+// 캐싱 설정 - 5분간 캐싱
+export const revalidate = 300 // 5분
 
 // 메인페이지용 게시글 목록 조회
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const boardKey = searchParams.get('boardKey')
-    const limit = parseInt(searchParams.get('limit') || '10')
+    const { limit } = queryOptimizers.optimizePaginationParams(
+      null,
+      searchParams.get('limit'),
+      10,
+      50 // 메인페이지는 최대 50개로 제한
+    )
 
     if (!boardKey) {
-      return NextResponse.json(
-        { error: '게시판 키가 필요합니다.' },
-        { status: 400 }
-      )
+      return createErrorResponse('게시판 키가 필요합니다.', 400)
     }
 
     // 게시판 존재 확인
@@ -21,10 +27,7 @@ export async function GET(request: NextRequest) {
     })
 
     if (!board) {
-      return NextResponse.json(
-        { error: '게시판을 찾을 수 없습니다.' },
-        { status: 404 }
-      )
+      return createErrorResponse('게시판을 찾을 수 없습니다.', 404)
     }
 
     // 게시글 목록 조회 (최신순)
@@ -50,40 +53,37 @@ export async function GET(request: NextRequest) {
       take: limit
     })
 
-    // 데이터 포맷팅
+    // 데이터 포맷팅 (최적화된 변환 함수 사용)
     const formattedPosts = posts.map(post => {
-      // HTML 태그 제거하여 텍스트만 추출
-      const getPlainText = (html: string | null) => {
-        if (!html) return ''
-        return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim()
-      }
+      const publishedDate = post.publishedAt || post.createdAt
 
       return {
         id: post.id,
         title: post.title,
-        content: getPlainText(post.content),
-        excerpt: post.excerpt || getPlainText(post.content)?.substring(0, 200),
+        content: dataTransformers.stripHtml(post.content),
+        excerpt: post.excerpt || dataTransformers.summarize(post.content, 200),
         authorName: post.authorName,
         isSecret: post.isSecret,
-        date: (post.publishedAt || post.createdAt).toISOString().split('T')[0], // YYYY-MM-DD
-        time: (post.publishedAt || post.createdAt).toLocaleTimeString('ko-KR', { 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: false 
-        })
+        date: dataTransformers.formatDate(publishedDate),
+        time: dataTransformers.formatTime(publishedDate)
       }
     })
 
-    return NextResponse.json({
-      posts: formattedPosts,
-      total: formattedPosts.length
-    })
+    return createSuccessResponse(
+      {
+        posts: formattedPosts,
+        total: formattedPosts.length
+      },
+      undefined,
+      {
+        maxAge: 300,
+        sMaxAge: 300,
+        staleWhileRevalidate: 600
+      }
+    )
 
   } catch (error) {
     console.error('메인 페이지 게시글 조회 실패:', error)
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다.' },
-      { status: 500 }
-    )
+    return createErrorResponse('서버 오류가 발생했습니다.', 500)
   }
 }

@@ -664,7 +664,7 @@ async function main() {
       title: 'AI 기반 딥페이크 탐지 솔루션',
       imageUrl: '/assets/images/img_main_pop01.png',
       linkUrl: 'https://kode24.co.kr/solution/initial',
-      isActive: false,
+      isActive: true,
       sortOrder: 3,
       startDate: null,
       endDate: null

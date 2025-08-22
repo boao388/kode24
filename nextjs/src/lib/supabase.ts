@@ -1,15 +1,67 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-// 환경변수에서 값을 가져옴 (예시)
+// 환경변수에서 값을 가져옴
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://your-project-ref.supabase.co'
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'your-anon-key'
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'your-service-role-key'
 
-// 클라이언트용 Supabase 클라이언트
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// 성능 최적화된 Supabase 클라이언트 옵션
+const supabaseOptions = {
+  auth: {
+    // 자동 토큰 새로고침 활성화
+    autoRefreshToken: true,
+    // 토큰 저장 방식 최적화
+    persistSession: true,
+    // 세션 감지 최적화
+    detectSessionInUrl: false,
+  },
+  // 연결 최적화
+  db: {
+    schema: 'public',
+  },
+  // 실시간 기능 비활성화 (성능 향상)
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+  // 글로벌 설정
+  global: {
+    headers: {
+      'x-application-name': 'kode24-nextjs',
+    },
+  },
+}
 
-// 서버용 Supabase 클라이언트 (서비스 키 사용)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+// 클라이언트용 Supabase 클라이언트 (최적화된 설정)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, supabaseOptions)
+
+// 서버용 Supabase 클라이언트 (서비스 키 사용, 최적화된 설정)
+export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+  ...supabaseOptions,
+  auth: {
+    autoRefreshToken: false, // 서버 사이드에서는 토큰 새로고침 불필요
+    persistSession: false,   // 서버 사이드에서는 세션 저장 불필요
+    detectSessionInUrl: false,
+  },
+})
+
+// 연결 풀링을 위한 클라이언트 인스턴스 캐싱
+const clientCache = new Map<string, SupabaseClient>()
+
+// 최적화된 클라이언트 팩토리 함수
+export function getOptimizedSupabaseClient(isAdmin: boolean = false): SupabaseClient {
+  const cacheKey = isAdmin ? 'admin' : 'client'
+  
+  if (clientCache.has(cacheKey)) {
+    return clientCache.get(cacheKey)!
+  }
+  
+  const client = isAdmin ? supabaseAdmin : supabase
+  clientCache.set(cacheKey, client)
+  
+  return client
+}
 
 // 버켓 존재 확인 및 생성 함수
 async function ensureBucketExists(bucket: string): Promise<boolean> {
