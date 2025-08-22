@@ -292,7 +292,9 @@ function ReviewViewContent() {
                 <h3 className="typed">솔루션 진행 후기</h3>
                 <div className="btn-area">
                   <Link href="/solve/review_list" className="hoverable">목록</Link>
-                  <a href="#" onClick={handleModifyClick} className="hoverable">수정</a>
+                  {post.isSecret || isAdmin ? (
+                    <a href="#" onClick={handleModifyClick} className="hoverable">수정</a>
+                  ) : null}
                   <Link href="/solve/review_write" className="hoverable">글쓰기</Link>
                 </div>
               </div>
