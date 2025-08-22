@@ -24,27 +24,21 @@ export default function PopupsManagePage() {
   // 팝업 목록 조회
   const loadPopups = async () => {
     try {
-      console.log('팝업 목록 조회 시작...')
       const token = localStorage.getItem('adminToken')
-      console.log('토큰 확인:', token ? '존재함' : '없음')
       
       if (!token) {
-        console.log('토큰이 없어서 로그인 페이지로 이동')
         router.push('/admin/login')
         return
       }
 
-      console.log('API 호출 시작...')
       const response = await fetch('/api/popups', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
-      console.log('API 응답 상태:', response.status)
       if (!response.ok) {
         if (response.status === 401) {
-          console.log('인증 실패 - 토큰 제거 후 로그인 페이지로 이동')
           localStorage.removeItem('adminToken')
           router.push('/admin/login')
           return
@@ -53,14 +47,11 @@ export default function PopupsManagePage() {
       }
 
       const data = await response.json()
-      console.log('받은 데이터:', data)
       setPopups(data.popups || [])
-      console.log('팝업 목록 설정 완료')
     } catch (error) {
       console.error('팝업 목록 조회 실패:', error)
       alert('팝업 목록 조회에 실패했습니다.')
     } finally {
-      console.log('로딩 상태 false로 변경')
       setLoading(false)
     }
   }

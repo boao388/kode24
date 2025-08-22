@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
-import PostForm from '@/components/common/PostForm'
 import PasswordConfirm, { PostData } from '@/components/common/PasswordConfirm'
 import { isAdminAuthenticated } from '@/lib/auth'
 
@@ -16,6 +15,205 @@ interface LocalPostData {
   authorEmail?: string
   isSecret: boolean
   requiresPassword?: boolean
+  phone?: string
+}
+
+interface PostDataWithMetadata extends PostData {
+  metadata?: {
+    phone?: string
+  }
+}
+
+// 수정 폼 컴포넌트
+function ReviewModifyForm({ post }: { post: LocalPostData }) {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    authorName: post.authorName || '',
+    password: '',
+    authorEmail: post.authorEmail || '',
+    phone: post.phone || '',
+    title: post.title || '',
+    content: post.content || ''
+  })
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
+
+  const handleSubmit = async () => {
+    if (!formData.authorName || !formData.title || !formData.content) {
+      alert('필수 항목을 모두 입력해주세요.')
+      return
+    }
+
+    setLoading(true)
+    try {
+      // 헤더 설정
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+
+      // 관리자 토큰 또는 사용자 인증 토큰 추가
+      const adminAuth = isAdminAuthenticated()
+      if (adminAuth) {
+        const adminToken = localStorage.getItem('adminToken')
+        if (adminToken) {
+          headers['Authorization'] = `Bearer ${adminToken}`
+        }
+      } else {
+        const verifyToken = sessionStorage.getItem(`post_verify_${post.id}`)
+        if (verifyToken) {
+          headers['x-verify-token'] = verifyToken
+        }
+      }
+
+      const response = await fetch(`/api/posts/${post.id}`, {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({
+          title: formData.title,
+          content: formData.content,
+          authorName: formData.authorName,
+          authorEmail: formData.authorEmail,
+          password: formData.password || undefined,
+          isSecret: false, // 후기는 기본적으로 공개글
+          metadata: {
+            phone: formData.phone
+          }
+        }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        alert('게시글이 수정되었습니다.')
+        router.push(`/solve/review_view?id=${post.id}`)
+      } else {
+        alert(result.message || '수정 중 오류가 발생했습니다.')
+      }
+    } catch (error) {
+      console.error('수정 실패:', error)
+      alert('수정 중 오류가 발생했습니다.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCancel = () => {
+    if (confirm('수정을 취소하시겠습니까?')) {
+      router.push(`/solve/review_view?id=${post.id}`)
+    }
+  }
+
+  return (
+    <div className="board-write">
+      <ul>
+        <li>
+          <div className="form-group">
+            <input 
+              type="text" 
+              className="form-control" 
+              name="authorName"
+              value={formData.authorName}
+              onChange={handleInputChange}
+              placeholder="이름을 입력해주세요"
+              disabled={loading}
+            />
+          </div>
+        </li>
+        <li>
+          <div className="form-group">
+            <input 
+              type="password" 
+              className="form-control" 
+              name="password"
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="비밀번호를 입력해주세요 (변경시에만 입력)"
+              disabled={loading}
+            />
+          </div>
+        </li>
+        <li>
+          <div className="form-group">
+            <input 
+              type="email" 
+              className="form-control" 
+              name="authorEmail"
+              value={formData.authorEmail}
+              onChange={handleInputChange}
+              placeholder="이메일을 입력해주세요"
+              disabled={loading}
+            />
+          </div>
+        </li>
+        <li>
+          <div className="form-group">
+            <input 
+              type="tel" 
+              className="form-control" 
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              placeholder="휴대폰 번호를 입력해주세요"
+              disabled={loading}
+            />
+          </div>
+        </li>
+        <li>
+          <div className="form-group">
+            <input 
+              type="text" 
+              className="form-control" 
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              placeholder="제목을 입력해 주세요"
+              disabled={loading}
+            />
+          </div>
+        </li>
+        <li>
+          <div className="form-group">
+            <textarea 
+              className="form-control" 
+              name="content"
+              value={formData.content}
+              onChange={handleInputChange}
+              placeholder="내용을 입력해주세요"
+              disabled={loading}
+            />
+          </div>
+        </li>
+      </ul>
+      
+      <div className="btn-area">
+        <a 
+          href="#" 
+          className="btn btn-cancel hoverable"
+          onClick={(e) => {
+            e.preventDefault()
+            handleCancel()
+          }}
+        >
+          취소
+        </a>
+        <button 
+          type="button" 
+          className="btn btn-submit hoverable"
+          onClick={handleSubmit}
+          disabled={loading}
+        >
+          {loading ? '수정 중...' : '작성완료'}
+        </button>
+      </div>
+    </div>
+  )
 }
 
 function ReviewModifyContent() {
@@ -26,9 +224,9 @@ function ReviewModifyContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showPasswordForm, setShowPasswordForm] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
+  const [, setIsAdmin] = useState(false)
 
-  const loadPost = async () => {
+  const loadPost = useCallback(async () => {
     if (!postId) {
       setError('게시글 ID가 없습니다.')
       setLoading(false)
@@ -70,7 +268,8 @@ function ReviewModifyContent() {
             content: data.content || '',
             authorName: data.authorName,
             authorEmail: data.authorEmail,
-            isSecret: data.isSecret
+            isSecret: data.isSecret,
+            phone: data.metadata?.phone || ''
           })
           setShowPasswordForm(false)
         } else {
@@ -82,7 +281,8 @@ function ReviewModifyContent() {
               title: data.title,
               content: '',
               authorName: data.authorName,
-              isSecret: data.isSecret
+              isSecret: data.isSecret,
+              phone: data.metadata?.phone || ''
             })
           } else {
             setPost({
@@ -91,7 +291,8 @@ function ReviewModifyContent() {
               content: data.content || '',
               authorName: data.authorName,
               authorEmail: data.authorEmail,
-              isSecret: data.isSecret
+              isSecret: data.isSecret,
+              phone: data.metadata?.phone || ''
             })
             setShowPasswordForm(false)
           }
@@ -105,7 +306,7 @@ function ReviewModifyContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [postId])
 
   const handlePasswordSuccess = (postData: PostData, verifyToken?: string) => {
     // 인증 성공 시 토큰을 세션 스토리지에 저장
@@ -118,25 +319,26 @@ function ReviewModifyContent() {
       content: postData.content || '',
       authorName: postData.authorName,
       authorEmail: postData.authorEmail,
-      isSecret: postData.isSecret
+      isSecret: postData.isSecret,
+      phone: (postData as PostDataWithMetadata).metadata?.phone || ''
     })
     setShowPasswordForm(false)
   }
 
   useEffect(() => {
     loadPost()
-  }, [postId])
+  }, [loadPost])
 
   if (loading) {
     return (
       <>
         <Header />
         <main id="content">
-          <article className="board-write-wrap review-modify">
+          <article className="real-time-write writer-wrap">
             <div className="container">
               <div className="article-header">
-                <small className="typed">Review Modify</small>
-                <h3 className="typed">솔루션 진행 후기 수정</h3>
+                <small className="typed">Solution Feedback</small>
+                <h3 className="typed">솔루션 진행 후기</h3>
               </div>
               <div className="loading-message" style={{ textAlign: 'center', padding: '50px 0' }}>
                 게시글을 불러오는 중입니다...
@@ -154,11 +356,11 @@ function ReviewModifyContent() {
       <>
         <Header />
         <main id="content">
-          <article className="board-write-wrap review-modify">
+          <article className="real-time-write writer-wrap">
             <div className="container">
               <div className="article-header">
-                <small className="typed">Review Modify</small>
-                <h3 className="typed">솔루션 진행 후기 수정</h3>
+                <small className="typed">Solution Feedback</small>
+                <h3 className="typed">솔루션 진행 후기</h3>
               </div>
               <div className="error-message" style={{ textAlign: 'center', padding: '50px 0', color: '#ff4444' }}>
                 {error || '게시글을 찾을 수 없습니다.'}
@@ -176,11 +378,11 @@ function ReviewModifyContent() {
       <Header />
       
       <main id="content">
-        <article className="board-write-wrap review-modify">
+        <article className="real-time-write writer-wrap">
           <div className="container">
             <div className="article-header">
-              <small className="typed">Review Modify</small>
-              <h3 className="typed">솔루션 진행 후기 수정</h3>
+              <small className="typed">Solution Feedback</small>
+              <h3 className="typed">솔루션 진행 후기</h3>
             </div>
             
             <div className="article-content">
@@ -194,23 +396,7 @@ function ReviewModifyContent() {
                   boardType="review"
                 />
               ) : (
-                <PostForm
-                  boardKey="review"
-                  boardTitle="솔루션 진행 후기"
-                  listUrl="/solve/review_list"
-                  mode="edit"
-                  initialData={{
-                    id: post.id,
-                    title: post.title,
-                    content: post.content,
-                    authorName: post.authorName,
-                    authorEmail: post.authorEmail,
-                    isSecret: post.isSecret
-                  }}
-                  requireAuth={false}
-                  showSecretOption={true}
-                  className="review-modify"
-                />
+                <ReviewModifyForm post={post} />
               )}
             </div>
           </div>
