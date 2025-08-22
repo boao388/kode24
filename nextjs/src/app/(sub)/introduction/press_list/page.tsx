@@ -22,9 +22,10 @@ interface ApiResponse {
   pagination: {
     currentPage: number
     totalPages: number
-    totalPosts: number
-    hasNext: boolean
-    hasPrev: boolean
+    totalCount: number
+    hasNextPage: boolean
+    hasPrevPage: boolean
+    limit: number
   }
 }
 
@@ -65,11 +66,24 @@ function PressListContent() {
     return date.toISOString().split('T')[0] // YYYY-MM-DD 형식
   }
 
+  // 보도자료 클릭 핸들러
+  const handlePressClick = (e: React.MouseEvent<HTMLAnchorElement>, post: Post) => {
+    e.preventDefault()
+    
+    if (post.linkUrl) {
+      // 외부 링크가 있으면 새 창에서 열기
+      window.open(post.linkUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      // 링크가 없으면 아무 동작 안함 (또는 상세 페이지로 이동 가능)
+      console.log('링크가 설정되지 않은 보도자료입니다:', post.title)
+    }
+  }
+
   // 페이지네이션 렌더링
   const renderPagination = () => {
     if (!data?.pagination) return null
 
-    const { currentPage, totalPages, hasNext, hasPrev } = data.pagination
+    const { currentPage, totalPages, hasNextPage, hasPrevPage } = data.pagination
     const pageNumbers = []
     
     // 표시할 페이지 번호 계산
@@ -83,8 +97,8 @@ function PressListContent() {
     return (
       <nav className="pagination">
         <ol>
-          <li className={`prev ${!hasPrev ? 'disabled' : ''}`}>
-            {hasPrev ? (
+          <li className={`prev ${!hasPrevPage ? 'disabled' : ''}`}>
+            {hasPrevPage ? (
               <Link href={`?page=${currentPage - 1}`} className="hoverable"></Link>
             ) : (
               <span className="hoverable"></span>
@@ -99,8 +113,8 @@ function PressListContent() {
             </li>
           ))}
           
-          <li className={`next ${!hasNext ? 'disabled' : ''}`}>
-            {hasNext ? (
+          <li className={`next ${!hasNextPage ? 'disabled' : ''}`}>
+            {hasNextPage ? (
               <Link href={`?page=${currentPage + 1}`} className="hoverable"></Link>
             ) : (
               <span className="hoverable"></span>
@@ -184,8 +198,7 @@ function PressListContent() {
                       <li key={post.id}>
                         <a 
                           href={post.linkUrl || '#'} 
-                          target={post.linkUrl ? "_blank" : "_self"}
-                          rel={post.linkUrl ? "noopener noreferrer" : undefined}
+                          onClick={(e) => handlePressClick(e, post)}
                           className="hoverable"
                         >
                           <div className="item-img">

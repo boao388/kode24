@@ -76,6 +76,7 @@ export async function GET(
     const formattedPosts = posts.map(post => ({
       id: post.id,
       title: post.title,
+      content: post.content,
       excerpt: post.excerpt,
       authorName: post.authorName,
       viewCount: post.viewCount,
@@ -83,6 +84,8 @@ export async function GET(
       isSecret: post.isSecret,
       isFeatured: post.isFeatured,
       status: post.status, // 게시글 상태 (DRAFT, PUBLISHED, ANSWERED 등)
+      linkUrl: post.linkUrl, // 외부 링크 URL 추가
+      imageUrl: post.imageUrl, // 이미지 URL 추가
       publishedAt: post.publishedAt?.toISOString(),
       createdAt: post.createdAt.toISOString(),
       category: post.category ? {

@@ -623,10 +623,18 @@ export default function AdminPostsPage() {
                       <td>
                         <div className="action-buttons">
                           <button 
-                            onClick={() => router.push(`/admin/posts/${boardKey}/${post.id}`)}
+                            onClick={() => {
+                              // 보도자료나 인증특허에서 외부링크가 있으면 링크로 이동
+                              if ((boardKey === 'press' || boardKey === 'patent') && post.linkUrl) {
+                                window.open(post.linkUrl, '_blank', 'noopener,noreferrer')
+                              } else {
+                                // 일반적인 경우 상세 페이지로 이동
+                                router.push(`/admin/posts/${boardKey}/${post.id}`)
+                              }
+                            }}
                             className="btn-view-small"
                           >
-                            상세
+                            {(boardKey === 'press' || boardKey === 'patent') && post.linkUrl ? '링크' : '상세'}
                           </button>
                           <button 
                             onClick={() => handleEdit(post)}
