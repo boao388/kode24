@@ -294,6 +294,7 @@ export default function AdminFaqsPage() {
         .admin-layout {
           min-height: 100vh;
           background-color: #f8f9fa;
+          color: #333;
         }
 
         .admin-header {

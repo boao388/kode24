@@ -29,5 +29,10 @@
     $(document).on('click', '.btn-today, .pop-close', function(){
         $(this).parents('.popup').hide();
     });
+    
+    // 모바일 메뉴 링크 클릭 시 메뉴 닫기
+    $(document).on('click', '#nav a', function() {
+        $('body').removeClass('nav-opened');
+    });
 
 })(jQuery);

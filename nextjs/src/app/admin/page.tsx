@@ -31,7 +31,8 @@ export default function AdminRootPage() {
       alignItems: 'center',
       height: '100vh',
       fontSize: '18px',
-      color: '#666'
+      color: '#666',
+      backgroundColor: '#f8f9fa'
     }}>
       관리자 페이지로 이동 중...
     </div>

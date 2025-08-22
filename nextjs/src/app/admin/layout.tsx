@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import '@/styles/sub.css';
-import '@/styles/admin-dark.css';
 
 export const metadata: Metadata = {
   title: "관리자 페이지 - KODE24",
@@ -13,7 +12,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="admin-layout">
+    <div className="admin-layout" style={{ backgroundColor: '#f8f9fa', minHeight: '100vh', color: '#333' }}>
       {children}
     </div>
   );

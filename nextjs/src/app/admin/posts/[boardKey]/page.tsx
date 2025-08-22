@@ -695,6 +695,9 @@ export default function AdminPostsPage() {
           padding: 20px;
           max-width: 1400px;
           margin: 0 auto;
+          background-color: #f8f9fa;
+          min-height: 100vh;
+          color: #333;
         }
 
         .admin-header {

@@ -18,7 +18,8 @@ export default function SubLayout({
     <>
       {children}
 
-      {/* sub.js는 각 페이지 컴포넌트에서 개별 처리 - DOM 조작 충돌 방지 */}
+      {/* 서브 페이지용 스크립트 */}
+      <Script src="/assets/js/sub.js" strategy="afterInteractive" />
     </>
   );
 } 

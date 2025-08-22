@@ -42,7 +42,7 @@ export default function AdminDashboardPage() {
   }, [])
 
   const loadDashboardData = async () => {
-    let isMounted = true // 컴포넌트 마운트 상태 추적
+    const isMounted = true // 컴포넌트 마운트 상태 추적
     
     try {
       // 관리자 토큰 확인
@@ -259,10 +259,11 @@ export default function AdminDashboardPage() {
         .admin-dashboard {
           min-height: 100vh;
           background-color: #f8f9fa;
+          color: #333;
         }
 
         .admin-header {
-          background: white;
+          background: #333;
           border-bottom: 1px solid #dee2e6;
           padding: 1rem 2rem;
           display: flex;
