@@ -226,11 +226,13 @@ function RealTimeViewContent() {
             <div className="article-header">
               <small className="typed">Live Inquiries</small>
               <h3 className="typed">실시간 해결 문의</h3>
-              <div className="btn-area">
-                <Link href="/solve/real_time_list" className="hoverable">목록</Link>
-                <a href="#" onClick={handleModifyClick} className="hoverable">수정</a>
-                <Link href="/solve/real_time_write" className="hoverable">글쓰기</Link>
-              </div>
+                              <div className="btn-area">
+                  <Link href="/solve/real_time_list" className="hoverable">목록</Link>
+                  {post.isSecret || isAdmin ? (
+                    <a href="#" onClick={handleModifyClick} className="hoverable">수정</a>
+                  ) : null}
+                  <Link href="/solve/real_time_write" className="hoverable">글쓰기</Link>
+                </div>
             </div>
             
             <div className="article-content">
