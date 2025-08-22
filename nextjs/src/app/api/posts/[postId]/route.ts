@@ -221,6 +221,32 @@ export async function PUT(
       )
     }
 
+    // 권한 확인 - 관리자 또는 인증된 사용자만 수정 가능
+    const authHeader = request.headers.get('authorization')
+    const token = extractTokenFromHeader(authHeader)
+    const isAdmin = token ? !!verifyAdminToken(token) : false
+
+    const userAuthHeader = request.headers.get('x-verify-token')
+    let isVerifiedUser = false
+    if (userAuthHeader) {
+      try {
+        const decoded = jwt.verify(userAuthHeader, process.env.JWT_SECRET || 'default-secret') as any
+        if (decoded.type === 'post_access' && decoded.postId === postId) {
+          isVerifiedUser = true
+        }
+      } catch (error) {
+        console.log('Invalid user verify token:', error)
+      }
+    }
+
+    // 비밀글인 경우 권한 확인
+    if (existingPost.isSecret && !isAdmin && !isVerifiedUser) {
+      return NextResponse.json(
+        { message: '수정 권한이 없습니다.' },
+        { status: 403 }
+      )
+    }
+
     // 비밀번호 해시화 (비밀글인 경우)
     let hashedPassword = existingPost.password // 기존 비밀번호 유지
     if (isSecret && password) {

@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import HtmlEditor from '@/components/ui/HtmlEditor'
+import { isAdminAuthenticated } from '@/lib/auth'
 
 interface PostFormData {
   id?: string
@@ -91,11 +92,31 @@ export default function PostForm({
       
       const method = mode === 'create' ? 'POST' : 'PUT'
 
+      // 헤더 설정
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json',
+      }
+
+      // 수정 모드일 때 권한 헤더 추가
+      if (mode === 'edit') {
+        const adminAuth = isAdminAuthenticated()
+        if (adminAuth) {
+          const adminToken = localStorage.getItem('adminToken')
+          if (adminToken) {
+            headers['Authorization'] = `Bearer ${adminToken}`
+          }
+        } else {
+          // 일반 사용자인 경우 인증 토큰 확인
+          const verifyToken = sessionStorage.getItem(`post_verify_${formData.id}`)
+          if (verifyToken) {
+            headers['x-verify-token'] = verifyToken
+          }
+        }
+      }
+
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           title: formData.title.trim(),
           content: formData.content.trim(),
@@ -135,94 +156,92 @@ export default function PostForm({
   }
 
   return (
-    <div className={`post-form-container ${className}`}>
-      <form onSubmit={handleSubmit} className="post-form">
-        <div className="form-header">
-          <h4>{mode === 'create' ? `${boardTitle} 작성` : `${boardTitle} 수정`}</h4>
+    <div className="board-write">
+      {(error || success) && (
+        <div className={`form-message ${error ? 'error' : 'success'}`} style={{
+          textAlign: 'center',
+          padding: '15px',
+          marginBottom: '20px',
+          borderRadius: '4px',
+          backgroundColor: error ? '#ffe6e6' : '#e6f7e6',
+          color: error ? '#d63031' : '#00b894',
+          border: `1px solid ${error ? '#d63031' : '#00b894'}`
+        }}>
+          {error || success}
         </div>
+      )}
 
-        {(error || success) && (
-          <div className={`form-message ${error ? 'error' : 'success'}`}>
-            {error || success}
-          </div>
-        )}
-
-        <div className="form-group">
-          <label htmlFor="authorName">작성자 <span className="required">*</span></label>
-          <input
-            type="text"
-            id="authorName"
-            name="authorName"
-            value={formData.authorName}
-            onChange={handleInputChange}
-            placeholder="작성자명을 입력하세요"
-            required
-            disabled={loading}
-          />
-        </div>
-
-        {!requireAuth && (
-          <div className="form-group">
-            <label htmlFor="authorEmail">이메일</label>
-            <input
-              type="email"
-              id="authorEmail"
-              name="authorEmail"
-              value={formData.authorEmail || ''}
-              onChange={handleInputChange}
-              placeholder="이메일을 입력하세요 (선택사항)"
-              disabled={loading}
-            />
-          </div>
-        )}
-
-        <div className="form-group">
-          <label htmlFor="title">제목 <span className="required">*</span></label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleInputChange}
-            placeholder="제목을 입력하세요"
-            required
-            disabled={loading}
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="content">내용 <span className="required">*</span></label>
-          <HtmlEditor
-            value={formData.content}
-            onChange={(value) => {
-              setFormData(prev => ({ ...prev, content: value }))
-            }}
-            placeholder="내용을 입력하세요..."
-            height={400}
-          />
-        </div>
-
-        {showSecretOption && (
-          <>
-            <div className="form-group checkbox-group">
-              <label className="checkbox-label">
+      <form onSubmit={handleSubmit}>
+        <ul>
+          <li>
+            <div className="form-group">
+              <input
+                type="text"
+                className="form-control"
+                name="authorName"
+                value={formData.authorName}
+                onChange={handleInputChange}
+                placeholder="작성자명을 입력하세요"
+                required
+                disabled={loading}
+              />
+            </div>
+          </li>
+          
+          {!requireAuth && (
+            <li>
+              <div className="form-group">
                 <input
-                  type="checkbox"
-                  name="isSecret"
-                  checked={formData.isSecret}
+                  type="email"
+                  className="form-control"
+                  name="authorEmail"
+                  value={formData.authorEmail || ''}
                   onChange={handleInputChange}
+                  placeholder="이메일을 입력하세요 (선택사항)"
                   disabled={loading}
                 />
-                <span>비밀글로 작성</span>
-              </label>
-            </div>
+              </div>
+            </li>
+          )}
 
-            {formData.isSecret && (
+          <li>
+            <div className="form-group">
+              <input
+                type="text"
+                className="form-control"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="제목을 입력하세요"
+                required
+                disabled={loading}
+              />
+            </div>
+          </li>
+
+          {showSecretOption && (
+            <li>
+              <div className="form-group checkbox-group" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                  <input
+                    type="checkbox"
+                    name="isSecret"
+                    checked={formData.isSecret}
+                    onChange={handleInputChange}
+                    disabled={loading}
+                  />
+                  <span>비밀글로 작성</span>
+                </label>
+              </div>
+            </li>
+          )}
+
+          {showSecretOption && formData.isSecret && (
+            <li>
               <div className="form-group">
-                <label htmlFor="password">비밀번호 <span className="required">*</span></label>
                 <input
                   type="password"
-                  id="password"
+                  className="form-control"
                   name="password"
                   value={formData.password || ''}
                   onChange={handleInputChange}
@@ -231,29 +250,42 @@ export default function PostForm({
                   disabled={loading}
                 />
               </div>
-            )}
-          </>
-        )}
+            </li>
+          )}
 
-        <div className="form-actions">
+          <li>
+            <div className="form-group">
+              <HtmlEditor
+                value={formData.content}
+                onChange={(value) => {
+                  setFormData(prev => ({ ...prev, content: value }))
+                }}
+                placeholder="내용을 입력하세요..."
+                height={400}
+              />
+            </div>
+          </li>
+        </ul>
+
+        <div className="btn-area">
           <button
             type="button"
             onClick={handleCancel}
-            className="btn-cancel hoverable"
+            className="btn btn-cancel hoverable"
             disabled={loading}
           >
             취소
           </button>
           <button
             type="submit"
-            className="btn-submit hoverable"
+            className="btn btn-submit hoverable"
             disabled={loading}
           >
             {loading 
               ? '처리중...' 
               : mode === 'create' 
-                ? '등록' 
-                : '수정'
+                ? '작성완료' 
+                : '수정완료'
             }
           </button>
         </div>
