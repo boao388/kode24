@@ -59,7 +59,11 @@ export async function GET(
       return processedComment
     })
 
-    return NextResponse.json(filteredComments)
+    return NextResponse.json({
+      success: true,
+      data: filteredComments,
+      count: filteredComments.length
+    })
   } catch (error) {
     console.error('댓글 조회 실패:', error)
     return NextResponse.json(
@@ -127,7 +131,11 @@ export async function POST(
       }
     })
 
-    return NextResponse.json(comment, { status: 201 })
+    return NextResponse.json({
+      success: true,
+      message: '댓글이 등록되었습니다.',
+      data: comment
+    }, { status: 201 })
   } catch (error) {
     console.error('댓글 등록 실패:', error)
     return NextResponse.json(

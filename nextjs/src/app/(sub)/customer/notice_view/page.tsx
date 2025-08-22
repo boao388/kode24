@@ -85,6 +85,21 @@ function NoticeViewContent() {
     }))
   }
 
+  const loadComments = useCallback(async () => {
+    if (!postId) return
+
+    try {
+      const response = await fetch(`/api/posts/${postId}/comments`)
+      if (response.ok) {
+        const result = await response.json()
+        const comments = result.data || result // API 응답 구조 호환성
+        setPost(prev => prev ? { ...prev, comments } : null)
+      }
+    } catch (error) {
+      console.error('댓글 로딩 실패:', error)
+    }
+  }, [postId])
+
   const handleCommentSubmit = async () => {
     if (!commentData.content.trim() || !commentData.authorName.trim() || !commentData.password.trim()) {
       alert('모든 필드를 입력해주세요.')
@@ -103,7 +118,7 @@ function NoticeViewContent() {
       if (response.ok) {
         alert('댓글이 등록되었습니다.')
         setCommentData({ content: '', authorName: '', password: '', isSecret: false })
-        loadPost() // 댓글 목록 새로고침
+        loadComments() // 댓글만 새로고침 (효율성 개선)
       } else {
         const errorData = await response.json()
         alert(errorData.message || '댓글 등록에 실패했습니다.')
@@ -307,19 +322,17 @@ function NoticeViewContent() {
                       {/* 댓글 목록 */}
                       <div className="comment-list">
                         {post.comments && post.comments.length > 0 ? (
-                          post.comments.map((comment) => (
-                            <div key={comment.id} className="comment-item">
-                              <div className="comment-author">
-                                <b>{comment.authorName}</b>
-                                <span className="comment-date">
-                                  {new Date(comment.createdAt).toLocaleDateString('ko-KR')}
-                                </span>
-                              </div>
-                              <div className="comment-content">
-                                {comment.isSecret ? '비밀 댓글입니다.' : comment.content}
-                              </div>
-                            </div>
-                          ))
+                          <ul>
+                            {post.comments.map((comment) => (
+                              <li key={comment.id}>
+                                <div className="info">
+                                  <span>{comment.authorName}</span>
+                                  <span>{new Date(comment.createdAt).toLocaleDateString('ko-KR')}</span>
+                                </div>
+                                <p>{comment.isSecret ? '[비밀 댓글입니다]' : comment.content}</p>
+                              </li>
+                            ))}
+                          </ul>
                         ) : (
                           <p className="none-comment">등록된 댓글이 없습니다.</p>
                         )}
