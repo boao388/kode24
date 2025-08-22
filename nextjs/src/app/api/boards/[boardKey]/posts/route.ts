@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 
+// 캐싱 설정 - 3분간 캐싱
+export const revalidate = 180 // 3분
+
 // 게시판별 게시글 목록 조회
 export async function GET(
   request: NextRequest,

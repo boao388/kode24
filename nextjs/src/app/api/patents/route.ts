@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Patent, PatentListResponse, PatentSearchParams } from '@/types'
 
+// 캐싱 설정 - 10분간 캐싱 (인증서는 자주 변경되지 않음)
+export const revalidate = 600 // 10분
+
 // 더미 데이터 (실제로는 데이터베이스에서 가져옴)
 const dummyPatents: Patent[] = [
   {

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Noto_Sans_KR } from "next/font/google";
 import Script from 'next/script';
 import CustomCursor from '@/components/ui/CustomCursor';
+import QueryProvider from '@/components/providers/QueryProvider';
+import WebVitals from '@/components/monitoring/WebVitals';
 // CSS import 순서 최적화
 import '@/styles/globals.css';
 // Common CSS import - cursor__ball 설정 포함
@@ -46,8 +48,11 @@ export default function RootLayout({
         />
       </head>
       <body className={`${notoSansKr.variable} main-page`}>
-        <CustomCursor />
-        {children}
+        <QueryProvider>
+          <CustomCursor />
+          <WebVitals debug={process.env.NODE_ENV === 'development'} />
+          {children}
+        </QueryProvider>
 
         {/* 기존 퍼블리싱 스크립트 */}
         <Script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" strategy="beforeInteractive" />

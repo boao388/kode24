@@ -1,23 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import MainPopup from '@/components/common/MainPopup'
 import Script from 'next/script'
 import { useSlickSlider } from '@/hooks/useSlickSlider'
-
-
-interface Post {
-  id: string
-  title: string
-  content: string
-  excerpt: string
-  authorName: string
-  isSecret: boolean
-  date: string
-  time: string
-}
+import { useMainPosts } from '@/hooks/useMainPosts'
 
 // jQuery, Slick 및 Swiper 타입 선언
 declare global {
@@ -29,9 +18,8 @@ declare global {
 }
 
 export default function HomePage() {
-  const [realTimePosts, setRealTimePosts] = useState<Post[]>([])
-  const [reviewPosts, setReviewPosts] = useState<Post[]>([])
-  const [loading, setLoading] = useState(true)
+  // TanStack Query를 사용한 데이터 페칭
+  const { realTimePosts, reviewPosts, isLoading: loading } = useMainPosts()
 
   // 슬라이더 초기화 - 안전한 의존성 관리
   useSlickSlider('.live-slider', {
@@ -58,34 +46,7 @@ export default function HomePage() {
     pauseOnFocus: false,
   }, [!loading && reviewPosts.length > 0])
 
-  // API에서 게시글 데이터 가져오기
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true)
-        
-        // 실시간 문의 데이터 가져오기
-        const realTimeResponse = await fetch('/api/main/posts?boardKey=real_time&limit=12')
-        if (realTimeResponse.ok) {
-          const realTimeData = await realTimeResponse.json()
-          setRealTimePosts(realTimeData.posts)
-        }
-
-        // 솔루션 진행 후기 데이터 가져오기
-        const reviewResponse = await fetch('/api/main/posts?boardKey=review&limit=6')
-        if (reviewResponse.ok) {
-          const reviewData = await reviewResponse.json()
-          setReviewPosts(reviewData.posts)
-        }
-      } catch (error) {
-        console.error('게시글 데이터 로딩 실패:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPosts()
-  }, [])
+  // 데이터 페칭은 useMainPosts 훅에서 처리됨
 
 
 
