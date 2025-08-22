@@ -23,7 +23,7 @@ interface PasswordConfirmProps {
   authorName: string
   title: string
   listUrl: string
-  onSuccess: (post: PostData) => void
+  onSuccess: (post: PostData, verifyToken?: string) => void
   boardType: 'real_time' | 'review'
 }
 
@@ -60,7 +60,7 @@ export default function PasswordConfirm({
       const data = await response.json()
 
       if (response.ok) {
-        onSuccess(data.post)
+        onSuccess(data.post, data.verifyToken)
       } else {
         setError(data.message || '비밀번호가 올바르지 않습니다.')
       }

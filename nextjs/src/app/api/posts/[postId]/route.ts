@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { verifyAdminToken, extractTokenFromHeader } from '@/lib/auth'
 
 // 게시글 상세 조회
 export async function GET(
@@ -9,6 +11,26 @@ export async function GET(
 ) {
   try {
     const { postId } = await params
+    
+    // 관리자 토큰 확인
+    const authHeader = request.headers.get('authorization')
+    const token = extractTokenFromHeader(authHeader)
+    const isAdmin = token ? !!verifyAdminToken(token) : false
+    
+    // 사용자 인증 토큰 확인 (비밀번호로 인증된 경우)
+    const userAuthHeader = request.headers.get('x-verify-token')
+    let isVerifiedUser = false
+    if (userAuthHeader) {
+      try {
+        const decoded = jwt.verify(userAuthHeader, process.env.JWT_SECRET || 'default-secret') as any
+        if (decoded.type === 'post_access' && decoded.postId === postId) {
+          isVerifiedUser = true
+        }
+      } catch (error) {
+        // 토큰이 유효하지 않음
+        console.log('Invalid user verify token:', error)
+      }
+    }
     
     // 먼저 게시글 존재 확인
     const post = await prisma.post.findUnique({
@@ -22,30 +44,72 @@ export async function GET(
       )
     }
 
-    // 비밀글인 경우 기본 정보만 반환 (내용 제외)
+    // 비밀글인 경우 - 관리자이거나 인증된 사용자라면 전체 정보 반환, 아니면 기본 정보만 반환
     if (post.isSecret) {
-      const postInfo = await prisma.post.findUnique({
-        where: { id: postId },
-        select: {
-          id: true,
-          title: true,
-          authorName: true,
-          createdAt: true,
-          viewCount: true,
-          isSecret: true,
-          board: {
-            select: {
-              title: true,
-              key: true
+      if (isAdmin || isVerifiedUser) {
+        // 관리자이거나 인증된 사용자인 경우 전체 정보 반환 및 조회수 증가
+        const fullPost = await prisma.post.findUnique({
+          where: { id: postId },
+          include: {
+            board: {
+              select: {
+                title: true,
+                key: true
+              }
+            },
+            category: {
+              select: {
+                name: true,
+                key: true
+              }
+            },
+            comments: {
+              where: { status: 'PUBLISHED' },
+              orderBy: { createdAt: 'asc' },
+              include: {
+                replies: {
+                  where: { status: 'PUBLISHED' },
+                  orderBy: { createdAt: 'asc' }
+                }
+              }
             }
           }
-        }
-      })
+        })
 
-      return NextResponse.json({
-        ...postInfo,
-        requiresPassword: true
-      })
+        if (fullPost) {
+          // 조회수 증가
+          await prisma.post.update({
+            where: { id: postId },
+            data: { viewCount: { increment: 1 } }
+          })
+        }
+
+        return NextResponse.json(fullPost)
+      } else {
+        // 일반 사용자인 경우 기본 정보만 반환
+        const postInfo = await prisma.post.findUnique({
+          where: { id: postId },
+          select: {
+            id: true,
+            title: true,
+            authorName: true,
+            createdAt: true,
+            viewCount: true,
+            isSecret: true,
+            board: {
+              select: {
+                title: true,
+                key: true
+              }
+            }
+          }
+        })
+
+        return NextResponse.json({
+          ...postInfo,
+          requiresPassword: true
+        })
+      }
     }
 
     // 일반글인 경우 전체 정보 반환 및 조회수 증가

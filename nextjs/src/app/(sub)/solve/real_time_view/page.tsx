@@ -32,7 +32,6 @@ function RealTimeViewContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const postId = searchParams.get('id')
-  const verified = searchParams.get('verified')
   
   const [post, setPost] = useState<Post | null>(null)
   const [adminAnswer, setAdminAnswer] = useState<AdminAnswer | null>(null)
@@ -63,20 +62,51 @@ function RealTimeViewContent() {
     setIsAdmin(adminAuth)
 
     try {
-      const response = await fetch(`/api/posts/${postId}`)
+      // 관리자인 경우 토큰을 헤더에 포함
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      if (adminAuth) {
+        const adminToken = localStorage.getItem('adminToken')
+        if (adminToken) {
+          headers['Authorization'] = `Bearer ${adminToken}`
+        }
+      } else {
+        // 일반 사용자인 경우 인증 토큰 확인
+        const verifyToken = sessionStorage.getItem(`post_verify_${postId}`)
+        if (verifyToken) {
+          headers['x-verify-token'] = verifyToken
+        }
+      }
+
+      const response = await fetch(`/api/posts/${postId}`, { headers })
       const data = await response.json()
 
       if (response.ok) {
-        // 비밀글이면서 verified가 없고 관리자가 아니면 비밀번호 확인 페이지로 이동
-        if (data.isSecret && !verified && !adminAuth) {
-          router.push(`/solve/real_time_confirm?id=${postId}&author=${encodeURIComponent(data.authorName)}`)
-          return
+        // 관리자인 경우 바로 게시글 표시
+        if (adminAuth) {
+          setPost(data)
+        } else {
+          // 비밀글이면서 인증 토큰이 없으면 비밀번호 확인 페이지로 이동
+          if (data.requiresPassword) {
+            router.push(`/solve/real_time_confirm?id=${postId}&author=${encodeURIComponent(data.authorName)}`)
+            return
+          }
+          setPost(data)
         }
-        setPost(data)
         
         // 관리자 답변 로드
         try {
-          const answerResponse = await fetch(`/api/posts/${postId}/answer`)
+          const answerHeaders: HeadersInit = {}
+          if (adminAuth) {
+            const adminToken = localStorage.getItem('adminToken')
+            if (adminToken) {
+              answerHeaders['Authorization'] = `Bearer ${adminToken}`
+            }
+          }
+
+          const answerResponse = await fetch(`/api/posts/${postId}/answer`, { headers: answerHeaders })
           const answerData = await answerResponse.json()
           if (answerResponse.ok && answerData.hasAnswer) {
             setAdminAnswer(answerData.answer)
@@ -94,7 +124,7 @@ function RealTimeViewContent() {
     } finally {
       setLoading(false)
     }
-  }, [postId, verified, router])
+  }, [postId, router])
 
   useEffect(() => {
     loadPost()

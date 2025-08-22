@@ -43,8 +43,11 @@ function RealTimeConfirmContent() {
       const result = await response.json()
 
       if (response.ok) {
-        // 인증 성공 시 해당 게시글로 이동
-        router.push(`/solve/real_time_view?id=${postId}&verified=true`)
+        // 인증 성공 시 토큰을 세션 스토리지에 저장하고 해당 게시글로 이동
+        if (result.verifyToken) {
+          sessionStorage.setItem(`post_verify_${postId}`, result.verifyToken)
+        }
+        router.push(`/solve/real_time_view?id=${postId}`)
       } else {
         alert(result.message || '비밀번호가 일치하지 않습니다.')
       }

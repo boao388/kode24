@@ -6,6 +6,7 @@ import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import PostForm from '@/components/common/PostForm'
 import PasswordConfirm, { PostData } from '@/components/common/PasswordConfirm'
+import { isAdminAuthenticated } from '@/lib/auth'
 
 interface LocalPostData {
   id: string
@@ -25,6 +26,7 @@ function ReviewModifyContent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   const loadPost = async () => {
     if (!postId) {
@@ -33,21 +35,35 @@ function ReviewModifyContent() {
       return
     }
 
+    // 관리자 권한 확인
+    const adminAuth = isAdminAuthenticated()
+    setIsAdmin(adminAuth)
+
     try {
-      const response = await fetch(`/api/posts/${postId}`)
+      // 관리자인 경우 토큰을 헤더에 포함
+      const headers: HeadersInit = {
+        'Content-Type': 'application/json'
+      }
+      
+      if (adminAuth) {
+        const adminToken = localStorage.getItem('adminToken')
+        if (adminToken) {
+          headers['Authorization'] = `Bearer ${adminToken}`
+        }
+      } else {
+        // 일반 사용자인 경우 인증 토큰 확인
+        const verifyToken = sessionStorage.getItem(`post_verify_${postId}`)
+        if (verifyToken) {
+          headers['x-verify-token'] = verifyToken
+        }
+      }
+
+      const response = await fetch(`/api/posts/${postId}`, { headers })
       const data = await response.json()
 
       if (response.ok) {
-        if (data.requiresPassword) {
-          setShowPasswordForm(true)
-          setPost({
-            id: data.id,
-            title: data.title,
-            content: '',
-            authorName: data.authorName,
-            isSecret: data.isSecret
-          })
-        } else {
+        // 관리자인 경우 바로 게시글 표시
+        if (adminAuth) {
           setPost({
             id: data.id,
             title: data.title,
@@ -56,6 +72,29 @@ function ReviewModifyContent() {
             authorEmail: data.authorEmail,
             isSecret: data.isSecret
           })
+          setShowPasswordForm(false)
+        } else {
+          // 일반 사용자인 경우 비밀번호 확인 필요 여부 체크
+          if (data.requiresPassword) {
+            setShowPasswordForm(true)
+            setPost({
+              id: data.id,
+              title: data.title,
+              content: '',
+              authorName: data.authorName,
+              isSecret: data.isSecret
+            })
+          } else {
+            setPost({
+              id: data.id,
+              title: data.title,
+              content: data.content || '',
+              authorName: data.authorName,
+              authorEmail: data.authorEmail,
+              isSecret: data.isSecret
+            })
+            setShowPasswordForm(false)
+          }
         }
       } else {
         setError(data.message || '게시글을 불러올 수 없습니다.')
@@ -68,7 +107,11 @@ function ReviewModifyContent() {
     }
   }
 
-  const handlePasswordSuccess = (postData: PostData) => {
+  const handlePasswordSuccess = (postData: PostData, verifyToken?: string) => {
+    // 인증 성공 시 토큰을 세션 스토리지에 저장
+    if (verifyToken) {
+      sessionStorage.setItem(`post_verify_${postId}`, verifyToken)
+    }
     setPost({
       id: postData.id,
       title: postData.title,

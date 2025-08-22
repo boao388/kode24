@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 
 // 비밀번호 확인
 export async function POST(
@@ -74,13 +75,24 @@ export async function POST(
       data: { viewCount: { increment: 1 } }
     })
 
+    // 비밀번호가 맞으면 임시 토큰 생성 (30분 유효)
+    const verifyToken = jwt.sign(
+      { 
+        postId: postId,
+        type: 'post_access',
+        exp: Math.floor(Date.now() / 1000) + (30 * 60) // 30분 후 만료
+      },
+      process.env.JWT_SECRET || 'default-secret'
+    )
+
     // 비밀번호가 맞으면 게시글 정보 반환 (비밀번호는 제외)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...postWithoutPassword } = post
 
     return NextResponse.json({ 
       message: '비밀번호가 확인되었습니다.',
-      post: postWithoutPassword
+      post: postWithoutPassword,
+      verifyToken: verifyToken
     })
   } catch (error) {
     console.error('비밀번호 확인 실패:', error)
