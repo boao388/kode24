@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -68,7 +69,13 @@ export default function AdminLoginPage() {
       <div className="admin-login-container">
         <div className="login-header">
           <Link href="/" className="home-link">
-            <img src="/assets/images/img_logo.svg" alt="KODE24" className="logo" />
+            <Image 
+              src="/assets/images/img_logo.svg" 
+              alt="KODE24" 
+              width={120}
+              height={40}
+              className="logo" 
+            />
           </Link>
           <h2>관리자 로그인</h2>
         </div>

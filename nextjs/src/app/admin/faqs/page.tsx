@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 interface FAQ {
@@ -147,7 +148,13 @@ export default function AdminFaqsPage() {
       <header className="admin-header">
         <div className="header-left">
           <Link href="/admin/dashboard">
-            <img src="/assets/images/img_logo.svg" alt="KODE24" className="logo" />
+            <Image 
+              src="/assets/images/img_logo.svg" 
+              alt="KODE24" 
+              width={120}
+              height={32}
+              className="logo" 
+            />
           </Link>
           <h1>FAQ 관리</h1>
         </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createAuthHeaders } from '@/lib/auth'
 
@@ -39,7 +40,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     loadDashboardData()
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadDashboardData = async () => {
     const isMounted = true // 컴포넌트 마운트 상태 추적
@@ -102,7 +103,13 @@ export default function AdminDashboardPage() {
       <header className="admin-header">
         <div className="header-left">
           <Link href="/">
-            <img src="/assets/images/img_logo.svg" alt="KODE24" className="logo" />
+            <Image 
+              src="/assets/images/img_logo.svg" 
+              alt="KODE24" 
+              width={120}
+              height={32}
+              className="logo" 
+            />
           </Link>
           <h1>관리자 대시보드</h1>
         </div>
