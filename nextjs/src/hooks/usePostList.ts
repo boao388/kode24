@@ -41,8 +41,8 @@ interface PostListParams {
 }
 
 // API 호출 함수
-const fetchPostList = async (params: PostListParams): Promise<PostListResponse> => {
-  const { boardKey, page = 1, limit = 10, search, category } = params
+const fetchPostList = async (params: PostListParams & { _t?: number }): Promise<PostListResponse> => {
+  const { boardKey, page = 1, limit = 10, search, category, _t } = params
   
   const queryParams = new URLSearchParams({
     page: page.toString(),
@@ -56,8 +56,19 @@ const fetchPostList = async (params: PostListParams): Promise<PostListResponse> 
   if (category?.trim()) {
     queryParams.append('category', category.trim())
   }
+  
+  // 캐시 우회를 위한 timestamp 추가
+  if (_t) {
+    queryParams.append('_t', _t.toString())
+  }
 
-  const response = await fetch(`/api/boards/${boardKey}/posts?${queryParams}`)
+  const response = await fetch(`/api/boards/${boardKey}/posts?${queryParams}`, {
+    cache: 'no-store', // 브라우저 캐시 비활성화
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    }
+  })
   
   if (!response.ok) {
     throw new Error(`Failed to fetch posts: ${response.status} ${response.statusText}`)
@@ -86,9 +97,10 @@ export function usePostList(params: PostListParams) {
   return useQuery({
     queryKey,
     queryFn: () => fetchPostList(params),
-    staleTime: 3 * 60 * 1000, // 3분간 fresh
-    gcTime: 10 * 60 * 1000, // 10분간 캐시 유지
-    refetchOnWindowFocus: false,
+    staleTime: 0, // 캐시하지 않음 - 항상 fresh
+    gcTime: 1000, // 1초 후 캐시 삭제
+    refetchOnWindowFocus: true, // 포커스시 다시 불러오기
+    refetchOnMount: true, // 마운트시 다시 불러오기
     retry: (failureCount, error: any) => {
       // 4xx 에러는 재시도하지 않음
       if (error?.status >= 400 && error?.status < 500) {
@@ -96,8 +108,15 @@ export function usePostList(params: PostListParams) {
       }
       return failureCount < 3
     },
-    // 이전 데이터 유지하여 로딩 중에도 UI가 깜빡이지 않음
-    placeholderData: (previousData) => previousData,
+    // Vercel 캐시 우회를 위한 timestamp 추가
+    queryFn: () => {
+      const timestamp = Date.now()
+      const paramsWithCache = {
+        ...params,
+        _t: timestamp // 캐시 우회용 파라미터
+      }
+      return fetchPostList(paramsWithCache)
+    },
   })
 }
 

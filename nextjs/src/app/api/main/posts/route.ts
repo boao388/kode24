@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { createSuccessResponse, createErrorResponse, dataTransformers, queryOptimizers } from '@/lib/apiOptimization'
+import { createErrorResponse, dataTransformers, queryOptimizers } from '@/lib/apiOptimization'
 
-// 캐싱 설정 - 5분간 캐싱
-export const revalidate = 300 // 5분
+// 동적 캐싱 설정
+export const dynamic = 'force-dynamic' // 강제 동적 렌더링
+export const revalidate = 0 // 캐시 비활성화
 
 // 메인페이지용 게시글 목록 조회
 export async function GET(request: NextRequest) {
@@ -68,7 +69,14 @@ export async function GET(request: NextRequest) {
         time: dataTransformers.formatTime(publishedDate)
       }
     })
-    return NextResponse.json({posts : formattedPosts, total : formattedPosts.length})
+    const response = NextResponse.json({posts : formattedPosts, total : formattedPosts.length})
+    
+    // 캐시 무효화 헤더 설정
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
 
     // return createSuccessResponse(
     //   {
