@@ -25,7 +25,7 @@ export default function HtmlEditor({
   placeholder = '내용을 입력하세요...',
   height = 400 
 }: HtmlEditorProps) {
-  const editorRef = useRef<any>(null)
+  const editorRef = useRef<{ getBody: () => HTMLElement; remove: () => void } | null>(null)
   const [isDarkMode, setIsDarkMode] = useState(false)
 
   useEffect(() => {

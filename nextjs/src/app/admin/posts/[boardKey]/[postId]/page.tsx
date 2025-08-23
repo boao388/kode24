@@ -72,6 +72,7 @@ export default function AdminPostDetailPage() {
   const [comments, setComments] = useState<Comment[]>([])
   const [adminAnswer, setAdminAnswer] = useState<AdminAnswer | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [answerContent, setAnswerContent] = useState('')
   const [showAnswerForm, setShowAnswerForm] = useState(false)
   const [savingAnswer, setSavingAnswer] = useState(false)
@@ -102,65 +103,75 @@ export default function AdminPostDetailPage() {
     }
   }, [router])
 
-  // 게시글 및 댓글 로드
+  // 게시글, 댓글, 답변을 한 번에 로드
   const loadPostData = async () => {
     try {
       setLoading(true)
+      setError(null)
       const adminToken = localStorage.getItem('adminToken')
       
-      // 게시글 정보 로드
-      const postResponse = await fetch(`/api/posts/${postId}`, {
+      if (!adminToken) {
+        router.push('/admin/login')
+        return
+      }
+      
+      // 관리자 전용 API로 모든 데이터 한 번에 조회
+      const response = await fetch(`/api/admin/posts/${postId}`, {
         headers: {
           'Authorization': `Bearer ${adminToken}`
         }
       })
       
-      if (postResponse.ok) {
-        const postData = await postResponse.json()
-        setPost(postData)
-      }
-
-      // 댓글 목록 로드
-      const commentsResponse = await fetch(`/api/posts/${postId}/comments`, {
-        headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
-      })
-      
-      if (commentsResponse.ok) {
-        const commentsData = await commentsResponse.json()
-        setComments(commentsData)
-      }
-
-      // 실시간 문의인 경우 관리자 답변 로드
-      if (config.hasAnswer) {
-        const answerResponse = await fetch(`/api/posts/${postId}/answer`, {
-          headers: {
-            'Authorization': `Bearer ${adminToken}`
-          }
-        })
+      if (response.ok) {
+        const data = await response.json()
         
-        if (answerResponse.ok) {
-          const answerData = await answerResponse.json()
-          if (answerData.hasAnswer) {
-            setAdminAnswer(answerData.answer)
-            setAnswerContent(answerData.answer.content)
-          }
+        // 게시글 데이터 설정
+        if (data.post) {
+          setPost(data.post)
+        } else {
+          setError('게시글 데이터를 찾을 수 없습니다.')
+          return
         }
+        
+        // 댓글 데이터 설정 (API 응답 구조 처리)
+        setComments(Array.isArray(data.comments) ? data.comments : [])
+        
+        // 관리자 답변 데이터 설정
+        if (data.hasAnswer && data.adminAnswer) {
+          setAdminAnswer(data.adminAnswer)
+          setAnswerContent(data.adminAnswer.content || '')
+        } else {
+          setAdminAnswer(null)
+          setAnswerContent('')
+        }
+      } else if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.push('/admin/login')
+        return
+      } else if (response.status === 404) {
+        setError('게시글을 찾을 수 없습니다.')
+      } else {
+        const errorData = await response.json()
+        if (process.env.NODE_ENV === 'development') {
+          console.error('API 에러:', errorData)
+        }
+        setError(errorData.error || '데이터를 불러오는데 실패했습니다.')
       }
     } catch (error) {
-      console.error('데이터 로딩 실패:', error)
-      alert('데이터를 불러오는데 실패했습니다.')
+      if (process.env.NODE_ENV === 'development') {
+        console.error('데이터 로딩 실패:', error)
+      }
+      setError('네트워크 오류가 발생했습니다. 다시 시도해주세요.')
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    if (postId && config) {
+    if (postId && boardKey && BOARD_CONFIGS[boardKey]) {
       loadPostData()
     }
-  }, [postId, config])
+  }, [postId, boardKey]) // config 의존성 제거로 무한 로딩 방지
 
   // 답변 저장
   const handleSaveAnswer = async () => {
@@ -186,9 +197,12 @@ export default function AdminPostDetailPage() {
       const data = await response.json()
       
       if (response.ok) {
-        alert(data.message)
+        alert(data.message || '답변이 성공적으로 저장되었습니다.')
         setAdminAnswer(data.answer)
         setShowAnswerForm(false)
+      } else if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.push('/admin/login')
       } else {
         alert(data.message || '답변 저장에 실패했습니다.')
       }
@@ -244,9 +258,12 @@ export default function AdminPostDetailPage() {
       const data = await response.json()
       
       if (response.ok) {
-        alert(data.message)
+        alert(data.message || '댓글이 성공적으로 삭제되었습니다.')
         // 댓글 목록 새로고침
         loadPostData()
+      } else if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.push('/admin/login')
       } else {
         alert(data.message || '댓글 삭제에 실패했습니다.')
       }
@@ -265,7 +282,7 @@ export default function AdminPostDetailPage() {
   if (!config.title) {
     return (
       <div className="admin-container">
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
+        <div style={{ textAlign: 'center', padding: '50px 0', color: '#ff4444' }}>
           존재하지 않는 게시판입니다.
         </div>
       </div>
@@ -276,7 +293,36 @@ export default function AdminPostDetailPage() {
     return (
       <div className="admin-container">
         <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          게시글을 불러오는 중입니다...
+          <div style={{ fontSize: '18px', marginBottom: '10px' }}>데이터를 로딩 중입니다...</div>
+          <div style={{ color: '#666' }}>잠시만 기다려주세요.</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="admin-container">
+        <div style={{ textAlign: 'center', padding: '50px 0' }}>
+          <div style={{ fontSize: '18px', marginBottom: '20px', color: '#ff4444' }}>
+            {error}
+          </div>
+          <button 
+            onClick={() => {
+              setError(null)
+              loadPostData()
+            }}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            다시 시도
+          </button>
         </div>
       </div>
     )
@@ -285,8 +331,8 @@ export default function AdminPostDetailPage() {
   if (!post) {
     return (
       <div className="admin-container">
-        <div style={{ textAlign: 'center', padding: '50px 0' }}>
-          게시글을 찾을 수 없습니다.
+        <div style={{ textAlign: 'center', padding: '50px 0', color: '#666' }}>
+          게시글 데이터가 없습니다.
         </div>
       </div>
     )
@@ -419,9 +465,9 @@ export default function AdminPostDetailPage() {
 
       {/* 댓글 관리 섹션 */}
       <div className="comments-section">
-        <h2>댓글 관리 ({comments.length}개)</h2>
+        <h2>댓글 관리 ({Array.isArray(comments) ? comments.length : 0}개)</h2>
         
-        {comments.length === 0 ? (
+        {!Array.isArray(comments) || comments.length === 0 ? (
           <div className="no-comments">
             등록된 댓글이 없습니다.
           </div>

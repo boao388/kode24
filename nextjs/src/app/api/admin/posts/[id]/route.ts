@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import jwt from 'jsonwebtoken'
 
+// 관리자 API는 일반적인 캐시 적용
+export const revalidate = 300 // 5분 캐시
+
 // JWT 토큰 검증 함수
 function verifyAdminToken(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
@@ -11,14 +14,14 @@ function verifyAdminToken(request: NextRequest) {
 
   try {
     const token = authHeader.substring(7)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret')
-    return decoded as any
-  } catch (error) {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'default-secret') as { [key: string]: unknown }
+    return decoded
+  } catch {
     return null
   }
 }
 
-// 관리자 개별 게시글 조회
+// 관리자 개별 게시글 조회 (댓글, 답변 포함)
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -34,23 +37,61 @@ export async function GET(
     }
 
     const { id } = await params
-    const post = await prisma.post.findUnique({
-      where: { id },
-      include: {
-        board: true,
-        comments: {
-          include: {
-            replies: true
+    
+    // 게시글, 댓글, 답변을 모두 포함해서 조회
+    const [post, adminAnswer] = await Promise.all([
+      prisma.post.findUnique({
+        where: { id },
+        include: {
+          board: {
+            select: {
+              key: true,
+              title: true
+            }
           },
-          orderBy: { createdAt: 'desc' }
-        },
-        _count: {
-          select: {
-            comments: true
+          comments: {
+            where: { 
+              status: 'PUBLISHED',
+              isAdmin: false // 일반 사용자 댓글만 (관리자 답변 제외)
+            },
+            include: {
+              replies: {
+                where: { 
+                  status: 'PUBLISHED',
+                  isAdmin: false // 일반 사용자 대댓글만
+                },
+                orderBy: { createdAt: 'asc' }
+              }
+            },
+            orderBy: { createdAt: 'asc' }
+          },
+          _count: {
+            select: {
+              comments: {
+                where: { isAdmin: false } // 일반 댓글 수만 카운트
+              }
+            }
           }
         }
-      }
-    })
+      }),
+      // 관리자 답변 조회 (Comment 모델에서 isAdmin: true인 댓글)
+      prisma.comment.findFirst({
+        where: { 
+          postId: id,
+          isAdmin: true,
+          status: 'PUBLISHED'
+        },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true
+        },
+        orderBy: {
+          createdAt: 'desc' // 가장 최근 관리자 답변
+        }
+      })
+    ])
 
     if (!post) {
       return NextResponse.json(
@@ -77,10 +118,14 @@ export async function GET(
         board: {
           key: post.board.key,
           title: post.board.title
-        },
-        comments: post.comments,
-        commentCount: post._count.comments
-      }
+        }
+      },
+      // 댓글 데이터 (통일된 구조)
+      comments: post.comments || [],
+      commentCount: post._count.comments,
+      // 관리자 답변 데이터
+      adminAnswer: adminAnswer,
+      hasAnswer: !!adminAnswer
     })
 
   } catch (error) {

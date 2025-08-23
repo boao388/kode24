@@ -111,6 +111,16 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // 관리자 API는 일반적인 캐시 적용 (무한 로딩 방지)
+        source: '/api/admin/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'private, max-age=300, s-maxage=300', // 5분 캐시
+          },
+        ],
+      },
+      {
         // 게시글 관련 API는 캐시하지 않음
         source: '/api/boards/:boardKey/posts',
         headers: [
