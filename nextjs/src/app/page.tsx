@@ -531,7 +531,7 @@ export default function HomePage() {
             </div>
             <div className="section-content">
               <article className="live">
-                <div className="article-header">
+                <div className="article-header-main">
                   <h3>실시간 문의</h3>
                   <small>Live Inquiries</small>
                   <div className="btn-area">
@@ -549,7 +549,7 @@ export default function HomePage() {
                             href={post.isSecret ? `/solve/real_time_confirm?id=${post.id}&author=${post.authorName}` : `/solve/real_time_view?id=${post.id}`}
                             className="hoverable"
                           >
-                            <b>{post.isSecret ? '비밀글입니다.' : post.title}</b>
+                            <b>{post.isSecret ? '🔐 비밀글입니다.' : post.title}</b>
                             <ul className="info">
                               <li>{post.date}</li>
                               <li>{post.time}</li>
@@ -562,7 +562,7 @@ export default function HomePage() {
                 </div>
               </article>
               <article className="review">
-                <div className="article-header">
+                <div className="article-header-main">
                   <h3>솔루션 진행 후기</h3>
                   <small>Feedback</small>
                   <div className="btn-area">

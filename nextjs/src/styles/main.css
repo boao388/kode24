@@ -705,27 +705,27 @@ a, button {
         transition-timing-function: linear;
         -webkit-transition-delay: 0.8s;
         transition-delay: 0.8s; }
-      .project-review .container .section-content > article .article-header {
+      .project-review .container .section-content > article .article-header-main {
         position: relative;
         padding-bottom: 20px;
         border-bottom: 1px solid #fff; }
-        .project-review .container .section-content > article .article-header h3 {
+        .project-review .container .section-content > article .article-header-main h3 {
           font-size: 37px;
           font-weight: 700; }
-        .project-review .container .section-content > article .article-header small {
+        .project-review .container .section-content > article .article-header-main small {
           display: block;
           font-size: 17px;
           color: #7757FF;
           font-weight: 400;
           margin-top: 15px; }
-        .project-review .container .section-content > article .article-header .btn-area {
+        .project-review .container .section-content > article .article-header-main .btn-area {
           position: absolute;
           top: calc(50% - 10px);
           right: 0;
           transform: translateY(-50%); }
-          .project-review .container .section-content > article .article-header .btn-area > a {
+          .project-review .container .section-content > article .article-header-main .btn-area > a {
             display: block; }
-            .project-review .container .section-content > article .article-header .btn-area > a img {
+            .project-review .container .section-content > article .article-header-main .btn-area > a img {
               display: block;
               max-width: 100%; }
       .project-review .container .section-content > article.live .article-content {
@@ -851,12 +851,12 @@ a, button {
         .project-review .container .section-content article {
           display: block;
           padding: 0 !important; }
-          .project-review .container .section-content article .article-header h3 {
+          .project-review .container .section-content article .article-header-main h3 {
             font-size: 21px; }
-          .project-review .container .section-content article .article-header small {
+          .project-review .container .section-content article .article-header-main small {
             font-size: 13px;
             margin-top: 10px; }
-          .project-review .container .section-content article .article-header .btn-area > a {
+          .project-review .container .section-content article .article-header-main .btn-area > a {
             width: 50px; }
           .project-review .container .section-content article ~ article {
             margin-top: 65px; }
