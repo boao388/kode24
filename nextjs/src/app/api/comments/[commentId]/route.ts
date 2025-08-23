@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { prisma } from '@/lib/prisma'
 import { extractTokenFromHeader, verifyAdminToken } from '@/lib/auth'
 
@@ -42,9 +43,20 @@ export async function DELETE(
       }
     })
 
-    return NextResponse.json({
+    // 관련 캐시 무효화
+    try {
+      revalidateTag(`admin-post-${comment.postId}`)
+      revalidateTag(`posts-${comment.postId}`)
+    } catch (error) {
+      console.log('캐시 무효화 중 오류:', error)
+    }
+
+    const response = NextResponse.json({
       message: '댓글이 삭제되었습니다.'
     })
+    
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    return response
   } catch (error) {
     console.error('댓글 삭제 실패:', error)
     return NextResponse.json(
