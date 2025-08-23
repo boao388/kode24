@@ -249,7 +249,10 @@ function RealTimeViewContent() {
                 
                 <div className="view-body">
                   {post.content ? (
-                    <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                    <div 
+                      className="editor-content" 
+                      dangerouslySetInnerHTML={{ __html: post.content }} 
+                    />
                   ) : (
                     <p>상담요청입니다.</p>
                   )}
@@ -269,7 +272,10 @@ function RealTimeViewContent() {
                   </div>
                   <div className="reply-body">
                     {adminAnswer ? (
-                      <div dangerouslySetInnerHTML={{ __html: adminAnswer.content }} />
+                      <div 
+                        className="editor-content" 
+                        dangerouslySetInnerHTML={{ __html: adminAnswer.content }} 
+                      />
                     ) : (
                       <p>답변 준비 중입니다.</p>
                     )}

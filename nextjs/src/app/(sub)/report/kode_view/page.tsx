@@ -250,7 +250,10 @@ function KodeViewContent() {
                   </div>
                   
                   <div className="view-body">
-                    <div dangerouslySetInnerHTML={{ __html: post.content || '' }} />
+                    <div 
+                      className="editor-content" 
+                      dangerouslySetInnerHTML={{ __html: post.content || '' }} 
+                    />
                   </div>
                   
                   {/* 댓글 영역 - 원본 HTML 구조와 동일 */}

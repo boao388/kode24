@@ -85,7 +85,10 @@ export default function QnaClient() {
                       <div className="answer" style={{ display: activeIndex === index ? 'block' : 'none' }}>
                         <div>
                           <b>KODE24</b>
-                          <div dangerouslySetInnerHTML={{ __html: faq.answer }} />
+                          <div 
+                            className="editor-content" 
+                            dangerouslySetInnerHTML={{ __html: faq.answer }} 
+                          />
                         </div>
                       </div>
                     </li>
