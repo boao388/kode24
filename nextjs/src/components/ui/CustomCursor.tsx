@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { usePathname } from 'next/navigation'
 
 declare global {
   interface Window {
@@ -11,6 +12,13 @@ declare global {
 }
 
 export default function CustomCursor() {
+  const pathname = usePathname()
+  
+  // 관리자 페이지에서는 커서 비활성화
+  if (pathname && pathname.startsWith('/admin')) {
+    return null;
+  }
+  
   const isCursorActiveRef = useRef(false)
   const elementsRef = useRef<{
     $bigBall: HTMLElement | null;
