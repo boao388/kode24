@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
+import { revalidateTag } from 'next/cache'
 
-// 캐싱 설정 - 3분간 캐싱
-export const revalidate = 180 // 3분
+// 동적 캐싱 설정 - 태그 기반 캐싱
+export const dynamic = 'force-dynamic' // 강제 동적 렌더링
+export const revalidate = 0 // 캐시 비활성화
 
 // 게시판별 게시글 목록 조회
 export async function GET(
@@ -109,10 +111,17 @@ export async function GET(
       limit
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       posts: formattedPosts,
       pagination
     })
+
+    // 캐시 태그 설정
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+
+    return response
 
   } catch (error) {
     console.error('게시글 목록 조회 실패:', error)
@@ -188,7 +197,7 @@ export async function POST(
         content: content.trim(),
         excerpt: content.trim().substring(0, 200), // 처음 200자를 발췌로 사용
         authorName: authorName.trim(),
-        authorEmail: authorEmail?.trim(),
+        authorEmail: authorEmail?.trim() || null,
         password: hashedPassword,
         isSecret: Boolean(isSecret),
         status: 'PUBLISHED',
@@ -201,7 +210,15 @@ export async function POST(
       }
     })
 
-    return NextResponse.json({
+    // 캐시 무효화 - 해당 게시판의 캐시를 즉시 무효화
+    try {
+      revalidateTag(`posts-${board.key}`)
+      revalidateTag('main-posts')
+    } catch (error) {
+      console.log('캐시 무효화 중 오류:', error)
+    }
+
+    const response = NextResponse.json({
       message: '게시글이 등록되었습니다.',
       post: {
         id: newPost.id,
@@ -209,6 +226,12 @@ export async function POST(
         boardKey: board.key
       }
     }, { status: 201 })
+
+    // 응답 헤더에 캐시 무효화 정보 추가
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('X-Revalidated', `posts-${board.key}`)
+    
+    return response
 
   } catch (error) {
     console.error('게시글 생성 실패:', error)

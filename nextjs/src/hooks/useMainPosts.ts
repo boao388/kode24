@@ -21,7 +21,15 @@ interface MainPostsResponse {
 
 // API 호출 함수들
 const fetchMainPosts = async (boardKey: string, limit: number): Promise<MainPostsResponse> => {
-  const response = await fetch(`/api/main/posts?boardKey=${boardKey}&limit=${limit}`)
+  // Vercel 캐시 우회를 위한 timestamp 추가
+  const timestamp = Date.now()
+  const response = await fetch(`/api/main/posts?boardKey=${boardKey}&limit=${limit}&_t=${timestamp}`, {
+    cache: 'no-store', // 브라우저 캐시 비활성화
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache'
+    }
+  })
   if (!response.ok) {
     throw new Error(`Failed to fetch ${boardKey} posts`)
   }
@@ -38,9 +46,10 @@ export function useRealTimePosts(limit: number = 12) {
   return useQuery({
     queryKey: queryKeys.mainPosts('real_time', limit),
     queryFn: () => fetchMainPosts('real_time', limit),
-    staleTime: 2 * 60 * 1000, // 2분간 fresh
-    gcTime: 10 * 60 * 1000, // 10분간 캐시 유지
-    refetchOnWindowFocus: false,
+    staleTime: 0, // 캐시하지 않음
+    gcTime: 1000, // 1초 후 캐시 삭제
+    refetchOnWindowFocus: true, // 포커스시 다시 불러오기
+    refetchOnMount: true, // 마운트시 다시 불러오기
     retry: 3,
   })
 }
@@ -50,9 +59,10 @@ export function useReviewPosts(limit: number = 6) {
   return useQuery({
     queryKey: queryKeys.mainPosts('review', limit),
     queryFn: () => fetchMainPosts('review', limit),
-    staleTime: 2 * 60 * 1000, // 2분간 fresh
-    gcTime: 10 * 60 * 1000, // 10분간 캐시 유지
-    refetchOnWindowFocus: false,
+    staleTime: 0, // 캐시하지 않음
+    gcTime: 1000, // 1초 후 캐시 삭제
+    refetchOnWindowFocus: true, // 포커스시 다시 불러오기
+    refetchOnMount: true, // 마운트시 다시 불러오기
     retry: 3,
   })
 }
@@ -64,17 +74,19 @@ export function useMainPosts() {
       {
         queryKey: queryKeys.mainPosts('real_time', 12),
         queryFn: () => fetchMainPosts('real_time', 12),
-        staleTime: 2 * 60 * 1000,
-        gcTime: 10 * 60 * 1000,
-        refetchOnWindowFocus: false,
+        staleTime: 0, // 캐시하지 않음
+        gcTime: 1000, // 1초 후 캐시 삭제
+        refetchOnWindowFocus: true, // 포커스시 다시 불러오기
+        refetchOnMount: true, // 마운트시 다시 불러오기
         retry: 3,
       },
       {
         queryKey: queryKeys.mainPosts('review', 6),
         queryFn: () => fetchMainPosts('review', 6),
-        staleTime: 2 * 60 * 1000,
-        gcTime: 10 * 60 * 1000,
-        refetchOnWindowFocus: false,
+        staleTime: 0, // 캐시하지 않음
+        gcTime: 1000, // 1초 후 캐시 삭제
+        refetchOnWindowFocus: true, // 포커스시 다시 불러오기
+        refetchOnMount: true, // 마운트시 다시 불러오기
         retry: 3,
       },
     ],

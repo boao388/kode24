@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
   },
   
   // 웹팩 최적화
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+  webpack: (config, { dev, isServer }) => {
     // 프로덕션 빌드 최적화
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
@@ -111,12 +111,48 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // API 라우트 캐싱 헤더
+        // 게시글 관련 API는 캐시하지 않음
+        source: '/api/boards/:boardKey/posts',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
+      {
+        // 메인 페이지 게시글 API도 캐시하지 않음
+        source: '/api/main/posts',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
+      {
+        // 기타 API 라우트 캐싱 헤더 (짧게 설정)
         source: '/api/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=300, s-maxage=300',
+            value: 'public, max-age=60, s-maxage=60',
           },
         ],
       },

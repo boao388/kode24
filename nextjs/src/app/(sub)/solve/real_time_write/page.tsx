@@ -61,8 +61,13 @@ export default function RealTimeWritePage() {
         await invalidateBoard('real_time')
         // 메인 페이지 캐시도 무효화 (최신 글 반영)
         await invalidateHelpers.invalidateMainData()
+        
+        // 강제 새로고침을 위한 timestamp 추가
+        const timestamp = Date.now()
+        sessionStorage.setItem('lastPostTime', timestamp.toString())
+        
         alert('문의가 성공적으로 작성되었습니다.')
-        router.push('/solve/real_time_list')
+        router.push(`/solve/real_time_list?refresh=${timestamp}`)
       } else {
         alert(result.message || '작성 중 오류가 발생했습니다.')
       }
