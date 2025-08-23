@@ -4,10 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
+import { useInvalidatePostList } from '@/hooks/usePostList'
+import { invalidateHelpers } from '@/lib/queryClient'
 
 export default function ReviewWritePage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const { invalidateBoard } = useInvalidatePostList()
   const [formData, setFormData] = useState({
     authorName: '',
     password: '',
@@ -54,6 +57,10 @@ export default function ReviewWritePage() {
       const result = await response.json()
 
       if (response.ok) {
+        // 캐시 무효화하여 새 글이 목록에 반영되도록 처리
+        await invalidateBoard('review')
+        // 메인 페이지 캐시도 무효화 (최신 글 반영)
+        await invalidateHelpers.invalidateMainData()
         alert('후기가 성공적으로 작성되었습니다.')
         router.push('/solve/review_list')
       } else {
