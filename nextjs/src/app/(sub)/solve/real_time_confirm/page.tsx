@@ -69,7 +69,7 @@ function RealTimeConfirmContent() {
           <div className="container">
             <div className="pw-confirm">
               <strong>
-                <span>{authorName || 'ㅇㅇ'}님의 </span>게시글 입니다.
+                <span>{authorName || '익명'}님의 </span>게시글 입니다.
               </strong>
               <span>비밀글 기능으로 보호된 글입니다.</span>
               <p>

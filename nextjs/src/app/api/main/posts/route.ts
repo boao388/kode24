@@ -68,22 +68,24 @@ export async function GET(request: NextRequest) {
         time: dataTransformers.formatTime(publishedDate)
       }
     })
+    return NextResponse.json({posts : formattedPosts, total : formattedPosts.length})
 
-    return createSuccessResponse(
-      {
-        posts: formattedPosts,
-        total: formattedPosts.length
-      },
-      undefined,
-      {
-        maxAge: 300,
-        sMaxAge: 300,
-        staleWhileRevalidate: 600
-      }
-    )
+    // return createSuccessResponse(
+    //   {
+    //     posts: formattedPosts,
+    //     total: formattedPosts.length
+    //   },
+    //   undefined,
+    //   {
+    //     maxAge: 300,
+    //     sMaxAge: 300,
+    //     staleWhileRevalidate: 600
+    //   }
+    // )
 
   } catch (error) {
     console.error('메인 페이지 게시글 조회 실패:', error)
-    return createErrorResponse('서버 오류가 발생했습니다.', 500)
+    // return createErrorResponse('서버 오류가 발생했습니다.', 500)
+    return NextResponse.json({ error: '서버 오류가 발생했습니다.' }, { status: 500 })
   }
 }

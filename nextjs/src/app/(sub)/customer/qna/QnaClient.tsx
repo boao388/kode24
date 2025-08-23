@@ -26,7 +26,7 @@ export default function QnaClient() {
         const response = await fetch('/api/faqs')
         if (response.ok) {
           const data = await response.json()
-          setFaqs(data.posts)
+          setFaqs(data.faqs)
         } else {
           setError('FAQ를 불러오는데 실패했습니다.')
         }
