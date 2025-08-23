@@ -116,10 +116,13 @@ export default function AdminPostDetailPage() {
       }
       
       // 관리자 전용 API로 모든 데이터 한 번에 조회
-      const response = await fetch(`/api/admin/posts/${postId}`, {
+      const response = await fetch(`/api/admin/posts/${postId}?_t=${Date.now()}`, {
         headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
+          'Authorization': `Bearer ${adminToken}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        },
+        cache: 'no-store'
       })
       
       if (response.ok) {
@@ -259,7 +262,25 @@ export default function AdminPostDetailPage() {
       
       if (response.ok) {
         alert(data.message || '댓글이 성공적으로 삭제되었습니다.')
-        // 댓글 목록 새로고침
+        
+        // 즉시 로컬 상태 업데이트 - 삭제된 댓글 제거
+        setComments(prevComments => {
+          const removeComment = (commentsList: Comment[]): Comment[] => {
+            return commentsList.filter(comment => {
+              if (comment.id === commentId) {
+                return false; // 삭제된 댓글 제거
+              }
+              // 대댓글에서도 제거
+              if (comment.replies && comment.replies.length > 0) {
+                comment.replies = comment.replies.filter(reply => reply.id !== commentId);
+              }
+              return true;
+            });
+          };
+          return removeComment(prevComments);
+        });
+        
+        // 배경에서 최신 데이터 로드 (캐시 무효화 포함)
         loadPostData()
       } else if (response.status === 401) {
         localStorage.removeItem('adminToken')
@@ -268,7 +289,9 @@ export default function AdminPostDetailPage() {
         alert(data.message || '댓글 삭제에 실패했습니다.')
       }
     } catch (error) {
-      console.error('댓글 삭제 실패:', error)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('댓글 삭제 실패:', error)
+      }
       alert('댓글 삭제 중 오류가 발생했습니다.')
     }
   }

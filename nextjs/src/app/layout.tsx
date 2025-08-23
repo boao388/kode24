@@ -12,6 +12,8 @@ import '@/styles/main.css';
 // import '@/styles/sub.css';
 // HTML Editor styles
 import '@/styles/editor.css';
+// HTML Content styles for user pages
+import '@/styles/editor-content.css';
 
 const notoSansKr = Noto_Sans_KR({
   subsets: ["latin"],
