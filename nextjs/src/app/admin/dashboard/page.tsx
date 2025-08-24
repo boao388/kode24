@@ -474,22 +474,26 @@ export default function AdminDashboardPage() {
           border-color: #667eea;
           box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
           transform: translateY(-2px);
+          cursor: pointer;
         }
 
         .action-icon {
           font-size: 2rem;
           margin-bottom: 0.5rem;
+          cursor: pointer !important;
         }
 
         .action-title {
           color: #333;
           font-weight: 600;
           margin-bottom: 0.25rem;
+          cursor: pointer !important;
         }
 
         .action-desc {
           color: #666;
           font-size: 0.9rem;
+          cursor: pointer !important;
         }
 
         .recent-posts {
