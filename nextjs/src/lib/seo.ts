@@ -11,6 +11,8 @@ interface SEOProps {
   author?: string
   section?: string
   tags?: string[]
+  canonicalUrl?: string
+  alternateUrls?: { [key: string]: string }
 }
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://kode24.co.kr'
@@ -29,7 +31,9 @@ export function generateSEO({
   modifiedTime,
   author,
   section,
-  tags = []
+  tags = [],
+  canonicalUrl,
+  alternateUrls
 }: SEOProps = {}): Metadata {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE
   const finalDescription = description || DEFAULT_DESCRIPTION
@@ -37,9 +41,18 @@ export function generateSEO({
   const finalImage = ogImage || '/assets/images/og-image.jpg'
 
   const metadata: Metadata = {
+    metadataBase: new URL(BASE_URL),
     title: fullTitle,
     description: finalDescription,
     keywords: finalKeywords,
+    
+    // 캐노니컬 URL 설정
+    ...(canonicalUrl && {
+      alternates: {
+        canonical: canonicalUrl,
+        ...(alternateUrls && { languages: alternateUrls })
+      }
+    }),
     
     openGraph: {
       type: ogType,
@@ -181,6 +194,15 @@ export const pageSEO = {
     title: '보안 이슈',
     description: '최신 사이버 보안 이슈와 대응 방안을 확인하세요. 실시간 보안 위협 정보와 예방 가이드를 제공합니다.',
     keywords: '보안이슈, 사이버위협, 보안취약점, 해킹동향, 보안대응'
+  }),
+
+  // 메인 페이지
+  home: (): Metadata => generateSEO({
+    title: '',
+    description: '몸캠피싱 피해 예방 및 전문적인 법적 대응 서비스를 제공하는 KODE24입니다. 전문가의 조언과 신속한 대응으로 피해를 최소화하세요.',
+    keywords: '몸캠피싱, 피해예방, 법적대응, 사이버범죄, 디지털성범죄, 온라인피해, 보안솔루션, KODE24',
+    ogType: 'website',
+    ogImage: '/assets/images/main-og-image.jpg'
   })
 }
 
@@ -193,6 +215,8 @@ export function generatePostSEO(post: {
   updatedAt?: string
   category?: string
   boardType?: string
+  postId?: string
+  boardKey?: string
 }): Metadata {
   const description = post.content 
     ? post.content.replace(/<[^>]*>/g, '').substring(0, 160) + '...'
@@ -211,6 +235,31 @@ export function generatePostSEO(post: {
 
   const section = post.boardType ? boardTypeMap[post.boardType] : undefined
 
+  // 게시글별 캐노니컬 URL 생성
+  let canonicalUrl = ''
+  if (post.postId && post.boardKey) {
+    switch (post.boardKey) {
+      case 'notice':
+        canonicalUrl = `${BASE_URL}/customer/notice_view?id=${post.postId}`
+        break
+      case 'real_time':
+        canonicalUrl = `${BASE_URL}/solve/real_time_view?id=${post.postId}`
+        break
+      case 'review':
+        canonicalUrl = `${BASE_URL}/solve/review_view?id=${post.postId}`
+        break
+      case 'kode_report':
+        canonicalUrl = `${BASE_URL}/report/kode_view?id=${post.postId}`
+        break
+      case 'app_report':
+        canonicalUrl = `${BASE_URL}/report/app_view?id=${post.postId}`
+        break
+      case 'issue_report':
+        canonicalUrl = `${BASE_URL}/report/issue_view?id=${post.postId}`
+        break
+    }
+  }
+
   return generateSEO({
     title: post.title,
     description,
@@ -219,6 +268,7 @@ export function generatePostSEO(post: {
     modifiedTime: post.updatedAt || post.createdAt,
     author: post.authorName,
     section,
-    keywords: `${post.title}, ${section}, KODE24, 몸캠피싱, 사이버보안`
+    keywords: `${post.title}, ${section}, KODE24, 몸캠피싱, 사이버보안`,
+    canonicalUrl
   })
 } 

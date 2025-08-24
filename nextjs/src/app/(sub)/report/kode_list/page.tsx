@@ -1,8 +1,10 @@
-'use client'
-
+import type { Metadata } from 'next'
+import { pageSEO } from '@/lib/seo'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import PostList from '@/components/common/PostList'
+
+export const metadata: Metadata = pageSEO.kodeList()
 
 export default function KodeListPage() {
   return (
