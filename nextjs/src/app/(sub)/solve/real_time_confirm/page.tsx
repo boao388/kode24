@@ -97,6 +97,14 @@ function RealTimeConfirmContent() {
                   >
                     {loading ? '확인 중...' : '확인'}
                   </button>
+                  {/* <button 
+                    type="button" 
+                    className="btn btn-cancel hoverable"
+                    onClick={() => router.push('/solve/real_time_list')}
+                    disabled={loading}
+                  >
+                    목록으로
+                  </button> */}
                 </div>
               </form>
             </div>

@@ -90,7 +90,7 @@ function RealTimeViewContent() {
         } else {
           // 비밀글이면서 인증 토큰이 없으면 비밀번호 확인 페이지로 이동
           if (data.requiresPassword) {
-            router.push(`/solve/real_time_confirm?id=${postId}&author=${encodeURIComponent(data.authorName)}`)
+            router.replace(`/solve/real_time_confirm?id=${postId}&author=${encodeURIComponent(data.authorName)}`)
             return
           }
           setPost(data)

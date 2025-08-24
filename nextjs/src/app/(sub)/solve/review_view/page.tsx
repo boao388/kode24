@@ -140,6 +140,21 @@ function ReviewViewContent() {
     }
   }
 
+  const loadComments = useCallback(async () => {
+    if (!postId) return
+
+    try {
+      const response = await fetch(`/api/posts/${postId}/comments`)
+      if (response.ok) {
+        const result = await response.json()
+        const comments = result.data || result // API 응답 구조 호환성
+        setPost(prev => prev ? { ...prev, comments } : null)
+      }
+    } catch (error) {
+      console.error('댓글 로딩 실패:', error)
+    }
+  }, [postId])
+
   const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
     setCommentData(prev => ({
@@ -149,8 +164,8 @@ function ReviewViewContent() {
   }
 
   const handleCommentSubmit = async () => {
-    if (!commentData.content.trim()) {
-      alert('댓글을 입력해주세요.')
+    if (!commentData.content.trim() || !commentData.authorName.trim() || !commentData.password.trim()) {
+      alert('모든 필드를 입력해주세요.')
       return
     }
 
@@ -160,18 +175,13 @@ function ReviewViewContent() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          content: commentData.content,
-          authorName: commentData.authorName || '익명',
-          password: commentData.password || 'default',
-          isSecret: commentData.isSecret
-        }),
+        body: JSON.stringify(commentData),
       })
 
       if (response.ok) {
         alert('댓글이 등록되었습니다.')
         setCommentData({ content: '', authorName: '', password: '', isSecret: false })
-        loadPost() // 댓글 목록 새로고침
+        loadComments() // 댓글만 새로고침 (효율성 개선)
       } else {
         const errorData = await response.json()
         alert(errorData.message || '댓글 등록에 실패했습니다.')
@@ -326,32 +336,62 @@ function ReviewViewContent() {
                     
                     <div className="comment-body">
                       {/* 댓글 작성 폼 */}
-                      <div className="comment-form">
-                        <div className="form-group">
-                          <input 
-                            type="text" 
-                            className="form-control text-length" 
-                            name="content"
-                            value={commentData.content}
-                            onChange={handleCommentChange}
-                            placeholder="댓글을 입력해 주세요."
-                            maxLength={100}
-                          />
-                          <div className="box">
-                            <div className="txt-counter">
-                              <p>
-                                <span className="char-count">{commentData.content.length}</span> / 100자
-                              </p>
+                      <div className="secret-comment">
+                        <ul>
+                          <li>
+                            <div className="form-group">
+                              <input 
+                                type="text" 
+                                className="form-control" 
+                                name="content"
+                                value={commentData.content}
+                                onChange={handleCommentChange}
+                                placeholder="댓글을 입력해 주세요."
+                              />
                             </div>
-                            <button 
-                              type="button" 
-                              className="btn-submit hoverable"
-                              onClick={handleCommentSubmit}
-                            >
-                              등록
-                            </button>
-                          </div>
-                        </div>
+                          </li>
+                          <li>
+                            <div className="form-group">
+                              <input 
+                                type="text" 
+                                className="form-control" 
+                                name="authorName"
+                                value={commentData.authorName}
+                                onChange={handleCommentChange}
+                                placeholder="이름"
+                              />
+                            </div>
+                          </li>
+                          <li>
+                            <div className="form-group">
+                              <input 
+                                type="password" 
+                                className="form-control" 
+                                name="password"
+                                value={commentData.password}
+                                onChange={handleCommentChange}
+                                placeholder="비밀번호"
+                              />
+                            </div>
+                          </li>
+                          <li>
+                            <label className="hoverable">
+                              <input 
+                                type="checkbox" 
+                                name="isSecret"
+                                checked={commentData.isSecret}
+                                onChange={handleCommentChange}
+                              /> 비밀글
+                            </label>
+                          </li>
+                        </ul>
+                        <button 
+                          type="button" 
+                          className="btn-submit hoverable"
+                          onClick={handleCommentSubmit}
+                        >
+                          등록
+                        </button>
                       </div>
                       
                       {/* 댓글 목록 */}
@@ -364,9 +404,7 @@ function ReviewViewContent() {
                                   <span>{comment.authorName}</span>
                                   <span>{new Date(comment.createdAt).toLocaleDateString('ko-KR')}</span>
                                 </div>
-                                <p>
-                                  {comment.isSecret ? '비밀 댓글입니다.' : comment.content}
-                                </p>
+                                <p>{comment.isSecret ? '[비밀 댓글입니다]' : comment.content}</p>
                               </li>
                             ))}
                           </ul>
