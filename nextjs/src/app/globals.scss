@@ -9,3 +9,37 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* 클릭 가능한 요소들에 커서 포인터 적용 */
+button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
+.hoverable,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-edit,
+.btn-delete,
+.btn-view,
+.btn-search,
+.btn-reset,
+.btn-edit-small,
+.btn-delete-small,
+.btn-view-small,
+.pagination-btn,
+.action-card,
+.checkbox-label,
+.pop-close,
+.btn-today,
+a[href]:not([href=""]):not([href="#"]) {
+  cursor: pointer !important;
+}
+
+/* 비활성화된 요소들은 not-allowed 커서 */
+button:disabled,
+input:disabled,
+.btn:disabled,
+.pagination-btn:disabled {
+  cursor: not-allowed !important;
+}

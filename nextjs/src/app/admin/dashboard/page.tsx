@@ -467,6 +467,7 @@ export default function AdminDashboardPage() {
           border-radius: 8px;
           text-decoration: none;
           transition: all 0.3s ease;
+          cursor: pointer;
         }
 
         .action-card:hover {
