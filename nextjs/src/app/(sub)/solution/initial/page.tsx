@@ -1,19 +1,11 @@
 'use client'
 
 import { useEffect } from 'react'
-import { generateServiceSchema, generateBreadcrumbSchema, createJsonLdScript } from '@/lib/jsonld'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import Link from 'next/link'
 
 export default function SolutionInitialPage() {
-  // JSON-LD 구조화 데이터
-  const serviceSchema = generateServiceSchema()
-  const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: '홈', url: '/' },
-    { name: '솔루션', url: '/solution/initial' }
-  ])
-
   useEffect(() => {
     // 탭 기능 초기화
     const initTabFunction = () => {
@@ -81,9 +73,6 @@ export default function SolutionInitialPage() {
 
   return (
     <>
-      {/* JSON-LD 구조화 데이터 */}
-      {createJsonLdScript([serviceSchema, breadcrumbSchema])}
-      
       <Header />
       
       {/* content */}
