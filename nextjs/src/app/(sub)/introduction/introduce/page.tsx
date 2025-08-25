@@ -193,7 +193,7 @@ export default function IntroducePage() {
                 </li>
               </ul>
               <div className="btn-area">
-                <a href="#consult-pop" className="btn-inquiry hoverable">
+                <a href="https://pf.kakao.com/_xexaDxgG/chat" className="btn-inquiry hoverable">
                   <span>문의하기</span>
                 </a>
               </div>

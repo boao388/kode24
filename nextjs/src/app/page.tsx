@@ -339,7 +339,7 @@ export default function HomePage() {
                 </p>
                 <span>We solve digital sex crimes.</span>
                 <div className="btn-area">
-                  <a href="#consult-pop" className="btn-inquiry hoverable">
+                  <a href="https://pf.kakao.com/_xexaDxgG/chat" className="btn-inquiry hoverable">
                     <span>문의하기</span>
                   </a>
                 </div>
@@ -744,7 +744,7 @@ export default function HomePage() {
               <h3>당신의 <b>디지털 명예,<br /> KODE24</b>가 지켜드립니다.</h3>
               <small>We protect your digital dignity.</small>
               <div className="btn-area">
-                <a href="#consult-pop" className="btn-inquiry hoverable">
+                <a href="https://pf.kakao.com/_xexaDxgG/chat" className="btn-inquiry hoverable">
                   <span>문의하기</span>
                 </a>
               </div>
