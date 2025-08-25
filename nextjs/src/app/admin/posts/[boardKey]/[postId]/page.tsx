@@ -76,6 +76,14 @@ export default function AdminPostDetailPage() {
   const [answerContent, setAnswerContent] = useState('')
   const [showAnswerForm, setShowAnswerForm] = useState(false)
   const [savingAnswer, setSavingAnswer] = useState(false)
+  
+  // 게시글 정보 편집 상태 관리
+  const [isEditingPostInfo, setIsEditingPostInfo] = useState(false)
+  const [editFormData, setEditFormData] = useState({
+    viewCount: 0,
+    createdAt: ''
+  })
+  const [isSavingPostInfo, setIsSavingPostInfo] = useState(false)
 
   // 관리자 인증 확인
   useEffect(() => {
@@ -147,6 +155,12 @@ export default function AdminPostDetailPage() {
           setAdminAnswer(null)
           setAnswerContent('')
         }
+        
+        // 편집 폼 데이터 초기화
+        setEditFormData({
+          viewCount: data.post.viewCount || 0,
+          createdAt: new Date(data.post.createdAt).toISOString().slice(0, 16)
+        })
       } else if (response.status === 401) {
         localStorage.removeItem('adminToken')
         router.push('/admin/login')
@@ -175,6 +189,70 @@ export default function AdminPostDetailPage() {
       loadPostData()
     }
   }, [postId, boardKey]) // config 의존성 제거로 무한 로딩 방지
+
+  // 게시글 정보 편집 시작
+  const handleStartEditPostInfo = () => {
+    if (post) {
+      setEditFormData({
+        viewCount: post.viewCount,
+        createdAt: new Date(post.createdAt).toISOString().slice(0, 16)
+      })
+      setIsEditingPostInfo(true)
+    }
+  }
+
+  // 게시글 정보 편집 취소
+  const handleCancelEditPostInfo = () => {
+    setIsEditingPostInfo(false)
+  }
+
+  // 게시글 정보 편집 저장
+  const handleSavePostInfo = async () => {
+    if (!post) return
+
+    setIsSavingPostInfo(true)
+    try {
+      const adminToken = localStorage.getItem('adminToken')
+      
+      const response = await fetch(`/api/admin/posts/${post.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify({
+          title: post.title, // 기존 제목 유지
+          content: post.content, // 기존 내용 유지
+          viewCount: editFormData.viewCount,
+          createdAt: editFormData.createdAt,
+          publishedAt: editFormData.createdAt // 사용자 페이지 반영을 위해 publishedAt도 함께 수정
+        })
+      })
+
+      if (response.ok) {
+        alert('게시글 정보가 수정되었습니다.')
+        setIsEditingPostInfo(false)
+        loadPostData() // 데이터 새로고침
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || '수정에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('게시글 정보 수정 실패:', error)
+      alert('수정 중 오류가 발생했습니다.')
+    } finally {
+      setIsSavingPostInfo(false)
+    }
+  }
+
+  // 편집 폼 데이터 변경 핸들러
+  const handleEditFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: name === 'viewCount' ? parseInt(value) || 0 : value
+    }))
+  }
 
   // 답변 저장
   const handleSaveAnswer = async () => {
@@ -380,7 +458,36 @@ export default function AdminPostDetailPage() {
 
       {/* 게시글 정보 */}
       <div className="post-detail-section">
-        <h2>게시글 정보</h2>
+        <div className="section-header">
+          <h2>게시글 정보</h2>
+          <div className="section-actions">
+            {isEditingPostInfo ? (
+              <>
+                <button 
+                  onClick={handleSavePostInfo}
+                  disabled={isSavingPostInfo}
+                  className="btn-primary"
+                >
+                  {isSavingPostInfo ? '저장 중...' : '저장'}
+                </button>
+                <button 
+                  onClick={handleCancelEditPostInfo}
+                  disabled={isSavingPostInfo}
+                  className="btn-secondary"
+                >
+                  취소
+                </button>
+              </>
+            ) : (
+              <button 
+                onClick={handleStartEditPostInfo}
+                className="btn-primary"
+              >
+                정보 편집
+              </button>
+            )}
+          </div>
+        </div>
         <div className="post-detail">
           <div className="detail-row">
             <label>제목:</label>
@@ -394,11 +501,34 @@ export default function AdminPostDetailPage() {
           )}
           <div className="detail-row">
             <label>작성일:</label>
-            <span>{formatDate(post.createdAt)}</span>
+            {isEditingPostInfo ? (
+              <input
+                type="datetime-local"
+                name="createdAt"
+                value={editFormData.createdAt}
+                onChange={handleEditFormChange}
+                disabled={isSavingPostInfo}
+                className="edit-input"
+              />
+            ) : (
+              <span>{formatDate(post.createdAt)}</span>
+            )}
           </div>
           <div className="detail-row">
             <label>조회수:</label>
-            <span>{post.viewCount}</span>
+            {isEditingPostInfo ? (
+              <input
+                type="number"
+                name="viewCount"
+                value={editFormData.viewCount}
+                onChange={handleEditFormChange}
+                disabled={isSavingPostInfo}
+                min="0"
+                className="edit-input"
+              />
+            ) : (
+              <span>{post.viewCount.toLocaleString()}</span>
+            )}
           </div>
           <div className="detail-row">
             <label>내용:</label>
@@ -829,6 +959,36 @@ export default function AdminPostDetailPage() {
 
         .btn-delete-small:hover {
           background: #c82333;
+        }
+
+        /* 편집 입력 필드 스타일 */
+        .edit-input {
+          padding: 8px 12px;
+          border: 2px solid #007bff;
+          border-radius: 4px;
+          font-size: 14px;
+          background-color: #f8f9ff;
+          transition: border-color 0.2s, box-shadow 0.2s;
+          min-width: 200px;
+        }
+
+        .edit-input:focus {
+          outline: none;
+          border-color: #0056b3;
+          box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+        }
+
+        .edit-input:disabled {
+          background-color: #e9ecef;
+          border-color: #ced4da;
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+
+        /* 편집 모드일 때 detail-row 스타일 조정 */
+        .detail-row .edit-input {
+          flex: 1;
+          max-width: 300px;
         }
       `}</style>
     </div>

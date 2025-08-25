@@ -161,7 +161,9 @@ export async function PUT(
       imageUrl, 
       publishedAt,
       authorName,
-      authorEmail
+      authorEmail,
+      viewCount,
+      createdAt
     } = body
 
     const { id } = await params
@@ -186,6 +188,28 @@ export async function PUT(
       )
     }
 
+    // 조회수 유효성 검증
+    if (viewCount !== undefined) {
+      const parsedViewCount = parseInt(viewCount)
+      if (isNaN(parsedViewCount) || parsedViewCount < 0) {
+        return NextResponse.json(
+          { error: '조회수는 0 이상의 숫자여야 합니다.' },
+          { status: 400 }
+        )
+      }
+    }
+
+    // 등록일자 유효성 검증
+    if (createdAt !== undefined) {
+      const parsedDate = new Date(createdAt)
+      if (isNaN(parsedDate.getTime())) {
+        return NextResponse.json(
+          { error: '등록일자가 올바른 날짜 형식이 아닙니다.' },
+          { status: 400 }
+        )
+      }
+    }
+
     // URL 검증 (링크가 있는 경우)
     if (linkUrl) {
       try {
@@ -199,18 +223,30 @@ export async function PUT(
     }
 
     // 게시글 수정
+    const updateData: any = {
+      title,
+      content,
+      authorName: authorName || existingPost.authorName,
+      authorEmail,
+      isFeatured: isFeatured || false,
+      linkUrl: linkUrl || null,
+      imageUrl: imageUrl || null,
+      publishedAt: publishedAt ? new Date(publishedAt) : existingPost.publishedAt,
+    }
+
+    // 조회수가 제공된 경우에만 업데이트
+    if (viewCount !== undefined) {
+      updateData.viewCount = parseInt(viewCount)
+    }
+
+    // 등록일자가 제공된 경우에만 업데이트
+    if (createdAt !== undefined) {
+      updateData.createdAt = new Date(createdAt)
+    }
+
     const updatedPost = await prisma.post.update({
       where: { id },
-      data: {
-        title,
-        content,
-        authorName: authorName || existingPost.authorName,
-        authorEmail,
-        isFeatured: isFeatured || false,
-        linkUrl: linkUrl || null,
-        imageUrl: imageUrl || null,
-        publishedAt: publishedAt ? new Date(publishedAt) : existingPost.publishedAt,
-      },
+      data: updateData,
       include: {
         board: true
       }

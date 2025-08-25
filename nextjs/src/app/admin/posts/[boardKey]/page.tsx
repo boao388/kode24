@@ -129,6 +129,11 @@ export default function AdminPostsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   
+  // 인라인 편집 상태 관리
+  const [inlineEditing, setInlineEditing] = useState<{ id: string; field: 'viewCount' | 'createdAt' } | null>(null)
+  const [editingValue, setEditingValue] = useState('')
+  const [isUpdating, setIsUpdating] = useState(false)
+  
   // 폼 데이터
   const [formData, setFormData] = useState({
     title: '',
@@ -184,13 +189,17 @@ export default function AdminPostsPage() {
         boardKey,
         page: page.toString(),
         limit: '10',
-        ...(search && { search })
+        ...(search && { search }),
+        _t: Date.now().toString() // 캐시 무력화를 위한 타임스탬프
       })
 
       const response = await fetch(`/api/admin/posts?${queryParams}`, {
         headers: {
-          'Authorization': `Bearer ${adminToken}`
-        }
+          'Authorization': `Bearer ${adminToken}`,
+          'Cache-Control': 'no-cache, no-store, must-revalidate', // 강력한 캐시 무력화
+          'Pragma': 'no-cache'
+        },
+        cache: 'no-store' // 브라우저 캐시 무력화
       })
 
       if (response.ok) {
@@ -380,6 +389,111 @@ export default function AdminPostsPage() {
   // 페이지 변경
   const handlePageChange = (page: number) => {
     loadPosts(page, searchTerm)
+  }
+
+  // 인라인 편집 시작
+  const handleInlineEdit = (postId: string, field: 'viewCount' | 'createdAt', currentValue: string | number) => {
+    setInlineEditing({ id: postId, field })
+    if (field === 'createdAt') {
+      // 날짜를 YYYY-MM-DD HH:mm 형식으로 변환
+      const date = new Date(currentValue)
+      const formattedDate = date.toISOString().slice(0, 16)
+      setEditingValue(formattedDate)
+    } else {
+      setEditingValue(String(currentValue))
+    }
+  }
+
+  // 인라인 편집 취소
+  const handleInlineCancel = () => {
+    setInlineEditing(null)
+    setEditingValue('')
+  }
+
+  // 인라인 편집 저장
+  const handleInlineSave = async () => {
+    if (!inlineEditing) return
+
+    setIsUpdating(true)
+    try {
+      const adminToken = localStorage.getItem('adminToken')
+      
+      // 현재 편집 중인 게시글 찾기
+      const currentPost = posts.find(post => post.id === inlineEditing.id)
+      if (!currentPost) {
+        alert('게시글을 찾을 수 없습니다.')
+        return
+      }
+
+      // 기본 데이터 (필수 필드 포함)
+      const updateData: any = {
+        title: currentPost.title,
+        content: currentPost.content
+      }
+
+      if (inlineEditing.field === 'viewCount') {
+        const viewCount = parseInt(editingValue)
+        if (isNaN(viewCount) || viewCount < 0) {
+          alert('조회수는 0 이상의 숫자여야 합니다.')
+          return
+        }
+        updateData.viewCount = viewCount
+      } else if (inlineEditing.field === 'createdAt') {
+        const date = new Date(editingValue)
+        if (isNaN(date.getTime())) {
+          alert('올바른 날짜 형식을 입력해주세요.')
+          return
+        }
+        updateData.createdAt = date.toISOString()
+        updateData.publishedAt = date.toISOString() // 사용자 페이지 반영을 위해 publishedAt도 함께 수정
+      }
+
+      const response = await fetch(`/api/admin/posts/${inlineEditing.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${adminToken}`
+        },
+        body: JSON.stringify(updateData)
+      })
+
+      if (response.ok) {
+        alert('수정되었습니다.')
+        
+        // 즉시 로컬 상태 업데이트 (더 빠른 반영)
+        setPosts(prevPosts => prevPosts.map(post => {
+          if (post.id === inlineEditing.id) {
+            const updatedPost = { ...post }
+            if (inlineEditing.field === 'viewCount') {
+              updatedPost.viewCount = parseInt(editingValue)
+            } else if (inlineEditing.field === 'createdAt') {
+              // datetime-local 형식을 Date 객체로 변환
+              const newDate = new Date(editingValue).toISOString()
+              updatedPost.createdAt = newDate
+              updatedPost.publishedAt = newDate // 사용자 페이지에서 보는 publishedAt도 업데이트
+            }
+            return updatedPost
+          }
+          return post
+        }))
+        
+        setInlineEditing(null)
+        setEditingValue('')
+        
+        // 배경에서 최신 데이터 동기화 (캐시 무력화 포함)
+        setTimeout(() => {
+          loadPosts(currentPage, searchTerm)
+        }, 100)
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || '수정에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('인라인 수정 실패:', error)
+      alert('수정 중 오류가 발생했습니다.')
+    } finally {
+      setIsUpdating(false)
+    }
   }
 
   if (!config) {
@@ -617,9 +731,100 @@ export default function AdminPostsPage() {
                       {config.authorEditable && (
                         <td>{post.authorName || '-'}</td>
                       )}
-                      <td>{post.viewCount}</td>
+                      {/* 조회수 - 인라인 편집 가능 */}
+                      <td className="editable-cell">
+                        {inlineEditing?.id === post.id && inlineEditing.field === 'viewCount' ? (
+                          <div className="inline-edit-container">
+                            <input
+                              type="number"
+                              value={editingValue}
+                              onChange={(e) => setEditingValue(e.target.value)}
+                              className="inline-edit-input"
+                              min="0"
+                              disabled={isUpdating}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleInlineSave()
+                                if (e.key === 'Escape') handleInlineCancel()
+                              }}
+                              autoFocus
+                            />
+                            <div className="inline-edit-buttons">
+                              <button 
+                                onClick={handleInlineSave}
+                                disabled={isUpdating}
+                                className="btn-save-inline"
+                                title="저장"
+                              >
+                                ✓
+                              </button>
+                              <button 
+                                onClick={handleInlineCancel}
+                                disabled={isUpdating}
+                                className="btn-cancel-inline"
+                                title="취소"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <span 
+                            className="editable-value"
+                            onClick={() => handleInlineEdit(post.id, 'viewCount', post.viewCount)}
+                            title="클릭하여 편집"
+                          >
+                            {post.viewCount.toLocaleString()}
+                          </span>
+                        )}
+                      </td>
+                      
                       <td>{post.commentCount}</td>
-                      <td>{new Date(post.createdAt).toLocaleDateString()}</td>
+                      
+                      {/* 등록일 - 인라인 편집 가능 */}
+                      <td className="editable-cell">
+                        {inlineEditing?.id === post.id && inlineEditing.field === 'createdAt' ? (
+                          <div className="inline-edit-container">
+                            <input
+                              type="datetime-local"
+                              value={editingValue}
+                              onChange={(e) => setEditingValue(e.target.value)}
+                              className="inline-edit-input"
+                              disabled={isUpdating}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleInlineSave()
+                                if (e.key === 'Escape') handleInlineCancel()
+                              }}
+                              autoFocus
+                            />
+                            <div className="inline-edit-buttons">
+                              <button 
+                                onClick={handleInlineSave}
+                                disabled={isUpdating}
+                                className="btn-save-inline"
+                                title="저장"
+                              >
+                                ✓
+                              </button>
+                              <button 
+                                onClick={handleInlineCancel}
+                                disabled={isUpdating}
+                                className="btn-cancel-inline"
+                                title="취소"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <span 
+                            className="editable-value"
+                            onClick={() => handleInlineEdit(post.id, 'createdAt', post.createdAt)}
+                            title="클릭하여 편집"
+                          >
+                            {new Date(post.createdAt).toLocaleDateString('ko-KR')}
+                          </span>
+                        )}
+                      </td>
                       <td>
                         <div className="action-buttons">
                           <button 
@@ -1018,6 +1223,92 @@ export default function AdminPostsPage() {
 
         .btn-view-small:hover {
           background: #138496;
+        }
+
+        /* 인라인 편집 스타일 */
+        .editable-cell {
+          position: relative;
+          min-width: 120px;
+        }
+
+        .editable-value {
+          cursor: pointer;
+          padding: 4px 8px;
+          border-radius: 3px;
+          display: inline-block;
+          transition: all 0.2s;
+          border: 1px solid transparent;
+        }
+
+        .editable-value:hover {
+          background-color: #f8f9fa;
+          border-color: #dee2e6;
+        }
+
+        .inline-edit-container {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          min-width: 200px;
+        }
+
+        .inline-edit-input {
+          flex: 1;
+          padding: 4px 8px;
+          border: 1px solid #007bff;
+          border-radius: 3px;
+          font-size: 13px;
+          min-width: 80px;
+        }
+
+        .inline-edit-input:focus {
+          outline: none;
+          border-color: #0056b3;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        }
+
+        .inline-edit-buttons {
+          display: flex;
+          gap: 2px;
+        }
+
+        .btn-save-inline,
+        .btn-cancel-inline {
+          width: 24px;
+          height: 24px;
+          border: none;
+          border-radius: 3px;
+          cursor: pointer;
+          font-size: 12px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+        }
+
+        .btn-save-inline {
+          background: #28a745;
+          color: white;
+        }
+
+        .btn-save-inline:hover:not(:disabled) {
+          background: #218838;
+        }
+
+        .btn-cancel-inline {
+          background: #dc3545;
+          color: white;
+        }
+
+        .btn-cancel-inline:hover:not(:disabled) {
+          background: #c82333;
+        }
+
+        .btn-save-inline:disabled,
+        .btn-cancel-inline:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
       `}</style>
     </div>
