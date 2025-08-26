@@ -20,13 +20,21 @@ interface PostWithCategory {
   category?: { key: string } | null
 }
 
+// 한국시간 날짜 포맷팅 함수
+const formatToKST = (date: Date): string => {
+  const kstOffset = 9 * 60 // KST는 UTC+9
+  const utc = date.getTime() + (date.getTimezoneOffset() * 60000)
+  const kstTime = new Date(utc + (kstOffset * 60000))
+  return kstTime.toISOString().split('T')[0]
+}
+
 const postToPatent = (post: PostWithCategory): Patent => {
   return {
     id: post.id,
     title: post.title,
     description: post.excerpt || post.content?.substring(0, 200) || '',
     imageUrl: post.imageUrl || '/assets/images/sub/img_patent01.png',
-    date: post.publishedAt ? post.publishedAt.toISOString().split('T')[0] : post.createdAt.toISOString().split('T')[0],
+    date: post.publishedAt ? formatToKST(post.publishedAt) : formatToKST(post.createdAt),
     category: post.category?.key || 'certification',
     isActive: post.isPublished || true,
     sortOrder: 0,
