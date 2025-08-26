@@ -4,6 +4,7 @@ import Script from 'next/script';
 import CustomCursor from '@/components/ui/CustomCursor';
 import QueryProvider from '@/components/providers/QueryProvider';
 import WebVitals from '@/components/monitoring/WebVitals';
+import { generateSEO } from '@/lib/seo';
 // CSS import 순서 최적화
 import '@/styles/globals.css';
 // Common CSS import - cursor__ball 설정 포함
@@ -22,11 +23,12 @@ const notoSansKr = Noto_Sans_KR({
   variable: "--font-noto-sans-kr",
 });
 
-export const metadata: Metadata = {
-  title: "몸캠피싱 피해 예방 및 대처 방법 | 코드24의 법적 대응과 전문가 조언",
-  description: "몸캠피싱 피해 예방 및 전문적인 법적 대응 서비스를 제공하는 KODE24입니다. 전문가의 조언과 신속한 대응으로 피해를 최소화하세요.",
-  keywords: "몸캠피싱, 피해예방, 법적대응, 사이버범죄, 디지털성범죄, 온라인피해",
-};
+// 루트 레이아웃에 완벽한 SEO 메타데이터 적용
+export const metadata: Metadata = generateSEO({
+  title: '몸캠피싱 피해 예방 및 대처 방법',
+  description: '몸캠피싱 피해 예방 및 전문적인 법적 대응 서비스를 제공하는 KODE24입니다. 전문가의 조언과 신속한 대응으로 피해를 최소화하세요.',
+  keywords: '몸캠피싱, 피해예방, 법적대응, 사이버범죄, 디지털성범죄, 온라인피해, 보안솔루션'
+});
 
 export default function RootLayout({
   children,
