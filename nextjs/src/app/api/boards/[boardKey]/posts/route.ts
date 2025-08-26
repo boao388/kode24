@@ -61,13 +61,21 @@ export async function GET(
       where: whereConditions
     })
 
-    // 게시글 목록 조회
+    // 게시글 목록 조회 (관리자 답변 포함)
     const posts = await prisma.post.findMany({
       where: whereConditions,
       include: {
         board: { select: { title: true, key: true } },
         category: { select: { name: true, key: true } },
-        _count: { select: { comments: true } }
+        _count: { select: { comments: true } },
+        comments: {
+          where: {
+            isAdmin: true,
+            status: 'PUBLISHED'
+          },
+          select: { id: true },
+          take: 1 // 관리자 답변 존재 여부만 확인
+        }
       },
       orderBy: [
         { isFeatured: 'desc' }, // 공지사항 우선
@@ -77,28 +85,34 @@ export async function GET(
       take: limit
     })
 
-    // 응답 데이터 포맷팅
-    const formattedPosts = posts.map(post => ({
-      id: post.id,
-      title: post.title,
-      content: post.content,
-      excerpt: post.excerpt,
-      authorName: post.authorName,
-      viewCount: post.viewCount,
-      likeCount: post.likeCount,
-      isSecret: post.isSecret,
-      isFeatured: post.isFeatured,
-      status: post.status, // 게시글 상태 (DRAFT, PUBLISHED, ANSWERED 등)
-      linkUrl: post.linkUrl, // 외부 링크 URL 추가
-      imageUrl: post.imageUrl, // 이미지 URL 추가
-      publishedAt: post.publishedAt?.toISOString(),
-      createdAt: post.createdAt.toISOString(),
-      category: post.category ? {
-        name: post.category.name,
-        key: post.category.key
-      } : null,
-      commentCount: post._count.comments
-    }))
+    // 응답 데이터 포맷팅 (관리자 답변 여부에 따라 status 동적 설정)
+    const formattedPosts = posts.map(post => {
+      // 관리자 답변이 있으면 'ANSWERED', 없으면 기존 status 유지
+      const hasAdminAnswer = post.comments.length > 0
+      const dynamicStatus = hasAdminAnswer ? 'ANSWERED' : post.status
+
+      return {
+        id: post.id,
+        title: post.title,
+        content: post.content,
+        excerpt: post.excerpt,
+        authorName: post.authorName,
+        viewCount: post.viewCount,
+        likeCount: post.likeCount,
+        isSecret: post.isSecret,
+        isFeatured: post.isFeatured,
+        status: dynamicStatus, // 동적으로 설정된 상태
+        linkUrl: post.linkUrl,
+        imageUrl: post.imageUrl,
+        publishedAt: post.publishedAt?.toISOString(),
+        createdAt: post.createdAt.toISOString(),
+        category: post.category ? {
+          name: post.category.name,
+          key: post.category.key
+        } : null,
+        commentCount: post._count.comments
+      }
+    })
 
     // 페이지네이션 정보
     const totalPages = Math.ceil(totalCount / limit)

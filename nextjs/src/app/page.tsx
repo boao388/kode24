@@ -549,7 +549,11 @@ export default function HomePage() {
                             href={post.isSecret ? `/solve/real_time_confirm?id=${post.id}&author=${post.authorName}` : `/solve/real_time_view?id=${post.id}`}
                             className="hoverable"
                           >
-                            <b>{post.isSecret ? '🔐 비밀글입니다.' : post.title}</b>
+                            <b>
+                              {post.isSecret && '🔒 '}
+                              {post.title}
+                              {post.status === 'ANSWERED' && <span className="reply-success" style={{ marginLeft: '8px' }}>답변완료</span>}
+                            </b>
                             <ul className="info">
                               <li>{post.date}</li>
                               <li>{post.time}</li>

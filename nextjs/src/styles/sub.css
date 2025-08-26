@@ -2218,6 +2218,8 @@ a, button {
         transition-delay: 0s;
         background-color: #EBEBEB;
         transform: translateY(-50%); }
+      .qna .article-content > ul > li .btn-qna:before {
+        transform: translateY(-50%) rotate(90deg); }
     .qna .article-content > ul > li .answer {
       display: none; }
       .qna .article-content > ul > li .answer > div {
@@ -2238,8 +2240,10 @@ a, button {
           font-weight: 400;
           line-height: 30px;
           letter-spacing: -0.68px; }
+    .qna .article-content > ul > li.active .btn-qna:before {
+      transform: translateY(-50%) rotate(0deg); }
     .qna .article-content > ul > li.active .btn-qna:after {
-      transform: translateY(-50%) rotate(90deg); }
+      transform: translateY(-50%) rotate(0deg); }
     .qna .article-content > ul > li ~ li {
       margin-top: 10px; }
   @media (max-width: 1024px) {
