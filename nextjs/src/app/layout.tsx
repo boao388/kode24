@@ -37,6 +37,8 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         {/* Swiper CSS */}
+        <meta name="naver-site-verification" content="9a45d6fd048dbd26a8d3f3feded9727878fc4ae0" />
+
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
