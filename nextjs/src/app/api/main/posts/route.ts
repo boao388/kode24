@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       return createErrorResponse('게시판을 찾을 수 없습니다.', 404)
     }
 
-    // 게시글 목록 조회 (최신순)
+    // 게시글 목록 조회 (최신순, 관리자 답변 포함)
     const posts = await prisma.post.findMany({
       where: {
         boardId: board.id,
@@ -46,7 +46,16 @@ export async function GET(request: NextRequest) {
         authorName: true,
         isSecret: true,
         createdAt: true,
-        publishedAt: true
+        publishedAt: true,
+        status: true,
+        comments: {
+          where: {
+            isAdmin: true,
+            status: 'PUBLISHED'
+          },
+          select: { id: true },
+          take: 1 // 관리자 답변 존재 여부만 확인
+        }
       },
       orderBy: {
         createdAt: 'desc'
@@ -54,9 +63,11 @@ export async function GET(request: NextRequest) {
       take: limit
     })
 
-    // 데이터 포맷팅 (최적화된 변환 함수 사용)
+    // 데이터 포맷팅 (관리자 답변 여부 포함)
     const formattedPosts = posts.map(post => {
       const publishedDate = post.publishedAt || post.createdAt
+      const hasAdminAnswer = post.comments.length > 0
+      const dynamicStatus = hasAdminAnswer ? 'ANSWERED' : post.status
 
       return {
         id: post.id,
@@ -65,6 +76,7 @@ export async function GET(request: NextRequest) {
         excerpt: post.excerpt || dataTransformers.summarize(post.content, 200),
         authorName: post.authorName,
         isSecret: post.isSecret,
+        status: dynamicStatus, // 답변완료 상태 포함
         date: dataTransformers.formatDate(publishedDate),
         time: dataTransformers.formatTime(publishedDate)
       }

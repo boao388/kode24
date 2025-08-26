@@ -3,6 +3,7 @@ import Script from 'next/script';
 // common.css는 루트 레이아웃에서 이미 로드됨 - 중복 제거
 // 서브 페이지 전용 CSS만 로드
 import '@/styles/sub.css';
+import '@/styles/editor-content.css'; // 에디터 콘텐츠 스타일 추가
 
 export const metadata: Metadata = {
   title: "KODE24 | 몸캠피싱 피해 예방 및 대처 서비스",

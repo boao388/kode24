@@ -42,7 +42,7 @@ export default function QnaClient() {
   }, [])
 
   const toggleAnswer = (index: number) => {
-    setActiveIndex(activeIndex === index ? null : index)
+    // setActiveIndex(activeIndex === index ? null : index)
   }
 
   return (

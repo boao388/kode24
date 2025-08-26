@@ -1,84 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Patent, PatentListResponse, PatentSearchParams } from '@/types'
+import { Patent, PatentListResponse } from '@/types'
+import { prisma } from '@/lib/prisma'
+import { verifyAdminToken } from '@/lib/auth'
 
 // 캐싱 설정 - 10분간 캐싱 (인증서는 자주 변경되지 않음)
 export const revalidate = 600 // 10분
 
-// 더미 데이터 (실제로는 데이터베이스에서 가져옴)
-const dummyPatents: Patent[] = [
-  {
-    id: '1',
-    title: '재도전 참여패키지 참여선정기업',
-    description: '재도전 참여패키지 참여선정기업 관련 인증서입니다.',
-    imageUrl: '/assets/images/sub/img_patent01.png',
-    date: '2025-05-16',
-    category: 'certification',
-    isActive: true,
-    sortOrder: 1,
-    createdAt: new Date('2025-05-16'),
-    updatedAt: new Date('2025-05-16')
-  },
-  {
-    id: '2',
-    title: '몸캠피싱 24시 해결 코드24',
-    description: '몸캠피싱 24시 해결 서비스 관련 특허입니다.',
-    imageUrl: '/assets/images/sub/img_patent02.png',
-    date: '2025-05-16',
-    category: 'patent',
-    isActive: true,
-    sortOrder: 2,
-    createdAt: new Date('2025-05-16'),
-    updatedAt: new Date('2025-05-16')
-  },
-  {
-    id: '3',
-    title: 'AI 기반 법률 상담 시스템 특허',
-    description: 'AI 기반 법률 상담 시스템 관련 특허입니다.',
-    imageUrl: '/assets/images/sub/img_patent01.png',
-    date: '2025-04-20',
-    category: 'patent',
-    isActive: true,
-    sortOrder: 3,
-    createdAt: new Date('2025-04-20'),
-    updatedAt: new Date('2025-04-20')
-  },
-  {
-    id: '4',
-    title: '디지털 포렌식 분석 도구 인증',
-    description: '디지털 포렌식 분석 도구 관련 인증서입니다.',
-    imageUrl: '/assets/images/sub/img_patent02.png',
-    date: '2025-04-15',
-    category: 'certification',
-    isActive: true,
-    sortOrder: 4,
-    createdAt: new Date('2025-04-15'),
-    updatedAt: new Date('2025-04-15')
-  },
-  {
-    id: '5',
-    title: '블록체인 기반 증거 보전 시스템',
-    description: '블록체인 기반 증거 보전 시스템 특허입니다.',
-    imageUrl: '/assets/images/sub/img_patent01.png',
-    date: '2025-03-30',
-    category: 'patent',
-    isActive: true,
-    sortOrder: 5,
-    createdAt: new Date('2025-03-30'),
-    updatedAt: new Date('2025-03-30')
-  },
-  {
-    id: '6',
-    title: '사이버 범죄 예방 솔루션 인증',
-    description: '사이버 범죄 예방 솔루션 관련 인증서입니다.',
-    imageUrl: '/assets/images/sub/img_patent02.png',
-    date: '2025-03-25',
-    category: 'certification',
-    isActive: true,
-    sortOrder: 6,
-    createdAt: new Date('2025-03-25'),
-    updatedAt: new Date('2025-03-25')
+// Post를 Patent 타입으로 변환하는 헬퍼 함수
+interface PostWithCategory {
+  id: string
+  title: string
+  content: string | null
+  excerpt: string | null
+  imageUrl: string | null
+  publishedAt: Date | null
+  createdAt: Date
+  updatedAt: Date
+  isPublished: boolean
+  category?: { key: string } | null
+}
+
+// 한국시간 날짜 포맷팅 함수
+const formatToKST = (date: Date): string => {
+  const kstOffset = 9 * 60 // KST는 UTC+9
+  const utc = date.getTime() + (date.getTimezoneOffset() * 60000)
+  const kstTime = new Date(utc + (kstOffset * 60000))
+  return kstTime.toISOString().split('T')[0]
+}
+
+const postToPatent = (post: PostWithCategory): Patent => {
+  return {
+    id: post.id,
+    title: post.title,
+    description: post.excerpt || post.content?.substring(0, 200) || '',
+    imageUrl: post.imageUrl || '/assets/images/sub/img_patent01.png',
+    date: post.publishedAt ? formatToKST(post.publishedAt) : formatToKST(post.createdAt),
+    category: post.category?.key || 'certification',
+    isActive: post.isPublished || true,
+    sortOrder: 0,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt
   }
-]
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -87,53 +50,67 @@ export async function GET(request: NextRequest) {
     // 쿼리 파라미터 추출
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '10')
-    const category = searchParams.get('category')
     const sort = searchParams.get('sort') || 'createdAt'
-    const order = searchParams.get('order') || 'desc'
+    const order = (searchParams.get('order') || 'desc') as 'asc' | 'desc'
     const q = searchParams.get('q')
 
-    let filteredPatents = [...dummyPatents]
+    // patent 게시판 조회
+    const patentBoard = await prisma.board.findUnique({
+      where: { key: 'patent' }
+    })
 
-    // 카테고리 필터링
-    if (category) {
-      filteredPatents = filteredPatents.filter(patent => patent.category === category)
-    }
-
-    // 검색어 필터링
-    if (q) {
-      const searchQuery = q.toLowerCase()
-      filteredPatents = filteredPatents.filter(patent => 
-        patent.title.toLowerCase().includes(searchQuery) ||
-        patent.description?.toLowerCase().includes(searchQuery)
+    if (!patentBoard) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Patent board not found' 
+        },
+        { status: 404 }
       )
     }
 
-    // 정렬
-    filteredPatents.sort((a, b) => {
-      let aValue: any = a[sort as keyof Patent]
-      let bValue: any = b[sort as keyof Patent]
+    // 기본 where 조건
+    const whereCondition = {
+      boardId: patentBoard.id,
+      isPublished: true,
+      status: 'PUBLISHED' as const,
+      ...(q && {
+        OR: [
+          { title: { contains: q, mode: 'insensitive' as const } },
+          { content: { contains: q, mode: 'insensitive' as const } },
+          { excerpt: { contains: q, mode: 'insensitive' as const } }
+        ]
+      })
+    }
 
-      if (sort === 'date') {
-        aValue = new Date(aValue)
-        bValue = new Date(bValue)
-      }
+    // 정렬 조건 설정
+    const orderBy = 
+      sort === 'date' ? { publishedAt: order } :
+      sort === 'title' ? { title: order } :
+      { createdAt: order }
 
-      if (order === 'desc') {
-        return bValue > aValue ? 1 : -1
-      } else {
-        return aValue > bValue ? 1 : -1
+    // 전체 개수 조회
+    const total = await prisma.post.count({ where: whereCondition })
+
+    // 게시글 조회
+    const posts = await prisma.post.findMany({
+      where: whereCondition,
+      orderBy,
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        category: true
       }
     })
 
-    // 페이지네이션
-    const total = filteredPatents.length
+    // Post를 Patent 타입으로 변환
+    const patents = posts.map(postToPatent)
+
     const totalPages = Math.ceil(total / limit)
-    const offset = (page - 1) * limit
-    const paginatedPatents = filteredPatents.slice(offset, offset + limit)
 
     const response: PatentListResponse = {
       success: true,
-      data: paginatedPatents,
+      data: patents,
       pagination: {
         page,
         limit,
@@ -159,25 +136,78 @@ export async function GET(request: NextRequest) {
 // POST - 새 인증특허 생성 (관리자 전용)
 export async function POST(request: NextRequest) {
   try {
+    // 관리자 인증 확인
+    const authHeader = request.headers.get('authorization')
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return NextResponse.json(
+        { message: '인증이 필요합니다.' },
+        { status: 401 }
+      )
+    }
+
+    const token = authHeader.substring(7)
+    const decoded = verifyAdminToken(token)
+    if (!decoded) {
+      return NextResponse.json(
+        { message: '유효하지 않은 토큰입니다.' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     
-    // 여기서는 간단한 응답만 반환 (실제로는 데이터베이스에 저장)
-    const newPatent: Patent = {
-      id: Date.now().toString(),
-      title: body.title,
-      description: body.description,
-      imageUrl: body.imageUrl || '/assets/images/sub/img_patent01.png',
-      date: body.date || new Date().toISOString().split('T')[0],
-      category: body.category || 'certification',
-      isActive: body.isActive ?? true,
-      sortOrder: body.sortOrder || 0,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    // 입력값 검증
+    if (!body.title?.trim()) {
+      return NextResponse.json(
+        { message: '제목을 입력해주세요.' },
+        { status: 400 }
+      )
     }
+
+    if (!body.content?.trim()) {
+      return NextResponse.json(
+        { message: '내용을 입력해주세요.' },
+        { status: 400 }
+      )
+    }
+
+    // patent 게시판 조회
+    const patentBoard = await prisma.board.findUnique({
+      where: { key: 'patent' }
+    })
+
+    if (!patentBoard) {
+      return NextResponse.json(
+        { message: 'Patent board not found' },
+        { status: 404 }
+      )
+    }
+
+    // 게시글 생성
+    const newPost = await prisma.post.create({
+      data: {
+        title: body.title.trim(),
+        content: body.content.trim(),
+        excerpt: body.description?.trim() || body.content.substring(0, 200),
+        authorName: 'KODE24',
+        boardId: patentBoard.id,
+        status: 'PUBLISHED' as const,
+        isPublished: true,
+        publishedAt: new Date(),
+        imageUrl: body.imageUrl || '/assets/images/sub/img_patent01.png',
+        linkUrl: body.linkUrl
+      },
+      include: {
+        category: true
+      }
+    })
+
+    // Post를 Patent 형태로 변환하여 반환
+    const patent = postToPatent(newPost)
 
     return NextResponse.json({
       success: true,
-      data: newPatent,
+      data: patent,
       message: 'Patent created successfully'
     })
   } catch (error) {

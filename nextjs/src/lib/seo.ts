@@ -80,7 +80,7 @@ export function generateSEO({
     verification: {
       google: process.env.GOOGLE_VERIFICATION_ID,
       other: {
-        'naver-site-verification': process.env.NAVER_VERIFICATION_ID || '',
+        'naver-site-verification': process.env.NAVER_VERIFICATION_ID || '9a45d6fd048dbd26a8d3f3feded9727878fc4ae0',
       },
     },
   }

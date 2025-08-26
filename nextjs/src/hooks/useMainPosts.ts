@@ -10,6 +10,7 @@ interface MainPost {
   excerpt: string
   authorName: string
   isSecret: boolean
+  status: string  // 답변완료 상태 표시용
   date: string
   time: string
 }
@@ -68,7 +69,15 @@ export function useReviewPosts(limit: number = 6) {
 }
 
 // 메인 페이지 전체 게시글 데이터 훅 (병렬 처리)
-export function useMainPosts() {
+export function useMainPosts(): {
+  realTimePosts: MainPost[]
+  reviewPosts: MainPost[]
+  isLoading: boolean
+  isError: boolean
+  error: Error | null
+  realTimeQuery: any
+  reviewQuery: any
+} {
   const results = useQueries({
     queries: [
       {
@@ -95,8 +104,8 @@ export function useMainPosts() {
   const [realTimeQuery, reviewQuery] = results
 
   return {
-    realTimePosts: realTimeQuery.data?.posts || [],
-    reviewPosts: reviewQuery.data?.posts || [],
+    realTimePosts: (realTimeQuery.data?.posts || []) as MainPost[],
+    reviewPosts: (reviewQuery.data?.posts || []) as MainPost[],
     isLoading: realTimeQuery.isLoading || reviewQuery.isLoading,
     isError: realTimeQuery.isError || reviewQuery.isError,
     error: realTimeQuery.error || reviewQuery.error,

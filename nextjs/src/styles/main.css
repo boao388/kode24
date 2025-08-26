@@ -1474,3 +1474,15 @@ a, button {
           margin-top: 25px; } }
 
 /*# sourceMappingURL=main.css.map */
+.reply-success {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 16px;
+  font-weight: 800;
+  margin-left: 10px;
+  line-height: 34px;
+  color: #7757FF;
+  padding: 0 15px;
+  border-radius: 30px;
+  border: 2px solid #7757FF; }
