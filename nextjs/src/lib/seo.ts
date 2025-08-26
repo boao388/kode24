@@ -34,7 +34,7 @@ export function generateSEO({
   const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE
   const finalDescription = description || DEFAULT_DESCRIPTION
   const finalKeywords = keywords || DEFAULT_KEYWORDS
-  const finalImage = ogImage || '/assets/images/og-image.jpg'
+  const finalImage = ogImage || '/assets/images/main/img_logo_big.png'
 
   const metadata: Metadata = {
     title: fullTitle,
