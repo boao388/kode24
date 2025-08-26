@@ -41,22 +41,22 @@ $(document).on('mouseenter', '.respond > ol > li', function(){
 });
 
 // qna
-$(document).on('click', '.btn-qna', function(){
-    var $btn = $(this);
-    var $answer = $btn.closest('li').find('.answer');
+// $(document).on('click', '.btn-qna', function(){
+//     var $btn = $(this);
+//     var $answer = $btn.closest('li').find('.answer');
 
-    if ($answer.is(':visible')) {
-        // 열려 있으면 닫기
-        $answer.slideUp();
-        $btn.parent().removeClass('active');
-    } else {
-        // 다른 답변 모두 닫기
-        $('.answer').slideUp();
-        $('.btn-qna').parent().removeClass('active');
-        $answer.slideDown();
-        $btn.parent().addClass('active');
-    }
-});
+//     if ($answer.is(':visible')) {
+//         // 열려 있으면 닫기
+//         $answer.slideUp();
+//         $btn.parent().removeClass('active');
+//     } else {
+//         // 다른 답변 모두 닫기
+//         $('.answer').slideUp();
+//         $('.btn-qna').parent().removeClass('active');
+//         $answer.slideDown();
+//         $btn.parent().addClass('active');
+//     }
+// });
 
 function typed() {
     TypeHangul.type('.typed', {
