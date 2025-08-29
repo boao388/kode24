@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // output: "export", // API 라우트 사용을 위해 제거
   experimental: {
     // CSS 최적화 비활성화 (빌드 에러 방지)
     optimizeCss: false,

@@ -14,12 +14,7 @@
         $('body').toggleClass('nav-opened');
     });
     
-    // popup 관련
-    $(document).on('click', '.btn-inquiry', function(e){
-        $('.modal-backdrop').addClass('active');
-        $($(this).attr('href')).addClass('active');
-        e.preventDefault();
-    });
+    // popup 관련 - btn-inquiry 이벤트 제거 (카카오톡 직접 연결로 변경됨)
     $(document).on('click', '.btn-modal-close', function(e){
         $('.modal-backdrop').removeClass('active');
         $('.modal-pop').removeClass('active');

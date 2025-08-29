@@ -252,10 +252,19 @@ export async function PUT(
       }
     })
 
-    return NextResponse.json({
+    // 응답에 캐시 무효화 헤더 추가
+    const response = NextResponse.json({
       post: updatedPost,
       message: '게시글이 성공적으로 수정되었습니다.'
     })
+    
+    // 강력한 캐시 무효화 헤더 설정
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    response.headers.set('X-Cache-Invalidate', 'posts,main')
+    
+    return response
 
   } catch (error) {
     console.error('관리자 게시글 수정 에러:', error)

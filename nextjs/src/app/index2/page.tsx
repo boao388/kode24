@@ -24,10 +24,10 @@ export default function Index2Page() {
                 </p>
                 <span>전문가와 함께하는 안전한 디지털 환경</span>
                 <div className="btn-area">
-                  <Link href="#" className="btn-inquiry hoverable">
+                  <a href="https://pf.kakao.com/_xexaDxgG/chat" target="_blank" className="btn-kakao-inquiry hoverable">
                     <span>긴급 해결 문의</span>
                     <img src="/assets/images/ico_inquiry_arrow.png" alt="" />
-                  </Link>
+                  </a>
                 </div>
               </div>
             </div>

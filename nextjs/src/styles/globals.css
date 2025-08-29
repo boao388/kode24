@@ -703,6 +703,95 @@ a, button {
         .btn-inquiry:hover span {
           color: #7757FF; } }
 
+/* btn-kakao-inquiry - 카카오톡 연결용 버튼 */
+.btn-kakao-inquiry {
+  position: relative;
+  width: 280px;
+  display: block;
+  text-align: right;
+  padding: 8px;
+  padding-right: 68px;
+  border-radius: 100px;
+  -webkit-transition-property: all;
+  transition-property: all;
+  -webkit-transition-duration: 0.15s;
+  transition-duration: 0.15s;
+  -webkit-transition-timing-function: linear;
+  transition-timing-function: linear;
+  -webkit-transition-delay: 0s;
+  transition-delay: 0s;
+  background-color: #fff; }
+  .btn-kakao-inquiry:before {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 65px;
+    height: 65px;
+    content: '';
+    display: block;
+    border-radius: 100px;
+    -webkit-transition-property: all;
+    transition-property: all;
+    -webkit-transition-duration: 0.15s;
+    transition-duration: 0.15s;
+    -webkit-transition-timing-function: linear;
+    transition-timing-function: linear;
+    -webkit-transition-delay: 0s;
+    transition-delay: 0s;
+    background-color: #7757FF;
+    background-image: url(/assets/images/ico_inquiry_arrow.png);
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-size: auto auto; }
+  .btn-kakao-inquiry span {
+    position: relative;
+    z-index: 1;
+    display: inline-block;
+    vertical-align: top;
+    line-height: 65px;
+    color: #7757FF;
+    font-weight: bold;
+    -webkit-transition-property: all;
+    transition-property: all;
+    -webkit-transition-duration: 0.15s;
+    transition-duration: 0.15s;
+    -webkit-transition-timing-function: linear;
+    transition-timing-function: linear;
+    -webkit-transition-delay: 0s;
+    transition-delay: 0s;
+    font-size: 22px; }
+  .btn-kakao-inquiry:hover {
+    text-align: left;
+    padding-left: 30px; }
+    .btn-kakao-inquiry:hover:before {
+      width: 261px;
+      background-position: calc(100% - 20px) 50%; }
+    .btn-kakao-inquiry:hover span {
+      color: #fff; }
+  @media (max-width: 1024px) {
+    .btn-kakao-inquiry {
+      width: 190px;
+      padding: 5px;
+      padding-right: 45px; }
+      .btn-kakao-inquiry:before {
+        top: 5px;
+        left: 5px;
+        width: 45px;
+        height: 45px; }
+      .btn-kakao-inquiry span {
+        font-size: 15px;
+        line-height: 45px; }
+      .btn-kakao-inquiry:hover {
+        text-align: right; }
+        .btn-kakao-inquiry:hover:before {
+          top: 5px;
+          left: 5px;
+          width: 45px;
+          height: 45px;
+          background-position: 50% 50%; }
+        .btn-kakao-inquiry:hover span {
+          color: #7757FF; } }
+
 /* modal */
 .modal .modal-backdrop {
   display: none;
