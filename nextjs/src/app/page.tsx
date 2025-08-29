@@ -339,7 +339,7 @@ export default function HomePage() {
                 </p>
                 <span>We solve digital sex crimes.</span>
                 <div className="btn-area">
-                  <a href="https://pf.kakao.com/_xexaDxgG/chat" className="btn-inquiry hoverable">
+                  <a href="https://pf.kakao.com/_xexaDxgG/chat" target="_blank" className="btn-kakao-inquiry hoverable">
                     <span>문의하기</span>
                   </a>
                 </div>
@@ -748,7 +748,7 @@ export default function HomePage() {
               <h3>당신의 <b>디지털 명예,<br /> KODE24</b>가 지켜드립니다.</h3>
               <small>We protect your digital dignity.</small>
               <div className="btn-area">
-                <a href="https://pf.kakao.com/_xexaDxgG/chat" className="btn-inquiry hoverable">
+                <a href="https://pf.kakao.com/_xexaDxgG/chat" target="_blank" className="btn-kakao-inquiry hoverable">
                   <span>문의하기</span>
                 </a>
               </div>
@@ -1032,58 +1032,7 @@ export default function HomePage() {
         </ul>
       </nav>
       
-      {/* modal */}
-      <div className="modal">
-        <div className="modal-backdrop"></div>
-        <div className="modal-pop" id="consult-pop">
-          <div className="consult-form">
-            <div className="form-head">
-              <h3>실시간 해결 문의</h3>
-              <p>항상 고객과 함께하는 KODE24입니다. 아래 양식을 작성해주시면 빠르게 연락드리겠습니다.</p>
-              <button type="button" className="btn-modal-close">
-                <img src="/assets/images/ico_modal_close.png" alt="" />
-              </button>
-            </div>
-            <div className="form-body">
-              <div className="board-write">
-                <ul>
-                  <li>
-                    <div className="form-group">
-                      <input type="text" className="form-control" placeholder="성함을 입력해주세요" />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="form-group">
-                      <input type="text" className="form-control" placeholder="비밀번호를 입력해주세요" />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="form-group">
-                      <input type="text" className="form-control" placeholder="이메일을 입력해주세요" />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="form-group">
-                      <input type="text" className="form-control" placeholder="휴대폰 번호를 입력해주세요" />
-                    </div>
-                  </li>
-                  <li>
-                    <div className="form-group">
-                      <textarea className="form-control" placeholder="상담내용을 입력해주세요"></textarea>
-                    </div>
-                  </li>
-                </ul>
-                <div className="agree">
-                  <label className="hoverable"><input type="checkbox" /> 개인정보수집이용에 동의합니다.</label>
-                </div>
-              </div>
-              <div className="btn-area">
-                <button type="button" className="btn btn-submit hoverable">문의하기</button>
-              </div>
-            </div>
-          </div>
-        </div>
-    </div>
+
       
       <Footer />
       

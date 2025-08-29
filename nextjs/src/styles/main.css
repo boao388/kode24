@@ -283,6 +283,8 @@ a, button {
             margin-top: 25px; }
             .jumbotron .container .v-align .summary .btn-area .btn-inquiry {
               margin: 0 auto; }
+            .jumbotron .container .v-align .summary .btn-area .btn-kakao-inquiry {
+              margin: 0 auto; }
         .jumbotron .container .v-align .backdrop {
           top: auto;
           bottom: -22%;

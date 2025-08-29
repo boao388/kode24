@@ -69,6 +69,11 @@ export async function GET(request: NextRequest) {
       const hasAdminAnswer = post.comments.length > 0
       const dynamicStatus = hasAdminAnswer ? 'ANSWERED' : post.status
 
+      // 개발 환경에서 날짜 디버깅 로그
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`Post ${post.id}: publishedAt=${post.publishedAt}, createdAt=${post.createdAt}, using=${publishedDate}`)
+      }
+
       return {
         id: post.id,
         title: post.title,
