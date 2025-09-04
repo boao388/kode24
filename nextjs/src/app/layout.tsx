@@ -40,7 +40,12 @@ export default function RootLayout({
       <head>
         {/* Swiper CSS */}
         <meta name="naver-site-verification" content="9a45d6fd048dbd26a8d3f3feded9727878fc4ae0" />
+	<meta name="naver-site-verification" content="96ad28ac10c79f5ca2f8dc59840e9975514ceacb" />
 
+	<script type="text/javascript">
+	var protect_id = 'h665';
+	</script>
+	<script async type="text/javascript" src="//script.boraware.kr/protect_script_v2.js"></script>
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
