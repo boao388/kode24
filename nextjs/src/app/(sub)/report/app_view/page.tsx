@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback, Suspense } from 'react'
+import React, { useState, useCallback, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from '@/components/common/Header'
 import Footer from '@/components/common/Footer'
 import PasswordConfirm from '@/components/common/PasswordConfirm'
 import Link from 'next/link'
+import { usePostDetailPage } from '@/hooks/usePostDetail'
+import UpdateNotificationBanner from '@/components/ui/UpdateNotificationBanner'
 
 interface Comment {
   id: string
@@ -36,9 +38,18 @@ function AppViewContent() {
   const searchParams = useSearchParams()
   const postId = searchParams.get('id')
   
-  const [post, setPost] = useState<Post | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  // TanStack Query로 최적화된 데이터 관리
+  const { 
+    post, 
+    isLoading, 
+    error, 
+    submitComment, 
+    verifyPassword,
+    isSubmittingComment,
+    isVerifyingPassword,
+    refresh
+  } = usePostDetailPage(postId)
+
   const [showPasswordForm, setShowPasswordForm] = useState(false)
   const [commentData, setCommentData] = useState({
     content: '',
@@ -47,92 +58,49 @@ function AppViewContent() {
     isSecret: false
   })
 
-  const loadPost = useCallback(async () => {
-    if (!postId) {
-      setError('게시글 ID가 없습니다.')
-      setLoading(false)
-      return
-    }
+  // 게시글 로딩 완료 시 비밀번호 폼 상태 설정
+  const loading = isLoading
+  const showPasswordRequired = post?.requiresPassword && showPasswordForm
 
-    try {
-      const response = await fetch(`/api/posts/${postId}`)
-      const data = await response.json()
-
-      if (response.ok) {
-        setPost(data)
-        setShowPasswordForm(data.requiresPassword || false)
-      } else {
-        setError(data.message || '게시글을 불러올 수 없습니다.')
-      }
-    } catch (error) {
-      console.error('게시글 로딩 실패:', error)
-      setError('게시글을 불러오는 중 오류가 발생했습니다.')
-    } finally {
-      setLoading(false)
-    }
-  }, [postId])
-
-  const handlePasswordSuccess = (postData: Post) => {
-    setPost(postData)
+  // 비밀번호 확인 성공 핸들러
+  const handlePasswordSuccess = useCallback((postData: Post) => {
     setShowPasswordForm(false)
-  }
+    // TanStack Query가 자동으로 캐시를 업데이트하므로 별도 상태 관리 불필요
+  }, [])
 
-  const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // 댓글 입력 핸들러
+  const handleCommentChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target
     setCommentData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }))
-  }
+  }, [])
 
-  // 댓글 새로고침 함수 (댓글 등록 후 사용)
-  const refreshComments = useCallback(async () => {
-    if (!postId) return
-
-    try {
-      const response = await fetch(`/api/posts/${postId}/comments`)
-      if (response.ok) {
-        const result = await response.json()
-        const comments = result.data || result // API 응답 구조 호환성
-        setPost(prev => prev ? { ...prev, comments } : null)
-      }
-    } catch (error) {
-      console.error('댓글 새로고침 실패:', error)
-    }
-  }, [postId])
-
-  const handleCommentSubmit = async () => {
+  // 댓글 등록 핸들러 (TanStack Query mutation 사용)
+  const handleCommentSubmit = useCallback(async () => {
     if (!commentData.content.trim() || !commentData.authorName.trim() || !commentData.password.trim()) {
       alert('모든 필드를 입력해주세요.')
       return
     }
 
     try {
-      const response = await fetch(`/api/posts/${postId}/comments`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(commentData),
-      })
-
-      if (response.ok) {
-        alert('댓글이 등록되었습니다.')
-        setCommentData({ content: '', authorName: '', password: '', isSecret: false })
-        refreshComments() // 댓글만 새로고침 (효율성 개선)
-      } else {
-        const errorData = await response.json()
-        alert(errorData.message || '댓글 등록에 실패했습니다.')
-      }
+      await submitComment(commentData)
+      alert('댓글이 등록되었습니다.')
+      setCommentData({ content: '', authorName: '', password: '', isSecret: false })
+      // TanStack Query mutation이 자동으로 캐시 업데이트
     } catch (error) {
-      console.error('댓글 등록 실패:', error)
-      alert('댓글 등록 중 오류가 발생했습니다.')
+      const errorMessage = error instanceof Error ? error.message : '댓글 등록 중 오류가 발생했습니다.'
+      alert(errorMessage)
     }
-  }
+  }, [commentData, submitComment])
 
-  useEffect(() => {
-    loadPost()
-  }, [loadPost])
+  // 게시글이 로드된 후 비밀번호 폼 상태 설정
+  React.useEffect(() => {
+    if (post?.requiresPassword) {
+      setShowPasswordForm(true)
+    }
+  }, [post?.requiresPassword])
 
   // 로딩 상태
   if (loading) {
@@ -177,6 +145,22 @@ function AppViewContent() {
               </div>
               <div className="error-message" style={{ textAlign: 'center', padding: '50px 0', color: '#ff4444' }}>
                 {error}
+                <br />
+                <button 
+                  onClick={refresh}
+                  className="hoverable"
+                  style={{ 
+                    marginTop: '10px', 
+                    padding: '8px 16px', 
+                    backgroundColor: '#007bff',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  다시 시도
+                </button>
               </div>
             </div>
           </article>
@@ -229,7 +213,15 @@ function AppViewContent() {
             </div>
             
             <div className="article-content">
-              {showPasswordForm && post.isSecret ? (
+              {/* 실시간 업데이트 알림 (댓글 등 변경사항) */}
+              {post?.board?.key && (
+                <UpdateNotificationBanner 
+                  boardKey={post.board.key}
+                  className="detail-notification"
+                />
+              )}
+              
+              {showPasswordRequired ? (
                 <PasswordConfirm
                   postId={post.id}
                   authorName={post.authorName}
@@ -318,8 +310,13 @@ function AppViewContent() {
                           type="button" 
                           className="btn-submit hoverable"
                           onClick={handleCommentSubmit}
+                          disabled={isSubmittingComment}
+                          style={{
+                            opacity: isSubmittingComment ? 0.6 : 1,
+                            cursor: isSubmittingComment ? 'not-allowed' : 'pointer'
+                          }}
                         >
-                          등록
+                          {isSubmittingComment ? '등록 중...' : '등록'}
                         </button>
                       </div>
                       
