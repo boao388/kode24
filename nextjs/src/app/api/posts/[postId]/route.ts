@@ -77,14 +77,19 @@ export async function GET(
         })
 
         if (fullPost) {
-          // 조회수 증가
-          await prisma.post.update({
+          // 조회수 증가를 비동기로 처리 (응답 속도 개선)
+          prisma.post.update({
             where: { id: postId },
             data: { viewCount: { increment: 1 } }
+          }).catch(error => {
+            console.error('조회수 업데이트 실패:', error)
           })
         }
 
-        return NextResponse.json(fullPost)
+        return NextResponse.json({
+          ...fullPost,
+          viewCount: fullPost ? fullPost.viewCount + 1 : 0
+        })
       } else {
         // 일반 사용자인 경우 기본 정보만 반환
         const postInfo = await prisma.post.findUnique({
@@ -148,15 +153,20 @@ export async function GET(
       )
     }
 
-    // 조회수 증가
-    await prisma.post.update({
+    // 조회수 증가를 비동기로 처리 (응답 속도 개선)
+    const currentViewCount = fullPost.viewCount
+    
+    // 비동기로 조회수 증가 (await 하지 않음)
+    prisma.post.update({
       where: { id: postId },
       data: { viewCount: { increment: 1 } }
+    }).catch(error => {
+      console.error('조회수 업데이트 실패:', error)
     })
 
     return NextResponse.json({
       ...fullPost,
-      viewCount: fullPost.viewCount + 1
+      viewCount: currentViewCount + 1 // 클라이언트에는 즉시 증가된 값 반환
     })
 
   } catch (error) {

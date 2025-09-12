@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import Link from 'next/link'
+import { usePostList, usePostListWithSearch } from '@/hooks/usePostList'
 
 interface Post {
   id: string
@@ -56,59 +57,51 @@ export default function PostList({
   boardType = 'default',
   searchTerm: externalSearchTerm
 }: PostListProps) {
-  const [posts, setPosts] = useState<Post[]>([])
-  const [pagination, setPagination] = useState<Pagination | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [searchInput, setSearchInput] = useState('')
 
-  const loadPosts = useCallback(async (page: number = 1, search: string = '') => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams({
-        page: page.toString(),
-        limit: pageSize.toString()
-      })
-      
-      if (search.trim()) {
-        params.append('search', search.trim())
-      }
+  // TanStack Query를 사용한 데이터 페칭
+  const { data, isLoading, error, refetch } = usePostList({
+    boardKey,
+    page: currentPage,
+    limit: pageSize,
+    search: externalSearchTerm || searchTerm
+  })
 
-      const response = await fetch(`/api/boards/${boardKey}/posts?${params}`)
-      const data = await response.json()
+  // 검색 및 페이지 변경 헬퍼 함수들
+  const { searchPosts, changePage, prefetchNextPage } = usePostListWithSearch(
+    boardKey,
+    currentPage,
+    pageSize
+  )
 
-      if (response.ok) {
-        setPosts(data.posts)
-        setPagination(data.pagination)
-      } else {
-        setError(data.message || '게시글을 불러올 수 없습니다.')
-      }
-    } catch (error) {
-      console.error('게시글 로딩 실패:', error)
-      setError('게시글을 불러오는 중 오류가 발생했습니다.')
-    } finally {
-      setLoading(false)
-    }
-  }, [boardKey, pageSize])
+  const posts = data?.posts || []
+  const pagination = data?.pagination || null
+  const loading = isLoading
+  const errorMessage = error ? '게시글을 불러오는 중 오류가 발생했습니다.' : ''
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault()
     setSearchTerm(searchInput)
     setCurrentPage(1)
-    loadPosts(1, searchInput)
-  }
+    // TanStack Query가 자동으로 다시 페칭합니다
+  }, [searchInput])
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page)
-    loadPosts(page, searchTerm)
-  }
+    
+    // 다음 페이지 프리페치 (성능 최적화)
+    if (pagination?.hasNextPage) {
+      prefetchNextPage(page, externalSearchTerm || searchTerm)
+    }
+  }, [pagination?.hasNextPage, prefetchNextPage, externalSearchTerm, searchTerm])
 
-  useEffect(() => {
-    const effectiveSearchTerm = externalSearchTerm || searchTerm
-    loadPosts(currentPage, effectiveSearchTerm)
-  }, [loadPosts, currentPage, searchTerm, externalSearchTerm])
+  // 페이지 변경 시 스크롤을 맨 위로 이동 (UX 개선)
+  const handlePageChangeWithScroll = useCallback((page: number) => {
+    handlePageChange(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [handlePageChange])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -143,7 +136,7 @@ export default function PostList({
               className={`hoverable ${!hasPrevPage ? 'disabled' : ''}`}
               onClick={(e) => {
                 e.preventDefault()
-                if (hasPrevPage) handlePageChange(currentPage - 1)
+                if (hasPrevPage) handlePageChangeWithScroll(currentPage - 1)
               }}
             ></a>
           </li>
@@ -155,7 +148,7 @@ export default function PostList({
                 className="hoverable"
                 onClick={(e) => {
                   e.preventDefault()
-                  handlePageChange(page)
+                  handlePageChangeWithScroll(page)
                 }}
               >
                 {page}
@@ -169,7 +162,7 @@ export default function PostList({
               className={`hoverable ${!hasNextPage ? 'disabled' : ''}`}
               onClick={(e) => {
                 e.preventDefault()
-                if (hasNextPage) handlePageChange(currentPage + 1)
+                if (hasNextPage) handlePageChangeWithScroll(currentPage + 1)
               }}
             ></a>
           </li>
@@ -245,6 +238,60 @@ export default function PostList({
 
   return (
     <div className="article-content">
+      {/* 검색 폼 */}
+      {showSearch && (
+        <div className="board-search" style={{ marginBottom: '20px', textAlign: 'center' }}>
+          <form onSubmit={handleSearch} style={{ display: 'inline-flex', gap: '10px', alignItems: 'center' }}>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="검색어를 입력하세요"
+              style={{
+                padding: '8px 12px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                minWidth: '200px'
+              }}
+            />
+            <button
+              type="submit"
+              className="hoverable"
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#007bff',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              검색
+            </button>
+            {(searchTerm || externalSearchTerm) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchInput('')
+                  setSearchTerm('')
+                  setCurrentPage(1)
+                }}
+                style={{
+                  padding: '8px 12px',
+                  backgroundColor: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                초기화
+              </button>
+            )}
+          </form>
+        </div>
+      )}
+      
       <div className="board-list">
         {/* 테이블 헤더 (게시판 타입에 따라 다름) */}
         <div className="thead">
@@ -261,9 +308,9 @@ export default function PostList({
             <div className="loading-message" style={{ textAlign: 'center', padding: '50px 0' }}>
               게시글을 불러오는 중입니다...
             </div>
-          ) : error ? (
+          ) : errorMessage ? (
             <div className="error-message" style={{ textAlign: 'center', padding: '50px 0', color: '#ff4444' }}>
-              {error}
+              {errorMessage}
             </div>
           ) : posts.length === 0 ? (
             <div className="no-posts" style={{ textAlign: 'center', padding: '50px 0' }}>

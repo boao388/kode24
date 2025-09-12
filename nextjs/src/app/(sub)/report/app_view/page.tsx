@@ -85,7 +85,8 @@ function AppViewContent() {
     }))
   }
 
-  const loadComments = useCallback(async () => {
+  // 댓글 새로고침 함수 (댓글 등록 후 사용)
+  const refreshComments = useCallback(async () => {
     if (!postId) return
 
     try {
@@ -96,7 +97,7 @@ function AppViewContent() {
         setPost(prev => prev ? { ...prev, comments } : null)
       }
     } catch (error) {
-      console.error('댓글 로딩 실패:', error)
+      console.error('댓글 새로고침 실패:', error)
     }
   }, [postId])
 
@@ -118,7 +119,7 @@ function AppViewContent() {
       if (response.ok) {
         alert('댓글이 등록되었습니다.')
         setCommentData({ content: '', authorName: '', password: '', isSecret: false })
-        loadComments() // 댓글만 새로고침 (효율성 개선)
+        refreshComments() // 댓글만 새로고침 (효율성 개선)
       } else {
         const errorData = await response.json()
         alert(errorData.message || '댓글 등록에 실패했습니다.')
