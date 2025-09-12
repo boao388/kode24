@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
     optimizeCss: false,
     // 런타임 최적화
     optimizePackageImports: ['@tanstack/react-query'],
+    serverActions: {
+      bodySizeLimit : '50mb',
+    }
   },
   // 서버 외부 패키지 설정 (Next.js 15+ 방식)
   serverExternalPackages: ['@prisma/client'],

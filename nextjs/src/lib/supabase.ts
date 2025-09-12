@@ -111,9 +111,9 @@ export async function uploadImage(file: File, bucket: string = 'sns-images'): Pr
     }
 
     // 파일 크기 체크 (5MB 제한)
-    const maxSize = 5 * 1024 * 1024 // 5MB
+    const maxSize = 25 * 1024 * 1024 // 25MB
     if (file.size > maxSize) {
-      return { url: null, error: '파일 크기가 5MB를 초과합니다.' }
+      return { url: null, error: '파일 크기가 25MB를 초과합니다.' }
     }
 
     // 버켓 존재 확인 및 생성
