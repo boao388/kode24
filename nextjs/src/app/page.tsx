@@ -340,7 +340,7 @@ export default function HomePage() {
                 <span>We solve digital sex crimes.</span>
                 <div className="btn-area">
                   <a href="https://pf.kakao.com/_xexaDxgG/chat" target="_blank" className="btn-kakao-inquiry hoverable">
-                    <span>문의하기</span>
+                    <span>바로해결하기</span>
                   </a>
                 </div>
               </div>
@@ -375,16 +375,16 @@ export default function HomePage() {
               <div className="tab-wrap">
                 <div className="tab-menu">
                   <ul>
-                    <li className="active">
+                    <li>
                       <a href="#ch-1" className="hoverable">AWARDS</a>
                     </li>
-                    <li>
+                    <li className="active">
                       <a href="#ch-2" className="hoverable">CERTIFICATES</a>
                     </li>
                   </ul>
                 </div>
                 <div className="tab-content">
-                  <div className="tab-pane active" id="ch-1">
+                  <div className="tab-pane" id="ch-1">
                     <div className="swiper-wrap">
                       <div className="frame">
                         <div className="frame-swiper frame-swiper1 swiper">
@@ -426,7 +426,7 @@ export default function HomePage() {
                       </div>
                     </div>
                   </div>
-                  <div className="tab-pane" id="ch-2">
+                  <div className="tab-pane active" id="ch-2">
                     <div className="swiper-wrap">
                       <div className="frame">
                         <div className="frame-swiper frame-swiper2 swiper">
@@ -1005,7 +1005,7 @@ export default function HomePage() {
               <span>2<br />4<br />h</span>
               <img src="/assets/images/ico_quick01.svg" alt="" />
               <i className="icon"></i>
-              <p>전화하기</p>
+              <p>바로해결하기</p>
             </a>
           </li>
           <li>

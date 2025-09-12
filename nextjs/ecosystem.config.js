@@ -16,7 +16,7 @@ module.exports = {
                 NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cHFqaGZocGx0cGtpd2doeHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NjkyNzQsImV4cCI6MjA3MTE0NTI3NH0.Rn4JOUjX-7D8u_QyeDwNG1E_9dhEkNV42AMq9hDxp54',
                 SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cHFqaGZocGx0cGtpd2doeHlpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTU2OTI3NCwiZXhwIjoyMDcxMTQ1Mjc0fQ.WkVp0jhcrOh6SxDylpz9Vbouv5m52oaOyDKXZnida_0',
                 NEXT_PUBLIC_BASE_URL: '',
-                NAVER_VERIFICATION_ID: '9a45d6fd048dbd26a8d3f3feded9727878fc4ae0'
+                NAVER_VERIFICATION_ID: '96ad28ac10c79f5ca2f8dc59840e9975514ceacb'
             },
             watch: false,
             autorestart: true,
@@ -46,7 +46,7 @@ module.exports = {
                 NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cHFqaGZocGx0cGtpd2doeHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NjkyNzQsImV4cCI6MjA3MTE0NTI3NH0.Rn4JOUjX-7D8u_QyeDwNG1E_9dhEkNV42AMq9hDxp54',
                 SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cHFqaGZocGx0cGtpd2doeHlpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTU2OTI3NCwiZXhwIjoyMDcxMTQ1Mjc0fQ.WkVp0jhcrOh6SxDylpz9Vbouv5m52oaOyDKXZnida_0',
                 NEXT_PUBLIC_BASE_URL: '',
-                NAVER_VERIFICATION_ID: '9a45d6fd048dbd26a8d3f3feded9727878fc4ae0'
+                NAVER_VERIFICATION_ID: '96ad28ac10c79f5ca2f8dc59840e9975514ceacb'
             },
             env_production: {
                 NODE_ENV: 'production',
@@ -58,7 +58,7 @@ module.exports = {
                 NEXT_PUBLIC_SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cHFqaGZocGx0cGtpd2doeHlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU1NjkyNzQsImV4cCI6MjA3MTE0NTI3NH0.Rn4JOUjX-7D8u_QyeDwNG1E_9dhEkNV42AMq9hDxp54',
                 SUPABASE_SERVICE_ROLE_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV4cHFqaGZocGx0cGtpd2doeHlpIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTU2OTI3NCwiZXhwIjoyMDcxMTQ1Mjc0fQ.WkVp0jhcrOh6SxDylpz9Vbouv5m52oaOyDKXZnida_0',
                 NEXT_PUBLIC_BASE_URL: '',
-                NAVER_VERIFICATION_ID: '9a45d6fd048dbd26a8d3f3feded9727878fc4ae0'
+                NAVER_VERIFICATION_ID: '96ad28ac10c79f5ca2f8dc59840e9975514ceacb'
 
             },
             watch: false,

@@ -25,8 +25,8 @@ const notoSansKr = Noto_Sans_KR({
 
 // 루트 레이아웃에 완벽한 SEO 메타데이터 적용
 export const metadata: Metadata = generateSEO({
-  title: '몸캠피싱 피해 예방 및 대처 방법',
-  description: '몸캠피싱 피해 예방 및 전문적인 법적 대응 서비스를 제공하는 KODE24입니다. 전문가의 조언과 신속한 대응으로 피해를 최소화하세요.',
+  title: '몸캠피싱해결, 몸캠피싱 피해 예방 및 대처 방법',
+  description: '몸캠피싱해결, 몸캠피싱 피해 예방 및 전문적인 법적 대응 서비스를 제공하는 KODE24입니다. 전문가의 조언과 신속한 대응으로 피해를 최소화하세요.',
   keywords: '몸캠피싱, 피해예방, 법적대응, 사이버범죄, 디지털성범죄, 온라인피해, 보안솔루션'
 });
 
@@ -39,13 +39,22 @@ export default function RootLayout({
     <html lang="ko">
       <head>
         {/* Swiper CSS */}
-        <meta name="naver-site-verification" content="9a45d6fd048dbd26a8d3f3feded9727878fc4ae0" />
 	<meta name="naver-site-verification" content="96ad28ac10c79f5ca2f8dc59840e9975514ceacb" />
 
 	<script type="text/javascript">
 	var protect_id = 'h665';
 	</script>
 	<script async type="text/javascript" src="//script.boraware.kr/protect_script_v2.js"></script>
+	<script type="text/javascript" src="//wcs.pstatic.net/wcslog.js"></script>
+	<Script id="wcs-script" strategy="afterInteractive">
+          {`
+	    if(!wcs_add) var wcs_add = {};
+            wcs_add["wa"] = "155435620a621f";
+            if (window.wcs) {
+              wcs_do();
+            }
+          `}
+        </Script>
         <link
           rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
@@ -60,7 +69,7 @@ export default function RootLayout({
       </head>
       <body className={`${notoSansKr.variable} main-page`}>
         <QueryProvider>
-          <CustomCursor />
+          {/* <CustomCursor /> */}
           <WebVitals debug={process.env.NODE_ENV === 'development'} />
           {children}
         </QueryProvider>

@@ -614,7 +614,7 @@ export default function SolutionInitialPage() {
               <span>2<br />4<br />h</span>
               <img src="/assets/images/ico_quick01.svg" alt="" />
               <i className="icon"></i>
-              <p>전화하기</p>
+              <p>바로해결하기</p>
             </a>
           </li>
           <li>

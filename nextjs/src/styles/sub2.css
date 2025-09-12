@@ -21,7 +21,7 @@ table {
   border-spacing: 0; }
 
 html, body {
-  cursor: none;
+  /*cursor: none;*/
   position: relative;
   overflow-x: hidden;
   background-color: #000; }
