@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback } from 'react'
+import { fetchWithCacheInvalidation } from '@/lib/cacheInvalidation'
 
 // 게시글 타입 정의
 interface Post {
@@ -41,8 +42,8 @@ interface PostListParams {
 }
 
 // API 호출 함수
-const fetchPostList = async (params: PostListParams & { _t?: number }): Promise<PostListResponse> => {
-  const { boardKey, page = 1, limit = 10, search, category, _t } = params
+const fetchPostList = async (params: PostListParams): Promise<PostListResponse> => {
+  const { boardKey, page = 1, limit = 10, search, category } = params
   
   const queryParams = new URLSearchParams({
     page: page.toString(),
@@ -56,18 +57,10 @@ const fetchPostList = async (params: PostListParams & { _t?: number }): Promise<
   if (category?.trim()) {
     queryParams.append('category', category.trim())
   }
-  
-  // 캐시 우회를 위한 timestamp 추가
-  if (_t) {
-    queryParams.append('_t', _t.toString())
-  }
 
-  const response = await fetch(`/api/boards/${boardKey}/posts?${queryParams}`, {
-    cache: 'no-store', // 브라우저 캐시 비활성화
-    headers: {
-      'Cache-Control': 'no-cache, no-store, must-revalidate',
-      'Pragma': 'no-cache'
-    }
+  const response = await fetchWithCacheInvalidation(`/api/boards/${boardKey}/posts?${queryParams}`, {
+    cache: 'default', // 기본 브라우저 캐시 활성화
+    // 서버에서 Cache-Control 헤더로 캐시 정책 관리
   })
   
   if (!response.ok) {
@@ -97,26 +90,19 @@ export function usePostList(params: PostListParams) {
   return useQuery({
     queryKey,
     queryFn: () => fetchPostList(params),
-    staleTime: 0, // 캐시하지 않음 - 항상 fresh
-    gcTime: 1000, // 1초 후 캐시 삭제
-    refetchOnWindowFocus: true, // 포커스시 다시 불러오기
-    refetchOnMount: true, // 마운트시 다시 불러오기
+    staleTime: 5 * 60 * 1000, // 5분간 fresh 상태 유지
+    gcTime: 10 * 60 * 1000, // 10분 후 캐시 삭제  
+    refetchOnWindowFocus: true, // 포커스시 최신 데이터 확인 (실시간 동기화)
+    refetchOnMount: true, // 마운트시 최신 데이터 확인
+    refetchInterval: 10 * 60 * 1000, // 10분마다 백그라운드 업데이트
+    refetchIntervalInBackground: true, // 백그라운드에서도 업데이트
     retry: (failureCount, error: any) => {
       // 4xx 에러는 재시도하지 않음
       if (error?.status >= 400 && error?.status < 500) {
         return false
       }
       return failureCount < 3
-    },
-    // Vercel 캐시 우회를 위한 timestamp 추가
-    queryFn: () => {
-      const timestamp = Date.now()
-      const paramsWithCache = {
-        ...params,
-        _t: timestamp // 캐시 우회용 파라미터
-      }
-      return fetchPostList(paramsWithCache)
-    },
+    }
   })
 }
 
@@ -192,27 +178,98 @@ export function usePostListWithSearch(
   }
 }
 
-// 캐시 무효화 헬퍼
+// 캐시 무효화 헬퍼 (강화된 버전)
 export function useInvalidatePostList() {
   const queryClient = useQueryClient()
 
   const invalidateBoard = useCallback(
-    (boardKey: string) => {
-      return queryClient.invalidateQueries({
+    async (boardKey: string) => {
+      // 해당 게시판의 모든 페이지 캐시 무효화
+      await queryClient.invalidateQueries({
         queryKey: ['posts', 'list', boardKey],
       })
+      
+      // 즉시 최신 데이터 리페치
+      await queryClient.refetchQueries({
+        queryKey: ['posts', 'list', boardKey],
+        type: 'active'
+      })
+      
+      console.log(`캐시 무효화 완료: ${boardKey}`)
     },
     [queryClient]
   )
 
-  const invalidateAll = useCallback(() => {
-    return queryClient.invalidateQueries({
+  const invalidateAll = useCallback(async () => {
+    await queryClient.invalidateQueries({
       queryKey: ['posts', 'list'],
     })
+    
+    // 모든 활성 쿼리 즉시 리페치
+    await queryClient.refetchQueries({
+      queryKey: ['posts', 'list'],
+      type: 'active'
+    })
+    
+    console.log('전체 포스트 캐시 무효화 완료')
   }, [queryClient])
+
+  // 특정 게시글 추가 후 해당 보드 캐시 무효화 및 업데이트
+  const invalidateAfterPostCreate = useCallback(
+    async (boardKey: string, newPost?: any) => {
+      // 1. 캐시 무효화
+      await invalidateBoard(boardKey)
+      
+      // 2. 첫 번째 페이지 데이터 미리 업데이트 (옵티미스틱 업데이트)
+      if (newPost) {
+        const firstPageKey = ['posts', 'list', boardKey, { page: 1, limit: 10, search: '', category: '' }]
+        queryClient.setQueryData(firstPageKey, (oldData: any) => {
+          if (!oldData) return oldData
+          
+          return {
+            ...oldData,
+            posts: [newPost, ...oldData.posts.slice(0, 9)], // 새글을 맨 앞에 추가
+            pagination: {
+              ...oldData.pagination,
+              totalCount: oldData.pagination.totalCount + 1
+            }
+          }
+        })
+      }
+    },
+    [invalidateBoard, queryClient]
+  )
+
+  // 게시글 삭제 후 캐시 업데이트
+  const invalidateAfterPostDelete = useCallback(
+    async (boardKey: string, deletedPostId: string) => {
+      await invalidateBoard(boardKey)
+      
+      // 모든 페이지에서 삭제된 게시글 제거
+      queryClient.setQueriesData(
+        { queryKey: ['posts', 'list', boardKey] },
+        (oldData: any) => {
+          if (!oldData) return oldData
+          
+          return {
+            ...oldData,
+            posts: oldData.posts.filter((post: any) => post.id !== deletedPostId),
+            pagination: {
+              ...oldData.pagination,
+              totalCount: Math.max(0, oldData.pagination.totalCount - 1)
+            }
+          }
+        }
+      )
+    },
+    [invalidateBoard, queryClient]
+  )
 
   return {
     invalidateBoard,
     invalidateAll,
+    invalidateAfterPostCreate,
+    invalidateAfterPostDelete,
   }
 }
+

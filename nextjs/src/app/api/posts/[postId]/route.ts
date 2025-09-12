@@ -283,7 +283,7 @@ export async function PUT(
       }
     })
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: '게시글이 수정되었습니다.',
       post: {
         id: updatedPost.id,
@@ -291,6 +291,16 @@ export async function PUT(
         boardKey: updatedPost.board.key
       }
     })
+
+    // 캐시 무효화 헤더 추가
+    response.headers.set('X-Revalidated', `posts-${updatedPost.board.key}`)
+    response.headers.set('X-Invalidation-Type', 'POST_UPDATED')
+    response.headers.set('X-Invalidation-Data', JSON.stringify({
+      id: updatedPost.id,
+      boardKey: updatedPost.board.key
+    }))
+    
+    return response
 
   } catch (error) {
     console.error('게시글 수정 실패:', error)
@@ -309,9 +319,12 @@ export async function DELETE(
   try {
     const { postId } = await params
 
-    // 게시글 존재 확인
+    // 게시글 존재 확인 (board 정보 포함)
     const existingPost = await prisma.post.findUnique({
-      where: { id: postId }
+      where: { id: postId },
+      include: {
+        board: { select: { key: true, title: true } }
+      }
     })
 
     if (!existingPost) {
@@ -331,9 +344,19 @@ export async function DELETE(
       where: { id: postId }
     })
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: '게시글이 삭제되었습니다.'
     })
+
+    // 캐시 무효화 헤더 추가
+    response.headers.set('X-Revalidated', `posts-${existingPost.board.key}`)
+    response.headers.set('X-Invalidation-Type', 'POST_DELETED')
+    response.headers.set('X-Invalidation-Data', JSON.stringify({
+      id: postId,
+      boardKey: existingPost.board.key
+    }))
+    
+    return response
 
   } catch (error) {
     console.error('게시글 삭제 실패:', error)

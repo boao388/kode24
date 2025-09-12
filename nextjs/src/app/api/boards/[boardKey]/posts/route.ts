@@ -3,9 +3,9 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
 import { revalidateTag } from 'next/cache'
 
-// 동적 캐싱 설정 - 태그 기반 캐싱
-export const dynamic = 'force-dynamic' // 강제 동적 렌더링
-export const revalidate = 0 // 캐시 비활성화
+// 캐싱 최적화 설정
+export const revalidate = 300 // 5분 캐시
+export const fetchCache = 'default-cache' // 기본 캐시 활성화
 
 // 게시판별 게시글 목록 조회
 export async function GET(
@@ -61,20 +61,39 @@ export async function GET(
       where: whereConditions
     })
 
-    // 게시글 목록 조회 (관리자 답변 포함)
+    // 게시글 목록 조회 (필수 정보만 조회하여 성능 최적화)
     const posts = await prisma.post.findMany({
       where: whereConditions,
-      include: {
+      select: {
+        id: true,
+        title: true,
+        content: false, // 목록에서는 content 제외
+        excerpt: true,
+        authorName: true,
+        viewCount: true,
+        likeCount: true,
+        isSecret: true,
+        isFeatured: true,
+        status: true,
+        linkUrl: true,
+        imageUrl: true,
+        publishedAt: true,
+        createdAt: true,
         board: { select: { title: true, key: true } },
         category: { select: { name: true, key: true } },
-        _count: { select: { comments: true } },
+        _count: { 
+          select: { 
+            comments: true // 전체 댓글 수
+          } 
+        },
+        // 관리자 답변 존재 여부만 확인 (성능 최적화)
         comments: {
           where: {
             isAdmin: true,
             status: 'PUBLISHED'
           },
           select: { id: true },
-          take: 1 // 관리자 답변 존재 여부만 확인
+          take: 1 // 존재 여부만 확인
         }
       },
       orderBy: [
@@ -94,7 +113,6 @@ export async function GET(
       return {
         id: post.id,
         title: post.title,
-        content: post.content,
         excerpt: post.excerpt,
         authorName: post.authorName,
         viewCount: post.viewCount,
@@ -130,10 +148,12 @@ export async function GET(
       pagination
     })
 
-    // 캐시 태그 설정
-    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
-    response.headers.set('Pragma', 'no-cache')
-    response.headers.set('Expires', '0')
+    // 캐시 최적화 헤더 설정 (5분 캐시, 1분간 stale-while-revalidate)
+    response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=300, stale-while-revalidate=60')
+    response.headers.set('CDN-Cache-Control', 'public, max-age=300')
+    
+    // 캐시 태그 설정 (선택적 무효화를 위함)
+    response.headers.set('Cache-Tag', `posts-${boardKey}`)
 
     return response
 
@@ -199,7 +219,7 @@ export async function POST(
     }
 
     // 비밀번호 해시화 (비밀글인 경우)
-    let hashedPassword = null
+    let hashedPassword: string | null = null
     if (isSecret && password) {
       hashedPassword = await bcrypt.hash(password, 10)
     }
@@ -241,9 +261,22 @@ export async function POST(
       }
     }, { status: 201 })
 
-    // 응답 헤더에 캐시 무효화 정보 추가
+    // 응답 헤더에 캐시 무효화 정보 추가 (강화된 버전)
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
     response.headers.set('X-Revalidated', `posts-${board.key}`)
+    response.headers.set('X-Invalidation-Type', 'POST_CREATED')
+    response.headers.set('X-Invalidation-Data', JSON.stringify({
+      id: newPost.id,
+      title: newPost.title,
+      authorName: newPost.authorName,
+      createdAt: newPost.createdAt.toISOString(),
+      viewCount: 0,
+      likeCount: 0,
+      isSecret: newPost.isSecret,
+      isFeatured: newPost.isFeatured,
+      status: newPost.status,
+      boardKey: board.key
+    }))
     
     return response
 

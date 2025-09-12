@@ -2,7 +2,8 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { useState, ReactNode } from 'react'
+import { useState, ReactNode, useEffect } from 'react'
+import { CacheInvalidationManager, useCacheInvalidationListener } from '@/lib/cacheInvalidation'
 
 interface QueryProviderProps {
   children: ReactNode
@@ -49,8 +50,17 @@ export default function QueryProvider({ children }: QueryProviderProps) {
     },
   }))
 
+  // 전역 캐시 무효화 매니저에 QueryClient 등록
+  useEffect(() => {
+    const manager = CacheInvalidationManager.getInstance()
+    manager.setQueryClient(queryClient)
+    
+    console.log('🚀 전역 캐시 무효화 매니저 초기화 완료')
+  }, [queryClient])
+
   return (
     <QueryClientProvider client={queryClient}>
+      <CacheInvalidationListener />
       {children}
       {/* 개발 환경에서만 DevTools 표시 */}
       {process.env.NODE_ENV === 'development' && (
@@ -61,4 +71,10 @@ export default function QueryProvider({ children }: QueryProviderProps) {
       )}
     </QueryClientProvider>
   )
+}
+
+// 전역 캐시 무효화 이벤트 리스너 컴포넌트
+function CacheInvalidationListener() {
+  useCacheInvalidationListener()
+  return null
 }

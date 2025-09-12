@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { usePostList, usePostListWithSearch } from '@/hooks/usePostList'
+import UpdateNotificationBanner from '@/components/ui/UpdateNotificationBanner'
 
 interface Post {
   id: string
@@ -238,6 +239,9 @@ export default function PostList({
 
   return (
     <div className="article-content">
+      {/* 실시간 업데이트 알림 */}
+      <UpdateNotificationBanner boardKey={boardKey} />
+      
       {/* 검색 폼 */}
       {showSearch && (
         <div className="board-search" style={{ marginBottom: '20px', textAlign: 'center' }}>
